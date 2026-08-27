@@ -70,7 +70,7 @@ Make sure you have the following installed on your machine:
 
 ## 🐳 Docker Setup (Recommended)
 
-Run the entire application in isolated containers with **Docker Compose**:
+Run the Django application and Redis service in isolated containers with **Docker Compose**. The Compose setup persists SQLite data and collected static files in named volumes.
 
 ### 1️⃣ Clone the Repository
 ```bash
@@ -87,13 +87,13 @@ cp .env.example .env
 
 ### 3️⃣ Build and Launch Containers
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ### 4️⃣ Check Status & Logs
 ```bash
-docker-compose ps
-docker-compose logs -f web
+docker compose ps
+docker compose logs -f web
 ```
 
 ### 5️⃣ Access the Application
@@ -103,7 +103,7 @@ Open your browser and navigate to:
 
 To stop the Docker containers:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ---

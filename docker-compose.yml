@@ -1,0 +1,43 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: linkify-media:latest
+    env_file:
+      - .env
+    environment:
+      SQLITE_DB_PATH: /app/data/db.sqlite3
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "${DJANGO_PORT:-8000}:8000"
+    volumes:
+      - sqlite_data:/app/data
+      - staticfiles:/app/staticfiles
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  sqlite_data:
+  staticfiles:
+  redis_data:

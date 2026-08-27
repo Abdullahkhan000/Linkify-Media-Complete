@@ -15,6 +15,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-development-only")
 DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if host.strip()]
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()]
 
 
 # Application definition
@@ -49,7 +50,6 @@ AUTHENTICATION_BACKENDS = [
 # allauth config
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # for now off, later 'mandatory'
-ACCOUNT_EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
@@ -57,7 +57,7 @@ ACCOUNT_ADAPTER = 'api.adapters.CustomAccountAdapter'
 
 # Resend Email Config
 RESEND_API_KEY = os.getenv('RESEND_API_KEY')
-DEFAULT_FROM_EMAIL = 'support@linkifymedia.com' 
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'support@linkifymedia.com')
 
 # Fallback during dev if RESEND_API_KEY is missing
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -111,7 +111,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": os.getenv("SQLITE_DB_PATH", str(BASE_DIR / "db.sqlite3")),
     }
 }
 
@@ -151,6 +151,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY')
