@@ -252,7 +252,7 @@ Retrieve total request counts and endpoint breakdown.
 
 ## 🔐 Authentication and Staging OAuth
 
-The Docker entrypoint runs migrations and then executes `python manage.py configure_social_apps`. When `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` are present, the command creates or updates the django-allauth SocialApp records and associates them with the active Site. This prevents the `allauth.socialaccount.models.SocialApp.DoesNotExist` error on the login page.
+The Docker entrypoint runs migrations and then executes `python manage.py configure_social_apps`. When `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` are present, the command creates or updates the django-allauth SocialApp records and associates them with the active Site. Provider credentials are intentionally stored in the database-backed SocialApp records only; this prevents duplicate settings-plus-database apps and the resulting `MultipleObjectsReturned` error. If credentials are missing, provider buttons are hidden instead of generating Google’s `Missing required parameter: client_id` error.
 
 Configure these values in `.env`:
 
@@ -272,7 +272,11 @@ https://staging.example.com/accounts/google/login/callback/
 https://staging.example.com/accounts/github/login/callback/
 ```
 
-For local testing, use `SITE_DOMAIN=localhost:8000` and the `http://localhost:8000` callback URLs. Never commit `.env` or provider secrets.
+For local testing, use `SITE_DOMAIN=localhost:8000` and the `http://localhost:8000` callback URLs. Never commit `.env` or provider secrets. After changing provider credentials, recreate the web container so the process receives the new environment:
+
+```bash
+docker compose up -d --build --force-recreate web
+```
 
 ---
 

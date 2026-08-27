@@ -63,19 +63,9 @@ SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
-            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
-            'key': '',
-        },
     },
     'github': {
         'SCOPE': ['user:email'],
-        'APP': {
-            'client_id': os.getenv('GITHUB_CLIENT_ID', ''),
-            'secret': os.getenv('GITHUB_CLIENT_SECRET', ''),
-            'key': '',
-        },
     },
 }
 
@@ -121,6 +111,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "api.context_processors.social_auth_providers",
             ],
         },
     },

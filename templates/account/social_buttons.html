@@ -1,13 +1,18 @@
 {% load socialaccount %}
-
+{% if social_auth_providers.google or social_auth_providers.github %}
 <div class="space-y-3">
+    {% if social_auth_providers.google %}
     <a href="{% provider_login_url 'google' %}" class="w-full inline-flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-slate-900 font-semibold hover:bg-slate-100 transition shadow-lg shadow-black/10">
         <span class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-sm font-black">G</span>
         Continue with Google
     </a>
+    {% endif %}
+    {% if social_auth_providers.github %}
     <a href="{% provider_login_url 'github' %}" class="w-full inline-flex items-center justify-center gap-3 py-3 rounded-xl border border-slate-700 bg-slate-950/60 text-white font-semibold hover:border-slate-500 transition">
         <i class="fa-brands fa-github text-lg"></i>
         Continue with GitHub
     </a>
+    {% endif %}
 </div>
 <div class="flex items-center gap-3 my-6 text-xs text-slate-500"><span class="h-px flex-1 bg-slate-800"></span><span>or use email</span><span class="h-px flex-1 bg-slate-800"></span></div>
+{% endif %}

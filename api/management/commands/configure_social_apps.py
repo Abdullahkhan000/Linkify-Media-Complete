@@ -17,13 +17,19 @@ class Command(BaseCommand):
             defaults={"domain": domain, "name": site_name},
         )
 
-        providers = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {})
         configured = 0
+        credentials = {
+            "google": (
+                os.getenv("GOOGLE_CLIENT_ID", "").strip(),
+                os.getenv("GOOGLE_CLIENT_SECRET", "").strip(),
+            ),
+            "github": (
+                os.getenv("GITHUB_CLIENT_ID", "").strip(),
+                os.getenv("GITHUB_CLIENT_SECRET", "").strip(),
+            ),
+        }
         for provider in ("google", "github"):
-            provider_config = providers.get(provider, {})
-            app_config = provider_config.get("APP", {})
-            client_id = str(app_config.get("client_id", "")).strip()
-            secret = str(app_config.get("secret", "")).strip()
+            client_id, secret = credentials[provider]
 
             if not client_id or not secret:
                 self.stdout.write(
