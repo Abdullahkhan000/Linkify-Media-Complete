@@ -22,6 +22,8 @@ from .views import (
     FAQView,
     SupportChatAPIView,
     SupportTicketCreateAPIView,
+    ResendVerificationView,
+    AccountDeleteView,
 )
 
 urlpatterns = [
@@ -50,4 +52,6 @@ urlpatterns = [
     path('api/usage/',         UsageAPIView.as_view()),
     path('api/support/chat/',  SupportChatAPIView.as_view(), name='support-chat'),
     path('api/support/ticket/', SupportTicketCreateAPIView.as_view(), name='support-ticket-create'),
+    path('account/verification/resend/', ResendVerificationView.as_view(), name='resend-verification'),
+    path('account/delete/', AccountDeleteView.as_view(), name='account-delete'),
 ]

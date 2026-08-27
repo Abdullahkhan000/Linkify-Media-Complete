@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Verify Your Email - Linkify Media{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center py-16 px-4">
+  <div class="glass w-full max-w-lg p-8 rounded-3xl border border-indigo-500/20 text-center shadow-2xl">
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/15 flex items-center justify-center"><i class="fa-solid fa-envelope-circle-check text-3xl text-indigo-300"></i></div>
+    <h1 class="text-3xl font-bold text-white mt-6">Check your inbox</h1>
+    <p class="text-slate-400 leading-relaxed mt-3">We sent a verification link to your email address. Open it to activate your Linkify Media account. If you do not see it, check your spam folder.</p>
+    <a href="{% url 'account_login' %}" class="inline-flex mt-7 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">Back to sign in</a>
+  </div>
+</div>
+{% endblock %}

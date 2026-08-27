@@ -11,7 +11,7 @@ import hmac
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import View, TemplateView
 from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.db import IntegrityError
 from asgiref.sync import sync_to_async, async_to_sync
 from datetime import date, timedelta
@@ -558,6 +558,7 @@ class UsageLogsListView(LoginRequiredMixin, TemplateView):
 
 from allauth.account.views import PasswordChangeView as AllauthPasswordChangeView
 from django.urls import reverse_lazy
+from allauth.account.models import EmailAddress
 from django.contrib import messages
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -567,6 +568,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         context['profile'] = profile
+        context['email_address'] = self.request.user.emailaddress_set.filter(email=self.request.user.email).first()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -580,6 +582,39 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         
         messages.success(request, "Profile updated successfully!")
         return redirect('profile')
+
+class ResendVerificationView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if request.user.emailaddress_set.filter(verified=True).exists():
+            messages.info(request, "Your email address is already verified.")
+        else:
+            email_address, _ = EmailAddress.objects.get_or_create(
+                user=request.user,
+                email=request.user.email,
+                defaults={"primary": True, "verified": False},
+            )
+            email_address.send_confirmation(request, signup=False)
+            messages.success(request, "A new verification email has been sent.")
+        return redirect("profile")
+
+
+class AccountDeleteView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        confirmation_email = request.POST.get("confirm_email", "").strip().lower()
+        password = request.POST.get("password", "")
+
+        if confirmation_email != user.email.lower():
+            messages.error(request, "Enter your current email address to confirm account deletion.")
+            return redirect("profile")
+        if user.has_usable_password() and not user.check_password(password):
+            messages.error(request, "The password is incorrect. Your account was not deleted.")
+            return redirect("profile")
+
+        logout(request)
+        user.delete()
+        return redirect("landing-page")
+
 
 class CustomPasswordChangeView(AllauthPasswordChangeView):
     template_name = "account/password_change.html"

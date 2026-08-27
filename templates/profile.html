@@ -78,6 +78,25 @@
                         <p class="text-[10px] text-gray-500 ml-1 italic">Email cannot be changed.</p>
                     </div>
 
+                    <div class="rounded-xl border {% if email_address and email_address.verified %}border-green-500/30 bg-green-500/10{% else %}border-amber-500/30 bg-amber-500/10{% endif %} p-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-semibold {% if email_address and email_address.verified %}text-green-400{% else %}text-amber-400{% endif %}">
+                                    {% if email_address and email_address.verified %}Email verified{% else %}Email verification required{% endif %}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    {% if email_address and email_address.verified %}Your account email is verified and ready for secure account recovery.{% else %}Verify your email to enable trusted password recovery and account notifications.{% endif %}
+                                </p>
+                            </div>
+                            {% if not email_address or not email_address.verified %}
+                                <form method="POST" action="{% url 'resend-verification' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="shrink-0 px-3 py-2 rounded-lg bg-amber-500/15 text-amber-300 text-xs font-semibold hover:bg-amber-500/25 transition">Resend email</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
                     <div class="pt-4">
                         <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20">
                             Save Changes
@@ -90,9 +109,12 @@
                 <h3 class="text-xl font-semibold mb-2 text-red-400">Danger Zone</h3>
                 <p class="text-gray-400 text-sm mb-6">Once you delete your account, there is no going back. Please be certain.</p>
                 
-                <button class="px-6 py-2 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-xl text-sm transition-all">
-                    Delete Account
-                </button>
+                <form method="POST" action="{% url 'account-delete' %}" class="space-y-4 max-w-lg">
+                    {% csrf_token %}
+                    <input type="email" name="confirm_email" required placeholder="Type your account email to confirm" class="w-full p-3 bg-white/5 border border-red-500/20 rounded-xl text-sm text-white placeholder-gray-600 focus:border-red-500 outline-none">
+                    {% if user.has_usable_password %}<input type="password" name="password" required placeholder="Enter your password" class="w-full p-3 bg-white/5 border border-red-500/20 rounded-xl text-sm text-white placeholder-gray-600 focus:border-red-500 outline-none">{% endif %}
+                    <button type="submit" class="px-6 py-2 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-xl text-sm transition-all">Delete Account Permanently</button>
+                </form>
             </div>
         </div>
 

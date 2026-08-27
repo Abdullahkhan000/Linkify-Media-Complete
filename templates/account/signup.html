@@ -12,6 +12,8 @@
             Create Account ✨
         </h2>
 
+        {% include "account/social_buttons.html" %}
+
         <form method="POST" class="space-y-5">
             {% csrf_token %}
 

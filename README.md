@@ -250,6 +250,32 @@ Retrieve total request counts and endpoint breakdown.
 
 ---
 
+## 🔐 Authentication and Staging OAuth
+
+The Docker entrypoint runs migrations and then executes `python manage.py configure_social_apps`. When `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` are present, the command creates or updates the django-allauth SocialApp records and associates them with the active Site. This prevents the `allauth.socialaccount.models.SocialApp.DoesNotExist` error on the login page.
+
+Configure these values in `.env`:
+
+```ini
+SITE_DOMAIN=staging.example.com
+SITE_NAME=Linkify Media Staging
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+```
+
+The OAuth callback URLs must exactly match the environment domain:
+
+```text
+https://staging.example.com/accounts/google/login/callback/
+https://staging.example.com/accounts/github/login/callback/
+```
+
+For local testing, use `SITE_DOMAIN=localhost:8000` and the `http://localhost:8000` callback URLs. Never commit `.env` or provider secrets.
+
+---
+
 ## 🤖 AI Support Assistant
 
 The public `/support/` page includes a premium support assistant with persistent conversations, Linkify product knowledge, API troubleshooting guidance, browser-session protection, and one-click escalation to the Django `SupportTicket` workflow. The assistant works safely without an AI key by returning a deterministic support fallback; adding an OpenAI-compatible key activates AI responses.
