@@ -59,6 +59,58 @@ def save_user_profile(sender, instance, **kwargs):
         Profile.objects.get_or_create(user=instance)
     instance.profile.save()
 
+class SupportConversation(models.Model):
+    STATUS_CHOICES = [
+        ("open", "Open"),
+        ("escalated", "Escalated"),
+        ("resolved", "Resolved"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="support_conversations",
+    )
+    session_id = models.UUIDField(default=uuid.uuid4, db_index=True)
+    title = models.CharField(max_length=180, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="open")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return self.title or f"Support conversation {self.pk}"
+
+
+class SupportMessage(models.Model):
+    ROLE_CHOICES = [
+        ("user", "User"),
+        ("assistant", "Assistant"),
+        ("system", "System"),
+    ]
+
+    conversation = models.ForeignKey(
+        SupportConversation,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    content = models.TextField(max_length=12000)
+    source = models.CharField(max_length=20, default="human")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.role} message in {self.conversation_id}"
+
+
 class SupportTicket(models.Model):
     STATUS_CHOICES = [
         ("open", "Open"),
@@ -70,6 +122,13 @@ class SupportTicket(models.Model):
         ("urgent", "Urgent"),
     ]
 
+    conversation = models.ForeignKey(
+        SupportConversation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tickets",
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

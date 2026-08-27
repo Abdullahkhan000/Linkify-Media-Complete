@@ -23,6 +23,8 @@ class APIKeyMiddleware:
             '/api/docs/',
             '/api/redoc',
             '/api/redoc/',
+            '/api/support/chat/',
+            '/api/support/ticket/',
         }
         if request.path in public_api_paths:
             return self.get_response(request)

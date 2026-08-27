@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import APIKey, Profile, UsageLog, SupportTicket
+from .models import APIKey, Profile, UsageLog, SupportTicket, SupportConversation, SupportMessage
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -18,6 +18,22 @@ class APIKeyAdmin(admin.ModelAdmin):
 class UsageLogAdmin(admin.ModelAdmin):
     list_display = ['api_key', 'endpoint', 'date']
     list_filter = ['date', 'endpoint']
+
+@admin.register(SupportConversation)
+class SupportConversationAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title', 'user', 'status', 'updated_at']
+    list_filter = ['status', 'updated_at']
+    search_fields = ['title', 'user__username', 'user__email', 'messages__content']
+    readonly_fields = ['id', 'session_id', 'created_at', 'updated_at']
+
+
+@admin.register(SupportMessage)
+class SupportMessageAdmin(admin.ModelAdmin):
+    list_display = ['conversation', 'role', 'source', 'created_at']
+    list_filter = ['role', 'source', 'created_at']
+    search_fields = ['content']
+    readonly_fields = ['created_at']
+
 
 @admin.register(SupportTicket)
 class SupportTicketAdmin(admin.ModelAdmin):

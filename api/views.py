@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import APIKey, UsageLog, Profile
+from .models import APIKey, UsageLog, Profile, SupportConversation, SupportMessage, SupportTicket
 from .serializers import APIKeySerializer
 from .core import fetch_media_links, filter_fields
 import asyncio
@@ -17,13 +17,14 @@ from asgiref.sync import sync_to_async, async_to_sync
 from datetime import date, timedelta
 from django.db.models import Count
 import json
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 import requests
 
 from .forms import QuickSignUpForm
+from .support_bot import generate_reply
 
 # ─────────────────────────────────────────
 # API Key CRUD Views
@@ -308,6 +309,158 @@ class LemonSqueezyWebhookView(View):
 
         return HttpResponse(status=200)
 
+class SupportChatAPIView(APIView):
+    permission_classes = []
+
+    def _get_accessible_conversation(self, request, conversation_id):
+        try:
+            conversation = SupportConversation.objects.get(pk=conversation_id)
+        except (SupportConversation.DoesNotExist, ValueError):
+            return None, Response({"error": "Conversation not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user if request.user.is_authenticated else None
+        if conversation.user_id not in {None, user.id if user else None}:
+            return None, Response({"error": "Conversation access denied."}, status=status.HTTP_403_FORBIDDEN)
+        if conversation.user_id is None and request.session.get("support_conversation_id") != str(conversation.pk):
+            return None, Response({"error": "Conversation access denied."}, status=status.HTTP_403_FORBIDDEN)
+        return conversation, None
+
+    def get(self, request):
+        conversation_id = request.query_params.get("conversation_id")
+        if not conversation_id:
+            return Response({"messages": []}, status=status.HTTP_200_OK)
+        conversation, error = self._get_accessible_conversation(request, conversation_id)
+        if error:
+            return error
+        return Response(
+            {
+                "conversation_id": str(conversation.pk),
+                "status": conversation.status,
+                "messages": [
+                    {"role": item.role, "content": item.content, "source": item.source}
+                    for item in conversation.messages.order_by("created_at")
+                    if item.role in {"user", "assistant"}
+                ],
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+        message = str(request.data.get("message", "")).strip()
+        if not message or len(message) > 4000:
+            return Response(
+                {"error": "message is required and must be 1–4000 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        conversation_id = request.data.get("conversation_id")
+        conversation = None
+        if conversation_id:
+            conversation, error = self._get_accessible_conversation(request, conversation_id)
+            if error:
+                return error
+
+        user = request.user if request.user.is_authenticated else None
+        if conversation is None:
+            conversation = SupportConversation.objects.create(
+                user=user,
+                title=message[:180],
+            )
+
+        request.session["support_conversation_id"] = str(conversation.pk)
+        SupportMessage.objects.create(
+            conversation=conversation,
+            role="user",
+            content=message,
+            source="human",
+        )
+        result = generate_reply(conversation)
+        SupportMessage.objects.create(
+            conversation=conversation,
+            role="assistant",
+            content=result["content"],
+            source=result["source"],
+        )
+
+        if result["should_escalate"] and conversation.status == "open":
+            conversation.status = "escalated"
+            conversation.save(update_fields=["status", "updated_at"])
+
+        return Response(
+            {
+                "conversation_id": str(conversation.pk),
+                "message": result["content"],
+                "source": result["source"],
+                "status": conversation.status,
+                "can_escalate": conversation.status != "resolved",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class SupportTicketCreateAPIView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        conversation_id = request.data.get("conversation_id")
+        if not conversation_id:
+            return Response({"error": "conversation_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            conversation = SupportConversation.objects.get(pk=conversation_id)
+        except (SupportConversation.DoesNotExist, ValueError):
+            return Response({"error": "Conversation not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user if request.user.is_authenticated else None
+        if conversation.user_id not in {None, user.id if user else None}:
+            return Response({"error": "Conversation access denied."}, status=status.HTTP_403_FORBIDDEN)
+        if conversation.user_id is None and request.session.get("support_conversation_id") != str(conversation.pk):
+            return Response({"error": "Conversation access denied."}, status=status.HTTP_403_FORBIDDEN)
+
+        name = str(request.data.get("name", "")).strip()
+        email = str(request.data.get("email", "")).strip()
+        subject = str(request.data.get("subject", "Support request")).strip() or "Support request"
+        category = str(request.data.get("category", "general")).strip() or "general"
+        extra_message = str(request.data.get("message", "")).strip()
+
+        if user:
+            name = name or user.get_full_name() or user.get_username()
+            email = email or user.email
+
+        if not name or not email or "@" not in email:
+            return Response(
+                {"error": "name and a valid email are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        transcript = "\n\n".join(
+            f"{item.role.upper()}: {item.content}" for item in conversation.messages.order_by("created_at")[:20]
+        )
+        ticket_message = extra_message or "Escalated from the Linkify support assistant."
+        ticket_message = f"{ticket_message}\n\nConversation transcript:\n{transcript}"[:5000]
+        ticket = SupportTicket.objects.create(
+            conversation=conversation,
+            user=user,
+            name=name[:120],
+            email=email[:254],
+            subject=subject[:180],
+            message=ticket_message,
+            category=category[:60],
+            priority="urgent" if conversation.status == "escalated" else "normal",
+        )
+        conversation.status = "escalated"
+        conversation.save(update_fields=["status", "updated_at"])
+
+        return Response(
+            {
+                "ticket_id": ticket.id,
+                "status": ticket.status,
+                "message": "Your request has been escalated to the support team.",
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 # ─────────────────────────────────────────
 # Page Views
 # ─────────────────────────────────────────
@@ -380,6 +533,7 @@ class TermsOfServiceView(TemplateView):
 class FAQView(TemplateView):
     template_name = "legal/faq.html"
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class SupportView(TemplateView):
     template_name = "support.html"
 

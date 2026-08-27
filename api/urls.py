@@ -20,6 +20,8 @@ from .views import (
     SupportView,
     UsageLogsListView,
     FAQView,
+    SupportChatAPIView,
+    SupportTicketCreateAPIView,
 )
 
 urlpatterns = [
@@ -46,4 +48,6 @@ urlpatterns = [
     path('api/search/',        SearchAPIView.as_view()),
     path('api/batch/',         BatchAPIView.as_view()),
     path('api/usage/',         UsageAPIView.as_view()),
+    path('api/support/chat/',  SupportChatAPIView.as_view(), name='support-chat'),
+    path('api/support/ticket/', SupportTicketCreateAPIView.as_view(), name='support-ticket-create'),
 ]

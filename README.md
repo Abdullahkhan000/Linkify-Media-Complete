@@ -250,6 +250,23 @@ Retrieve total request counts and endpoint breakdown.
 
 ---
 
+## 🤖 AI Support Assistant
+
+The public `/support/` page includes a premium support assistant with persistent conversations, Linkify product knowledge, API troubleshooting guidance, browser-session protection, and one-click escalation to the Django `SupportTicket` workflow. The assistant works safely without an AI key by returning a deterministic support fallback; adding an OpenAI-compatible key activates AI responses.
+
+Set these optional values in `.env`:
+
+```ini
+OPENAI_API_KEY=your_key_here
+OPENAI_API_BASE=https://api.openai.com/v1
+SUPPORT_BOT_MODEL=gpt-5-mini
+SUPPORT_BOT_MAX_TOKENS=700
+```
+
+The backend endpoints are `GET/POST /api/support/chat/` for conversation history and replies, and `POST /api/support/ticket/` for human escalation. Never send API keys, passwords, payment details, or webhook secrets to the assistant.
+
+---
+
 ## 📁 Project Architecture
 
 ```
