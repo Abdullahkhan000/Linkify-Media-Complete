@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About - Linkify Media API{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-80 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-20 space-y-20">
+        <!-- Hero -->
+        <section class="text-center space-y-6">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                Our Mission
+            </span>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl mx-auto">
+                Linking the World of
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-blue-400">Media Intelligence</span>
+            </h1>
+            <p class="text-slate-400 text-base md:text-xl leading-relaxed max-w-3xl mx-auto">
+                Linkify Media gives developers one reliable API for discovering movies and TV shows,
+                enriching metadata, and connecting audiences with the platforms they already use.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+                <a href="{% url 'docs-page' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition shadow-lg shadow-indigo-600/20">
+                    <i class="fa-solid fa-book-open"></i>
+                    Explore the API Docs
+                </a>
+                <a href="{% url 'support' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-700 hover:border-indigo-500 text-slate-300 hover:text-white font-semibold transition">
+                    <i class="fa-solid fa-message"></i>
+                    Talk to Our Team
+                </a>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center">
+                <div class="text-3xl font-extrabold text-white">1 API</div>
+                <p class="mt-1 text-xs uppercase tracking-wider text-slate-500">Unified interface</p>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center">
+                <div class="text-3xl font-extrabold text-cyan-400">Async</div>
+                <p class="mt-1 text-xs uppercase tracking-wider text-slate-500">Fast enrichment</p>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center">
+                <div class="text-3xl font-extrabold text-indigo-400">99.9%</div>
+                <p class="mt-1 text-xs uppercase tracking-wider text-slate-500">Built for uptime</p>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center">
+                <div class="text-3xl font-extrabold text-emerald-400">Dev-first</div>
+                <p class="mt-1 text-xs uppercase tracking-wider text-slate-500">Simple integration</p>
+            </div>
+        </section>
+
+        <!-- Story -->
+        <section class="grid lg:grid-cols-2 gap-10 items-center">
+            <div class="space-y-5">
+                <span class="text-xs font-semibold uppercase tracking-widest text-indigo-400">Why Linkify?</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white">Media data should feel connected, not fragmented.</h2>
+                <p class="text-slate-400 leading-relaxed">
+                    Building a media product often means integrating multiple services, normalising inconsistent
+                    responses, and maintaining separate links for every provider. Linkify Media brings that work
+                    behind one developer-friendly interface.
+                </p>
+                <p class="text-slate-400 leading-relaxed">
+                    From a single search request, your application can receive structured titles, release data,
+                    genres, ratings, cast information, posters, and discovery links in a consistent response.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <span class="px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-800 text-sm text-slate-300"><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Simple REST API</span>
+                    <span class="px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-800 text-sm text-slate-300"><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Structured responses</span>
+                    <span class="px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-800 text-sm text-slate-300"><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Usage visibility</span>
+                </div>
+            </div>
+            <div class="glass-panel rounded-3xl border border-slate-800 p-6 md:p-8">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-slate-500">A unified media request</p>
+                        <p class="text-sm text-white font-semibold mt-1">GET /api/search/</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-bold">200 OK</span>
+                </div>
+                <div class="space-y-3 font-mono text-xs">
+                    <div class="flex gap-3"><span class="text-slate-600">01</span><span class="text-indigo-300">{</span></div>
+                    <div class="flex gap-3 pl-4"><span class="text-slate-600">02</span><span><span class="text-cyan-300">"title"</span><span class="text-slate-400">:</span> <span class="text-amber-300">"Inception"</span><span class="text-slate-400">,</span></span></div>
+                    <div class="flex gap-3 pl-4"><span class="text-slate-600">03</span><span><span class="text-cyan-300">"release_year"</span><span class="text-slate-400">:</span> <span class="text-purple-300">2010</span><span class="text-slate-400">,</span></span></div>
+                    <div class="flex gap-3 pl-4"><span class="text-slate-600">04</span><span><span class="text-cyan-300">"genres"</span><span class="text-slate-400">:</span> <span class="text-indigo-300">[</span><span class="text-amber-300">"Action"</span><span class="text-slate-400">,</span> <span class="text-amber-300">"Sci-Fi"</span><span class="text-indigo-300">]</span><span class="text-slate-400">,</span></span></div>
+                    <div class="flex gap-3 pl-4"><span class="text-slate-600">05</span><span><span class="text-cyan-300">"tmdb_link"</span><span class="text-slate-400">:</span> <span class="text-amber-300">"https://..."</span><span class="text-slate-400">,</span></span></div>
+                    <div class="flex gap-3 pl-4"><span class="text-slate-600">06</span><span><span class="text-cyan-300">"justwatch_us"</span><span class="text-slate-400">:</span> <span class="text-amber-300">"https://..."</span></span></div>
+                    <div class="flex gap-3"><span class="text-slate-600">07</span><span class="text-indigo-300">}</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Matrix -->
+        <section class="space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-xs font-semibold uppercase tracking-widest text-indigo-400">Built for scale</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white">A reliable foundation for media products</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">Every layer is selected to keep integrations maintainable, responses fast, and teams focused on their product.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-blue-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center"><i class="fa-brands fa-python text-blue-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">Python & DRF</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Django and Django REST Framework provide a mature foundation for secure, maintainable API architecture.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-amber-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">Async Engine</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Async request handling helps gather external metadata efficiently while keeping the API experience responsive.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-emerald-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-emerald-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">Quality Filters</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Candidate ranking and similarity checks help reduce irrelevant matches and improve result quality.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-purple-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center"><i class="fa-solid fa-key text-purple-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">API Key Control</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Separate keys, usage logs, and tier-aware limits give teams visibility over their API consumption.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-cyan-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center"><i class="fa-solid fa-chart-line text-cyan-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">Usage Visibility</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Usage analytics make it easier to understand demand, monitor limits, and plan future capacity.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3 hover:border-rose-500/40 transition">
+                    <div class="w-11 h-11 rounded-xl bg-rose-500/10 flex items-center justify-center"><i class="fa-solid fa-cubes text-rose-400 text-xl"></i></div>
+                    <h3 class="text-lg font-bold text-white">Deployment Ready</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Environment-based configuration and Docker support make it easier to move from local development to deployment.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow -->
+        <section class="space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-xs font-semibold uppercase tracking-widest text-cyan-400">How it works</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white">From title to intelligence in four steps</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="relative p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <span class="text-4xl font-black text-indigo-500/30">01</span>
+                    <h3 class="text-white font-bold mt-3">Send a query</h3>
+                    <p class="text-sm text-slate-500 mt-2">Pass a title and optional media type through the REST endpoint.</p>
+                </div>
+                <div class="relative p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <span class="text-4xl font-black text-indigo-500/30">02</span>
+                    <h3 class="text-white font-bold mt-3">Find the match</h3>
+                    <p class="text-sm text-slate-500 mt-2">The engine ranks candidates and selects the most relevant result.</p>
+                </div>
+                <div class="relative p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <span class="text-4xl font-black text-indigo-500/30">03</span>
+                    <h3 class="text-white font-bold mt-3">Enrich metadata</h3>
+                    <p class="text-sm text-slate-500 mt-2">Structured details and discovery links are assembled into one response.</p>
+                </div>
+                <div class="relative p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <span class="text-4xl font-black text-indigo-500/30">04</span>
+                    <h3 class="text-white font-bold mt-3">Build your product</h3>
+                    <p class="text-sm text-slate-500 mt-2">Use the response in your app, dashboard, search experience, or workflow.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Values -->
+        <section class="grid lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-2 glass-panel rounded-3xl border border-slate-800 p-7 md:p-9">
+                <span class="text-xs font-semibold uppercase tracking-widest text-indigo-400">Our principles</span>
+                <h2 class="text-3xl font-bold text-white mt-3">Made for teams that move fast.</h2>
+                <div class="grid sm:grid-cols-2 gap-6 mt-8">
+                    <div class="flex gap-3"><i class="fa-solid fa-code text-indigo-400 mt-1"></i><div><h3 class="text-white font-semibold">Developer clarity</h3><p class="text-sm text-slate-500 mt-1">Predictable endpoints, useful errors, and documentation that respects your time.</p></div></div>
+                    <div class="flex gap-3"><i class="fa-solid fa-gauge-high text-cyan-400 mt-1"></i><div><h3 class="text-white font-semibold">Useful performance</h3><p class="text-sm text-slate-500 mt-1">Efficient enrichment without forcing your team to maintain every provider integration.</p></div></div>
+                    <div class="flex gap-3"><i class="fa-solid fa-lock text-emerald-400 mt-1"></i><div><h3 class="text-white font-semibold">Responsible access</h3><p class="text-sm text-slate-500 mt-1">Keys, plans, and usage controls help keep API access transparent and manageable.</p></div></div>
+                    <div class="flex gap-3"><i class="fa-solid fa-arrows-rotate text-purple-400 mt-1"></i><div><h3 class="text-white font-semibold">Continuous improvement</h3><p class="text-sm text-slate-500 mt-1">The platform is designed to evolve as media sources and developer needs change.</p></div></div>
+                </div>
+            </div>
+            <div class="rounded-3xl p-7 bg-gradient-to-br from-indigo-600 to-blue-700 flex flex-col justify-between min-h-[280px]">
+                <div><i class="fa-solid fa-quote-left text-white/50 text-2xl"></i><p class="text-white text-xl font-semibold leading-relaxed mt-5">Build the experience your audience wants. Let Linkify handle the media complexity.</p></div>
+                <p class="text-indigo-100 text-sm mt-8">A simpler foundation for richer media products.</p>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="text-center rounded-3xl border border-indigo-500/20 bg-indigo-500/5 px-6 py-12 md:py-16 space-y-5">
+            <span class="text-xs font-semibold uppercase tracking-widest text-indigo-400">Ready to build?</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-white">Turn your next media idea into reality.</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">Explore the documentation, create your API key, and start building with Linkify Media.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+                <a href="{% url 'docs-page' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-semibold transition">
+                    Read the Documentation <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <a href="{% url 'landing-page' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-700 hover:border-white text-slate-300 hover:text-white font-semibold transition">
+                    Get Started
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

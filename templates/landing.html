@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Linkify Media - The Ultimate Media Intelligence API{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <!-- Background Glow Blobs -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/2 -right-24 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Hero Section -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 md:pt-32 md:pb-24 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+            v2.0 Now Live with Batch Processing
+        </div>
+        
+        <h1 class="text-5xl md:text-8xl font-black text-white leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+            Unified Media Intelligence.
+            <br>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">
+                Zero Friction.
+            </span>
+        </h1>
+        
+        <p class="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-slate-400 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            Stop juggling multiple providers. Access verified links, ratings, and metadata for movies, TV shows, and anime through a single, blazing-fast API.
+        </p>
+
+        <div class="mt-12 flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
+            {% if not user.is_authenticated %}
+                <a href="#get-key" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
+                    Start Building Free
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
+                    Developer Dashboard
+                </a>
+            {% endif %}
+            <a href="#live-demo" class="px-10 py-4 rounded-2xl bg-slate-900 border border-slate-800 text-white font-extrabold hover:bg-slate-800 transition-all text-lg">
+                Try Live Demo
+            </a>
+        </div>
+    </div>
+
+    <!-- Live API Demo Section (FULL INTEGRATION) -->
+    <div id="live-demo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="glass-panel rounded-[3rem] border border-slate-800 overflow-hidden shadow-2xl relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+            
+            <div class="grid lg:grid-cols-[0.85fr_1.15fr]">
+                <!-- Control Panel -->
+                <div class="p-8 md:p-12 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-slate-800">
+                    <div class="inline-flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-4">
+                        <i class="fa-solid fa-bolt-lightning"></i> Full API Playground
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">Real-Time Testing.</h2>
+                    
+                    <!-- Mode Toggle -->
+                    <div class="flex p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-8">
+                        <button id="mode-single" onclick="setDemoMode('single')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white">Single Search</button>
+                        <button id="mode-batch" onclick="setDemoMode('batch')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white">Batch Mode</button>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Media Type Selector -->
+                        <div id="type-selector-container">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Media Type</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" onclick="setMediaType('movie')" class="media-type-btn active px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="movie">
+                                    <i class="fa-solid fa-film mb-1.5 block text-lg"></i>Movie
+                                </button>
+                                <button type="button" onclick="setMediaType('tv')" class="media-type-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="tv">
+                                    <i class="fa-solid fa-tv mb-1.5 block text-lg"></i>Series
+                                </button>
+                                <button type="button" onclick="setMediaType('anime')" class="media-type-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="anime">
+                                    <i class="fa-solid fa-spaghetti-monster-flying mb-1.5 block text-lg text-rose-400"></i>Anime
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Query Input -->
+                        <div>
+                            <label id="query-label" class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Search Query</label>
+                            <div class="relative group">
+                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors"></i>
+                                <input id="demo-query" type="text" placeholder="e.g. Inception..." 
+                                       class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-4 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all">
+                            </div>
+                            <p id="batch-hint" class="hidden mt-2 text-[10px] text-slate-500 leading-relaxed">Separate multiple titles with commas (e.g. Inception, The Boys, Naruto)</p>
+                        </div>
+
+                        <button id="demo-btn" onclick="runDemo()" class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-extrabold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 active:scale-95 transition-all">
+                            Run API Request
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Terminal Window -->
+                <div class="bg-slate-950 flex flex-col min-h-[500px]">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/30">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-rose-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-emerald-500/50"></div>
+                            <span id="endpoint-label" class="ml-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">GET /api/search/</span>
+                        </div>
+                        <div id="demo-status" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Idle</div>
+                    </div>
+                    
+                    <div class="flex-1 p-6 md:p-10 font-mono text-[13px] leading-relaxed overflow-auto custom-scrollbar relative">
+                        <!-- Loading Overlay -->
+                        <div id="demo-loader" class="hidden absolute inset-0 bg-slate-950/80 flex items-center justify-center z-10 backdrop-blur-sm">
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+                                <p class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Aggregating Intelligence...</p>
+                            </div>
+                        </div>
+
+                        <div id="demo-output" class="text-slate-400">
+                            <span class="text-slate-600">// Select a mode, enter a query, and click "Run API Request".</span>
+                            <br>
+                            <span class="text-slate-600">// Batch Mode allows querying multiple titles in one request.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight">Built for Production Scale.</h2>
+            <p class="mt-4 text-slate-400 max-w-xl mx-auto">Enterprise-grade features that help you build, scale, and monitor your media applications.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-indigo-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Multi-Source Aggregation</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Unified metadata from TMDB, IMDb, Rotten Tomatoes, and JustWatch in a single response.</p>
+            </div>
+            
+            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-blue-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-bolt text-2xl text-blue-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Asynchronous Engine</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">High-performance async core ensures sub-second responses even for complex multi-provider queries.</p>
+            </div>
+            
+            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-purple-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-code text-2xl text-purple-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Developer First DX</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Swagger documentation, clean JSON schemas, and SDK-ready endpoints for rapid integration.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Section -->
+    <div id="get-key" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-tight">Get Your Free API Key.</h2>
+            
+            {% if success %}
+                <div class="glass-panel p-8 rounded-[2.5rem] border border-emerald-500/30 bg-emerald-500/5 text-left shadow-2xl shadow-emerald-950/20">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-500/20 text-white">
+                            <i class="fa-solid fa-check-double text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Account Created!</h3>
+                            <p class="text-emerald-400/80 text-sm font-medium">Your private API key is ready for integration.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                        <div class="relative bg-slate-950 border border-slate-800 p-5 rounded-2xl font-mono text-lg text-emerald-400 flex items-center justify-between overflow-hidden">
+                            <span class="truncate mr-4">{{ new_api_key }}</span>
+                            <button onclick="navigator.clipboard.writeText('{{ new_api_key }}'); alert('Key copied!')" class="shrink-0 text-slate-500 hover:text-white transition-colors">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex flex-col sm:flex-row items-center gap-4">
+                        <a href="{% url 'dashboard' %}" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-white text-slate-950 font-bold hover:bg-slate-200 transition-all text-center">
+                            Go to Dashboard
+                        </a>
+                        <p class="text-[11px] text-slate-500 text-center sm:text-left leading-relaxed">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Save this key now. It will not be shown again for security reasons.
+                        </p>
+                    </div>
+                </div>
+            {% elif user.is_authenticated %}
+                <div class="glass-panel p-12 rounded-[3rem] border border-slate-800">
+                    <p class="text-slate-400 mb-8">You are already logged in as <span class="text-white font-bold">{{ user.email }}</span>.</p>
+                    <a href="{% url 'dashboard' %}" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
+                        Access Your Dashboard
+                    </a>
+                </div>
+            {% else %}
+                <div class="glass-panel p-2 rounded-[2rem] border border-slate-800 shadow-2xl">
+                    <form method="POST" class="flex flex-col md:flex-row gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="name" required placeholder="Full Name" 
+                               class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
+                        <div class="hidden md:block w-px h-8 bg-slate-800 self-center"></div>
+                        <input type="email" name="email" required placeholder="Email Address" 
+                               class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
+                        <button type="submit" class="px-8 py-4 rounded-[1.5rem] bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">
+                            Get Free Key
+                        </button>
+                    </form>
+                </div>
+                {% if form.errors %}
+                    <p class="mt-4 text-rose-400 text-sm font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ form.non_field_errors.0|default:form.email.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-6 text-slate-500 text-xs font-medium">
+                    <i class="fa-solid fa-bolt-lightning text-amber-500 mr-1"></i> No credit card required. Start with 100 requests/day.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); border-radius: 10px; }
+    
+    .media-type-btn.active {
+        border-color: rgba(99, 102, 241, 0.6);
+        background: rgba(99, 102, 241, 0.1);
+        color: #ffffff;
+    }
+
+    /* Animation Utilities */
+    .animate-in { animation-duration: 700ms; animation-fill-mode: both; }
+    .fade-in { --tw-enter-opacity: 0; }
+    .slide-in-from-bottom-4 { --tw-enter-translate-y: 1rem; }
+    .slide-in-from-bottom-6 { --tw-enter-translate-y: 1.5rem; }
+    .slide-in-from-bottom-8 { --tw-enter-translate-y: 2rem; }
+    .slide-in-from-bottom-10 { --tw-enter-translate-y: 2.5rem; }
+    
+    @keyframes enter {
+        from { opacity: var(--tw-enter-opacity, 1); transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0)); }
+    }
+    .animate-in { animation-name: enter; }
+
+    /* JSON Syntax Highlighting */
+    .json-key { color: #60a5fa; }
+    .json-string { color: #e2e8f0; }
+    .json-number { color: #fbbf24; }
+    .json-boolean { color: #f472b6; }
+</style>
+
+<script>
+let demoMode = 'single';
+let mediaType = 'movie';
+
+function setDemoMode(mode) {
+    demoMode = mode;
+    const singleBtn = document.getElementById('mode-single');
+    const batchBtn = document.getElementById('mode-batch');
+    const typeSelector = document.getElementById('type-selector-container');
+    const queryLabel = document.getElementById('query-label');
+    const queryInput = document.getElementById('demo-query');
+    const batchHint = document.getElementById('batch-hint');
+    const endpointLabel = document.getElementById('endpoint-label');
+
+    if (mode === 'single') {
+        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
+        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white';
+        typeSelector.classList.remove('opacity-50', 'pointer-events-none');
+        queryLabel.textContent = 'Search Query';
+        queryInput.placeholder = 'e.g. Inception...';
+        batchHint.classList.add('hidden');
+        endpointLabel.textContent = 'GET /api/search/';
+    } else {
+        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
+        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white';
+        typeSelector.classList.add('opacity-50', 'pointer-events-none');
+        queryLabel.textContent = 'Batch Titles';
+        queryInput.placeholder = 'Inception, The Boys, Naruto...';
+        batchHint.classList.remove('hidden');
+        endpointLabel.textContent = 'POST /api/batch/';
+    }
+}
+
+function setMediaType(type) {
+    mediaType = type;
+    document.querySelectorAll('.media-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+    });
+}
+
+async function runDemo() {
+    const queryInput = document.getElementById('demo-query');
+    const output = document.getElementById('demo-output');
+    const loader = document.getElementById('demo-loader');
+    const status = document.getElementById('demo-status');
+    const btn = document.getElementById('demo-btn');
+
+    const query = queryInput.value.trim();
+    if (!query) {
+        alert('Please enter at least one title.');
+        return;
+    }
+
+    // Reset UI
+    loader.classList.remove('hidden');
+    btn.disabled = true;
+    status.textContent = 'Processing...';
+    status.className = 'text-[10px] font-bold text-indigo-400 uppercase tracking-widest';
+
+    try {
+        let url, options;
+        const csrf = document.querySelector('[name="csrfmiddlewaretoken"]')?.value || '';
+
+        if (demoMode === 'single') {
+            url = `/api/search/?q=${encodeURIComponent(query)}&type=${mediaType}`;
+            options = {
+                method: 'GET',
+                headers: { 'X-API-Key': 'demo_key', 'X-Requested-With': 'XMLHttpRequest' }
+            };
+        } else {
+            // Batch Mode
+            url = '/api/batch/';
+            const titles = query.split(',').map(t => t.trim()).filter(t => t.length > 0);
+            const items = titles.map(t => ({ q: t, type: 'movie' })); // Defaulting to movie for batch demo
+            options = {
+                method: 'POST',
+                headers: { 
+                    'X-API-Key': 'demo_key', 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf
+                },
+                body: JSON.stringify({ items })
+            };
+        }
+
+        const response = await fetch(url, options);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'API Request Failed');
+        }
+
+        // Format and highlight JSON
+        const jsonStr = JSON.stringify(data, null, 2);
+        const highlighted = jsonStr
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-boolean';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+
+        output.innerHTML = `<pre>${highlighted}</pre>`;
+        status.textContent = `Success ${response.status}`;
+        status.className = 'text-[10px] font-bold text-emerald-400 uppercase tracking-widest';
+    } catch (error) {
+        output.innerHTML = `<span class="text-rose-500">// Error: ${error.message}</span>`;
+        status.textContent = 'Failed';
+        status.className = 'text-[10px] font-bold text-rose-500 uppercase tracking-widest';
+    } finally {
+        loader.classList.add('hidden');
+        btn.disabled = false;
+    }
+}
+
+// Handle Enter key
+document.getElementById('demo-query').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') runDemo();
+});
+</script>
+{% endblock %}

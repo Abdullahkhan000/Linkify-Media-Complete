@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+        <div class="glass-panel p-6 md:p-12 rounded-3xl border border-slate-800">
+            <!-- Header -->
+            <div class="border-b border-slate-800 pb-8">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div>
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                            <i class="fa-solid fa-file-signature"></i>
+                            Legal Terms
+                        </span>
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-white mt-4 tracking-tight">Terms of Service</h1>
+                        <p class="text-slate-400 text-sm mt-3 max-w-2xl leading-relaxed">
+                            These terms explain the rules for accessing and using the Linkify Media website, dashboard, and API services.
+                        </p>
+                    </div>
+                    <div class="shrink-0 rounded-2xl bg-slate-950/80 border border-slate-800 px-4 py-3 text-sm">
+                        <p class="text-slate-500">Last updated</p>
+                        <p class="text-white font-semibold mt-1">August 5, 2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-8 border-b border-slate-800">
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><i class="fa-solid fa-code text-indigo-400 text-lg"></i><h2 class="text-white font-bold mt-3">Use responsibly</h2><p class="text-xs text-slate-500 leading-relaxed mt-2">Respect rate limits, protect credentials, and use the API for lawful product activity.</p></div>
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><i class="fa-solid fa-key text-cyan-400 text-lg"></i><h2 class="text-white font-bold mt-3">Protect your access</h2><p class="text-xs text-slate-500 leading-relaxed mt-2">API keys are account credentials and must not be shared, published, or embedded carelessly.</p></div>
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><i class="fa-solid fa-scale-balanced text-emerald-400 text-lg"></i><h2 class="text-white font-bold mt-3">Know the limits</h2><p class="text-xs text-slate-500 leading-relaxed mt-2">External metadata, availability, plans, and service limits may change over time.</p></div>
+            </div>
+
+            <div class="grid lg:grid-cols-[0.28fr_1fr] gap-10 pt-9">
+                <!-- Contents -->
+                <aside class="lg:sticky lg:top-8 h-fit">
+                    <p class="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-4">On this page</p>
+                    <nav class="space-y-2 text-sm border-l border-slate-800 pl-4">
+                        <a href="#acceptance" class="block text-slate-400 hover:text-indigo-400 transition">Acceptance</a>
+                        <a href="#service" class="block text-slate-400 hover:text-indigo-400 transition">The service</a>
+                        <a href="#accounts" class="block text-slate-400 hover:text-indigo-400 transition">Accounts and keys</a>
+                        <a href="#acceptable-use" class="block text-slate-400 hover:text-indigo-400 transition">Acceptable use</a>
+                        <a href="#billing" class="block text-slate-400 hover:text-indigo-400 transition">Plans and billing</a>
+                        <a href="#ip" class="block text-slate-400 hover:text-indigo-400 transition">Intellectual property</a>
+                        <a href="#termination" class="block text-slate-400 hover:text-indigo-400 transition">Suspension and termination</a>
+                        <a href="#contact" class="block text-slate-400 hover:text-indigo-400 transition">Contact</a>
+                    </nav>
+                </aside>
+
+                <div class="space-y-10 text-slate-300 text-sm leading-relaxed">
+                    <section id="acceptance" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">1</span><h2 class="text-xl font-bold text-white">Acceptance of these terms</h2></div>
+                        <p>By accessing or using Linkify Media, you agree to these Terms of Service and any policies referenced by them. If you use the service on behalf of an organisation, you represent that you have authority to bind that organisation to these terms.</p>
+                        <p>If you do not agree with these terms, do not create an account or use the service.</p>
+                    </section>
+
+                    <section id="service" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">2</span><h2 class="text-xl font-bold text-white">The Linkify Media service</h2></div>
+                        <p>Linkify Media provides developer tools and API endpoints for searching and retrieving media metadata and related discovery links. Features, endpoints, limits, integrations, and documentation may be changed, improved, limited, or discontinued from time to time.</p>
+                        <div class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5"><p class="text-indigo-100"><i class="fa-solid fa-circle-info text-indigo-400 mr-2"></i>Metadata and availability information may originate from third-party providers and should be independently verified before being used for critical decisions.</p></div>
+                    </section>
+
+                    <section id="accounts" class="scroll-mt-8 space-y-4">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">3</span><h2 class="text-xl font-bold text-white">Accounts and API keys</h2></div>
+                        <p>You are responsible for providing accurate account information, maintaining the confidentiality of your password, and all activity performed through your account or API keys. Notify us promptly if you believe credentials have been compromised.</p>
+                        <div class="grid md:grid-cols-2 gap-4"><div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-lock text-emerald-400 mr-2"></i>Keep keys private</h3><p class="text-slate-500 mt-2">Do not commit keys to source control, expose them in browser code, or include them in screenshots and public logs.</p></div><div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-rotate text-cyan-400 mr-2"></i>Rotate when needed</h3><p class="text-slate-500 mt-2">Deactivate or replace a key if it is lost, shared, exposed, or associated with suspicious activity.</p></div></div>
+                    </section>
+
+                    <section id="acceptable-use" class="scroll-mt-8 space-y-4">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">4</span><h2 class="text-xl font-bold text-white">Acceptable use</h2></div>
+                        <p>You agree to use the service lawfully and in a way that does not harm the service, providers, or other users. You must not:</p>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm"><div class="flex gap-3 rounded-xl bg-slate-950 border border-slate-800 p-4"><i class="fa-solid fa-ban text-rose-400 mt-1"></i><span class="text-slate-400">Bypass or evade authentication, quotas, rate limits, or plan restrictions.</span></div><div class="flex gap-3 rounded-xl bg-slate-950 border border-slate-800 p-4"><i class="fa-solid fa-ban text-rose-400 mt-1"></i><span class="text-slate-400">Probe, scan, disrupt, overload, or attempt denial-of-service activity against the service.</span></div><div class="flex gap-3 rounded-xl bg-slate-950 border border-slate-800 p-4"><i class="fa-solid fa-ban text-rose-400 mt-1"></i><span class="text-slate-400">Share, sell, transfer, or misuse API credentials without authorisation.</span></div><div class="flex gap-3 rounded-xl bg-slate-950 border border-slate-800 p-4"><i class="fa-solid fa-ban text-rose-400 mt-1"></i><span class="text-slate-400">Use the service to violate law, privacy rights, intellectual property, or third-party terms.</span></div></div>
+                    </section>
+
+                    <section id="billing" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">5</span><h2 class="text-xl font-bold text-white">Plans, subscriptions, and billing</h2></div>
+                        <p>Some features may require a paid plan. Plan limits, prices, included usage, and billing intervals will be presented at checkout or in the dashboard. You authorise the applicable payment provider to process charges for the plan you select.</p>
+                        <p>Subscriptions, renewals, cancellations, refunds, taxes, and payment disputes may be subject to the terms and processes of the payment provider as well as applicable law. Do not use the API to evade payment or plan restrictions.</p>
+                    </section>
+
+                    <section id="ip" class="scroll-mt-8 space-y-4">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">6</span><h2 class="text-xl font-bold text-white">Intellectual property and third-party content</h2></div>
+                        <p>Linkify Media and its software, branding, documentation, and original materials are owned by Linkify Media or its licensors. These terms grant you a limited, non-exclusive, revocable right to use the service in accordance with these terms.</p>
+                        <p>Media metadata, posters, ratings, titles, logos, and external links may belong to their respective providers and rights holders, including TMDB, IMDb, Rotten Tomatoes, Metacritic, and JustWatch. You are responsible for complying with the applicable terms and rights associated with content you display or distribute.</p>
+                    </section>
+
+                    <section id="availability" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">7</span><h2 class="text-xl font-bold text-white">Availability and changes</h2></div>
+                        <p>We aim to provide a reliable service but do not guarantee uninterrupted, error-free, or delay-free operation. Availability may be affected by maintenance, network conditions, third-party providers, security events, or circumstances outside our reasonable control.</p>
+                        <p>We may modify the service, limits, documentation, or these terms. When changes are material, we may provide notice through the service or other reasonable means.</p>
+                    </section>
+
+                    <section id="termination" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">8</span><h2 class="text-xl font-bold text-white">Suspension and termination</h2></div>
+                        <p>We may suspend, restrict, or revoke access where reasonably necessary to protect the service, investigate abuse, address security risks, enforce these terms, comply with law, or handle non-payment. Malicious traffic, DDoS attempts, credential sharing, quota circumvention, and unlawful use may result in immediate action.</p>
+                        <p>You may stop using the service or request account closure through the available account or support channels. Provisions that by their nature should continue after termination may remain effective.</p>
+                    </section>
+
+                    <section id="disclaimers" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">9</span><h2 class="text-xl font-bold text-white">Disclaimers and limitation of liability</h2></div>
+                        <p>To the extent permitted by applicable law, the service is provided on an “as available” and “as is” basis. We do not warrant that metadata will always be complete, accurate, current, or available, or that every external provider link will remain active.</p>
+                        <p>To the extent permitted by law, Linkify Media will not be liable for indirect, incidental, special, consequential, or lost-profit damages arising from use of or inability to use the service. Nothing in these terms excludes liability that cannot legally be excluded.</p>
+                    </section>
+
+                    <section id="contact" class="scroll-mt-8 rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-6 md:p-8 space-y-3">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-paper-plane text-indigo-400 text-xl"></i><h2 class="text-xl font-bold text-white">Questions about these terms?</h2></div>
+                        <p>If you have questions about the service or these Terms of Service, contact our support team:</p>
+                        <a href="mailto:support@linkifymedia.com" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold">support@linkifymedia.com <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+                    </section>
+
+                    <p class="text-xs text-slate-500 border-t border-slate-800 pt-6">This document is a working website draft and should be reviewed by a qualified legal professional for your business structure, jurisdiction, payment provider, third-party data sources, and applicable laws.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

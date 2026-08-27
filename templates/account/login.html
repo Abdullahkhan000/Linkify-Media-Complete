@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Login - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center py-12">
+
+    <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl">
+
+        <h2 class="text-3xl font-semibold text-center mb-6">
+            Welcome Back 🚀
+        </h2>
+
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div class="relative">
+                <input id="id_login" type="text" name="login" required
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
+                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    Email
+                </label>
+            </div>
+
+            <!-- Password -->
+            <div class="relative">
+                <input id="id_password" type="password" name="password" required
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
+                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    Password
+                </label>
+            </div>
+
+            <!-- Remember & Forgot -->
+            <div class="flex items-center justify-between text-sm text-gray-400">
+                <label for="id_remember" class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="remember" id="id_remember" class="accent-blue-500">
+                    Remember me
+                </label>
+                <a href="{% url 'account_reset_password' %}" class="hover:text-blue-400">Forgot Password?</a>
+            </div>
+
+            <!-- Button -->
+            <button type="submit"
+                class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 
+                hover:scale-[1.02] transition-all duration-300 shadow-lg">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <p class="text-center text-sm text-gray-400 mt-6">
+            No account?
+            <a href="{% url 'account_signup' %}" class="text-blue-400 hover:underline">
+                Sign Up
+            </a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

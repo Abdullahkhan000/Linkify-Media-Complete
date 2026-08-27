@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Billing & Plans - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+        <h1 class="text-5xl font-extrabold text-white mb-4 animate-fade-in">Pricing Plans</h1>
+        <p class="text-xl text-slate-400">Choose the perfect plan for your application needs.</p>
+    </div>
+
+    <!-- Current Plan Info -->
+    <div class="glass p-6 rounded-xl mb-12 flex flex-col md:flex-row justify-between items-center max-w-4xl mx-auto border-blue-500/30">
+        <div>
+            <h3 class="text-slate-400 uppercase text-xs font-bold tracking-wider text-center md:text-left">Current Plan</h3>
+            <p class="text-3xl font-bold text-white capitalize text-center md:text-left">{{ profile.tier }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 text-center md:text-right">
+            {% if profile.tier == 'free' %}
+                <p class="text-slate-300">Upgrade to Pro or Business to unlock advanced features.</p>
+            {% else %}
+                <p class="text-slate-300">Your subscription is active. Manage it via Lemon Squeezy portal.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pricing Grid -->
+    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        
+        <!-- Free Plan -->
+        <div class="glass p-8 rounded-2xl flex flex-col border-slate-700">
+            <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
+            <p class="text-slate-400 mb-6 italic text-sm">Hobbyist projects</p>
+            <div class="text-4xl font-extrabold text-white mb-6">$0<span class="text-lg font-normal text-slate-500">/mo</span></div>
+            
+            <ul class="text-slate-300 space-y-4 mb-8 flex-grow">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    100 requests / day
+                </li>
+                <li class="flex items-center text-slate-500">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Batch Requests
+                </li>
+            </ul>
+
+            <button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed text-center">
+                {% if profile.tier == 'free' %}Active{% else %}Included{% endif %}
+            </button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="glass p-8 rounded-2xl flex flex-col border-blue-500 ring-2 ring-blue-500/20 relative scale-105 z-10">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Professional</div>
+            <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+            <p class="text-slate-400 mb-6 italic text-sm">Growing apps</p>
+            <div class="text-4xl font-extrabold text-white mb-6">$12<span class="text-lg font-normal text-slate-500">/mo</span></div>
+            
+            <ul class="text-slate-300 space-y-4 mb-8 flex-grow">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    5,000 requests / day
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    5 API Keys
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Batch Requests
+                </li>
+            </ul>
+
+            {% if profile.tier == 'pro' %}
+                <button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed text-center">Active Plan</button>
+            {% else %}
+                <form action="{% url 'checkout' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="tier" value="pro">
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors text-center">Upgrade to Pro</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Business Plan -->
+        <div class="glass p-8 rounded-2xl flex flex-col border-slate-700">
+            <h3 class="text-2xl font-bold text-white mb-2">Business</h3>
+            <p class="text-slate-400 mb-6 italic text-sm">Enterprise scale</p>
+            <div class="text-4xl font-extrabold text-white mb-6">$42<span class="text-lg font-normal text-slate-500">/mo</span></div>
+            
+            <ul class="text-slate-300 space-y-4 mb-8 flex-grow">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Unlimited requests
+                </li>
+                <li class="flex items-center text-slate-500">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Custom Endpoints
+                </li>
+            </ul>
+
+            {% if profile.tier == 'business' %}
+                <button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed text-center">Active Plan</button>
+            {% else %}
+                <form action="{% url 'checkout' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="tier" value="business">
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors text-center">Go Business</button>
+                </form>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

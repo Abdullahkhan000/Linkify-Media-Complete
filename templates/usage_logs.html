@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Usage Logs - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-bold text-white">Usage Logs</h1>
+            <p class="text-gray-400 mt-2">A detailed history of your API requests.</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="px-6 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 transition-all text-gray-300">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="glass rounded-3xl border border-white/10 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-[11px] tracking-widest font-bold">
+                        <th class="px-8 py-5">API Key</th>
+                        <th class="px-8 py-5">Endpoint</th>
+                        <th class="px-8 py-5">Date</th>
+                        <th class="px-8 py-5 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for log in logs %}
+                    <tr class="hover:bg-white/[0.02] transition-colors text-sm">
+                        <td class="px-8 py-5 text-gray-200">{{ log.api_key.name }}</td>
+                        <td class="px-8 py-5 text-gray-400 font-mono text-xs">{{ log.endpoint }}</td>
+                        <td class="px-8 py-5 text-gray-400">{{ log.date|date:"M d, Y" }}</td>
+                        <td class="px-8 py-5 text-right">
+                            <span class="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold uppercase tracking-wider">Success</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-8 py-20 text-center text-gray-500 italic">
+                            No usage logs found. Start using your API key to see history.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <p class="mt-6 text-center text-gray-500 text-xs">Showing the last 100 requests. Upgrade to Business for full history.</p>
+</div>
+{% endblock %}

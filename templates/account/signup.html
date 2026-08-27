@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Sign Up - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center py-12">
+
+    <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl">
+
+        <h2 class="text-3xl font-semibold text-center mb-6">
+            Create Account ✨
+        </h2>
+
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div class="relative">
+                <input id="id_email" type="email" name="email" required
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
+                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    Email
+                </label>
+            </div>
+
+            <!-- Password -->
+            <div class="relative">
+                <input id="id_password1" type="password" name="password1" required
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
+                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    Password
+                </label>
+                {% if form.password1.errors %}
+                    <p class="text-red-400 text-xs mt-1">{{ form.password1.errors.as_text }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="relative">
+                <input id="id_password2" type="password" name="password2" required
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
+                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    Confirm Password
+                </label>
+                {% if form.password2.errors %}
+                    <p class="text-red-400 text-xs mt-1">{{ form.password2.errors.as_text }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Terms -->
+            <div class="flex items-center text-sm text-gray-400">
+                <input type="checkbox" name="terms" id="id_terms" required class="accent-blue-500 mr-2">
+                I agree to the Terms & Conditions
+            </div>
+            {% if form.non_field_errors %}
+                <div class="text-red-400 text-sm">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <!-- Button -->
+            <button type="submit"
+                class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 
+                hover:scale-[1.02] transition-all duration-300 shadow-lg">
+                Create Account
+            </button>
+        </form>
+        <!-- Footer -->
+        <p class="text-center text-sm text-gray-400 mt-6">
+            Already have an account?
+            <a href="{% url 'account_login' %}" class="text-blue-400 hover:underline">
+                Sign In
+            </a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

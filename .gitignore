@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+staticfiles/
+media/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+inventory.md
+repo-review.md
+feature-a-health-openapi.md
+fix-schema-errors.md
+fix-apikey-schema.md
+api-middleware-updated.py
+static/serviceworker.js
+templates/about-extended.html
+templates/support-extended.html
+templates/privacy-extended.html
+templates/terms-extended.html
+templates/privacy-compact.html
+templates/privacy-compact.html
+templates/partials/support_bot.html
+support-setup-guide.md
+templates/partials/support_bot_premium.html
+support-bot-install.md
+templates/landing-premium.html
+templates/landing-premium-live.html
+templates/landing-premium-full-demo.html

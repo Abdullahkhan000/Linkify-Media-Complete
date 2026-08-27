@@ -1,0 +1,512 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Linkify Media - High Performance Media API{% endblock %}</title>
+    <meta name="description" content="Instant verified links to IMDb, Rotten Tomatoes, Metacritic, and TMDB for movies and TV shows.">
+    
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #030712;
+            color: #f3f4f6;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel-hover:hover {
+            background: rgba(30, 41, 59, 0.75);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -10px rgba(79, 70, 229, 0.2);
+        }
+
+        .glow-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glow-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+        }
+        .glow-btn:hover {
+            box-shadow: 0 6px 25px 0px rgba(79, 70, 229, 0.6);
+            transform: translateY(-1px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        .support-bot-message {
+            max-width: 88%;
+            border-radius: 1rem;
+            padding: 0.7rem 0.85rem;
+            font-size: 0.75rem;
+            line-height: 1.55;
+        }
+        .support-bot-message.bot {
+            align-self: flex-start;
+            background: rgba(30, 41, 59, 0.72);
+            border: 1px solid rgba(99, 102, 241, 0.16);
+            color: #cbd5e1;
+            border-top-left-radius: 0.35rem;
+        }
+        .support-bot-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.8));
+            color: #fff;
+            border-top-right-radius: 0.35rem;
+        }
+        .support-bot-chip {
+            border: 1px solid rgba(51, 65, 85, 0.95);
+            background: rgba(15, 23, 42, 0.7);
+            color: #cbd5e1;
+            transition: all 160ms ease;
+        }
+        .support-bot-chip:hover,
+        .support-bot-chip:focus-visible {
+            border-color: rgba(99, 102, 241, 0.65);
+            background: rgba(79, 70, 229, 0.14);
+            color: #fff;
+            outline: none;
+        }
+        .support-bot-panel-open {
+            animation: supportBotIn 180ms ease-out;
+        }
+        @keyframes supportBotIn {
+            from { opacity: 0; transform: translateY(8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Glow Grid Decoration -->
+    <div class="fixed inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-10"></div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3">
+                    <a href="/" class="group flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-link text-white text-lg"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold tracking-tight text-white">
+                            Linkify<span class="text-indigo-400">Media</span>
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu Nav -->
+                <nav class="hidden md:flex items-center gap-1 bg-slate-900/50 p-1.5 rounded-full border border-slate-800">
+                    <a href="{% url 'landing-page' %}" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-full transition-all">Home</a>
+                    <a href="{% url 'dashboard' %}" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-full transition-all">Dashboard</a>
+                    <a href="{% url 'docs-page' %}" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-full transition-all">API Docs</a>
+                    <a href="{% url 'billing' %}" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-full transition-all">Pricing</a>
+                    <a href="{% url 'about-page' %}" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-full transition-all">About</a>
+                </nav>
+
+                <!-- Auth Buttons / User Tier Badge -->
+                <div class="hidden md:flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                                <i class="fa-solid fa-crown mr-1 text-amber-400"></i>{{ user.profile.tier }} Plan
+                            </span>
+                            <div class="relative group">
+                                <a href="{% url 'profile' %}" class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:bg-slate-800/80 transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                                        {{ user.email|first|upper }}
+                                    </div>
+                                    <span>Profile</span>
+                                </a>
+                            </div>
+                            <a href="{% url 'account_logout' %}" class="px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 rounded-xl transition-all">
+                                <i class="fa-solid fa-right-from-bracket mr-1.5"></i>Logout
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors">Log in</a>
+                        <a href="{% url 'account_signup' %}" class="glow-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-white">Get API Key free</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-xl px-4 pt-4 pb-6 space-y-3">
+            <a href="{% url 'landing-page' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-slate-200 hover:bg-slate-900">Home</a>
+            <a href="{% url 'dashboard' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-slate-200 hover:bg-slate-900">Dashboard</a>
+            <a href="{% url 'docs-page' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-slate-200 hover:bg-slate-900">API Docs</a>
+            <a href="{% url 'billing' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-slate-200 hover:bg-slate-900">Pricing</a>
+            <a href="{% url 'about-page' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-slate-200 hover:bg-slate-900">About</a>
+            <div class="pt-4 border-t border-slate-800 flex flex-col gap-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="w-full py-3 text-center rounded-xl bg-slate-800 text-white font-semibold">My Account ({{ user.email }})</a>
+                    <a href="{% url 'account_logout' %}" class="w-full py-3 text-center rounded-xl bg-rose-950/50 text-rose-400 font-semibold border border-rose-800/40">Logout</a>
+                {% else %}
+                    <a href="{% url 'account_login' %}" class="w-full py-3 text-center rounded-xl bg-slate-900 text-white font-semibold border border-slate-800">Log in</a>
+                    <a href="{% url 'account_signup' %}" class="w-full py-3 text-center rounded-xl glow-btn text-white font-semibold">Get API Key free</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel mt-20 border-t border-slate-800/80 bg-slate-950/90 text-slate-400">
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <div class="md:col-span-1 space-y-4">
+                    <a href="/" class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center">
+                            <i class="fa-solid fa-link text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Linkify<span class="text-indigo-400">Media</span></span>
+                    </a>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        High-performance, async media indexing API linking TMDB, IMDb, Rotten Tomatoes, and streaming platforms in sub-milliseconds.
+                    </p>
+                    <div class="flex items-center gap-4 text-slate-400 pt-2">
+                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-discord text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-200 uppercase tracking-widest mb-4">Product & API</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="{% url 'docs-page' %}" class="hover:text-indigo-400 transition-colors">Documentation</a></li>
+                        <li><a href="{% url 'dashboard' %}" class="hover:text-indigo-400 transition-colors">API Dashboard</a></li>
+                        <li><a href="{% url 'billing' %}" class="hover:text-indigo-400 transition-colors">Plans & Limits</a></li>
+                        <li><a href="/api/search/?q=Inception" target="_blank" class="hover:text-indigo-400 transition-colors">Live API Endpoint</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-200 uppercase tracking-widest mb-4">Company</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="{% url 'about-page' %}" class="hover:text-indigo-400 transition-colors">About Us</a></li>
+                        <li><a href="{% url 'support' %}" class="hover:text-indigo-400 transition-colors">Support & Help Center</a></li>
+                        <li><a href="{% url 'privacy-policy' %}" class="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms-of-service' %}" class="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-200 uppercase tracking-widest mb-4">System Status</h4>
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-medium text-emerald-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            All Systems Operational
+                        </div>
+                        <p class="text-xs text-slate-400">Latency: <span class="text-slate-200 font-mono">14ms</span></p>
+                        <p class="text-xs text-slate-400">Uptime: <span class="text-slate-200 font-mono">99.98%</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>&copy; {% now "Y" %} Linkify Media API. Engineered for entertainment platforms.</p>
+                <p>Designed with High-End Precision.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Support Bot Widget -->
+    <div id="support-bot-root" class="fixed bottom-5 right-5 z-[60]">
+        <section id="support-bot-panel" class="hidden absolute bottom-16 right-0 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-950/95 shadow-2xl shadow-indigo-950/40 backdrop-blur-xl" aria-label="Linkify Media support bot">
+            <div class="flex items-center justify-between border-b border-slate-800 px-4 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-indigo-500/20">
+                        <i class="fa-solid fa-headset text-sm text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-white">Linkify Support</p>
+                        <p class="mt-0.5 flex items-center gap-1.5 text-[10px] text-emerald-400"><span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"></span>Instant help center</p>
+                    </div>
+                </div>
+                <button id="support-bot-close" type="button" class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white" aria-label="Close support bot"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="support-bot-messages" class="flex max-h-64 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
+                <div class="support-bot-message bot">Hi! I can help with API keys, authentication, quotas, billing, and common integration issues.</div>
+            </div>
+
+            <div id="support-bot-actions" class="border-t border-slate-800 px-4 py-3">
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Quick help</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" data-support-question="How do I get an API key?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Get an API key</button>
+                    <button type="button" data-support-question="How do I authenticate a request?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Authentication</button>
+                    <button type="button" data-support-question="How do rate limits work?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Rate limits</button>
+                    <button type="button" data-support-question="My API request is failing." class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Troubleshoot</button>
+                </div>
+                <div class="mt-3 flex items-center gap-2">
+                    <label for="support-bot-search" class="sr-only">Search support questions</label>
+                    <div class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-2">
+                        <i class="fa-solid fa-magnifying-glass text-[11px] text-slate-600"></i>
+                        <input id="support-bot-search" type="search" placeholder="Search help..." class="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600">
+                    </div>
+                    <button id="support-bot-contact" type="button" class="shrink-0 rounded-xl bg-indigo-600 px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-indigo-500" title="Contact support" aria-label="Contact support"><i class="fa-solid fa-message"></i></button>
+                </div>
+                <div id="support-bot-search-results" class="mt-2 hidden max-h-28 space-y-1 overflow-y-auto"></div>
+            </div>
+
+            <form id="support-bot-contact-form" class="hidden border-t border-slate-800 px-4 py-4" method="post">
+                {% csrf_token %}
+                <div class="mb-3 flex items-center justify-between">
+                    <div><p class="text-sm font-bold text-white">Contact support</p><p class="mt-1 text-[10px] text-slate-500">We’ll review your request from the admin panel.</p></div>
+                    <button id="support-bot-back" type="button" class="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300">Back</button>
+                </div>
+                <div class="space-y-2.5">
+                    <input name="name" type="text" required maxlength="120" placeholder="Your name" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
+                    <input name="email" type="email" required maxlength="254" placeholder="Email address" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
+                    <select name="category" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-slate-300 outline-none focus:border-indigo-500">
+                        <option value="general">General question</option><option value="api">API usage</option><option value="account">Account access</option><option value="billing">Billing</option><option value="security">Security concern</option>
+                    </select>
+                    <input name="subject" type="text" required maxlength="180" placeholder="Subject" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
+                    <textarea name="message" required maxlength="5000" rows="3" placeholder="Tell us what you need help with..." class="w-full resize-none rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500"></textarea>
+                    <p id="support-bot-form-status" class="hidden text-[11px]" role="alert"></p>
+                    <button type="submit" class="glow-btn w-full rounded-xl px-4 py-2.5 text-xs font-bold text-white"><i class="fa-solid fa-paper-plane mr-1.5"></i>Send support request</button>
+                </div>
+            </form>
+        </section>
+        <button id="support-bot-toggle" type="button" class="group flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-600/30 transition hover:-translate-y-1 hover:shadow-indigo-500/50" aria-expanded="false" aria-controls="support-bot-panel" aria-label="Open support bot">
+            <i class="fa-solid fa-headset text-xl transition group-hover:scale-110"></i>
+            <span class="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400"></span>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    <script>
+    (() => {
+        const toggle = document.getElementById('support-bot-toggle');
+        const panel = document.getElementById('support-bot-panel');
+        const closeBtn = document.getElementById('support-bot-close');
+        const messages = document.getElementById('support-bot-messages');
+        const actions = document.getElementById('support-bot-actions');
+        const search = document.getElementById('support-bot-search');
+        const searchResults = document.getElementById('support-bot-search-results');
+        const contactBtn = document.getElementById('support-bot-contact');
+        const contactForm = document.getElementById('support-bot-contact-form');
+        const backBtn = document.getElementById('support-bot-back');
+        const formStatus = document.getElementById('support-bot-form-status');
+        if (!toggle || !panel) return;
+
+        const faq = [
+            { q: 'How do I get an API key?', a: 'Create an account, open the Developer Dashboard, and choose Generate New Key. Keep the key in a server-side environment variable.', link: "{% url 'dashboard' %}", label: 'Open dashboard' },
+            { q: 'How do I authenticate a request?', a: 'Send the key in the X-API-Key request header. Never expose it in frontend JavaScript, public repositories, or screenshots.', link: "{% url 'docs-page' %}", label: 'Read API docs' },
+            { q: 'How do rate limits work?', a: 'Your plan controls your daily quota and key capacity. You can monitor recent usage from the Developer Dashboard.', link: "{% url 'dashboard' %}", label: 'View usage' },
+            { q: 'My API request is failing.', a: 'Check the endpoint, query parameters, X-API-Key header, quota, and HTTP status code. If the issue continues, send support a redacted request example.', link: "{% url 'docs-page' %}", label: 'Troubleshooting docs' },
+            { q: 'How do I manage billing?', a: 'Open the Billing page from the navigation to review plans and subscription actions.', link: "{% url 'billing' %}", label: 'Open billing' },
+        ];
+
+        function appendMessage(text, role = 'bot', link, label) {
+            const bubble = document.createElement('div');
+            bubble.className = `support-bot-message ${role}`;
+            const copy = document.createElement('p');
+            copy.textContent = text;
+            bubble.appendChild(copy);
+            if (link && label) {
+                const anchor = document.createElement('a');
+                anchor.href = link;
+                anchor.textContent = label + ' →';
+                anchor.className = 'mt-2 inline-block font-semibold text-indigo-300 hover:text-indigo-200';
+                bubble.appendChild(anchor);
+            }
+            messages.appendChild(bubble);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function answerQuestion(question) {
+            appendMessage(question, 'user');
+            const match = faq.find(item => item.q.toLowerCase() === question.toLowerCase()) || faq.find(item => question.toLowerCase().includes(item.q.toLowerCase().split(' ')[0]));
+            if (match) {
+                window.setTimeout(() => appendMessage(match.a, 'bot', match.link, match.label), 120);
+            } else {
+                window.setTimeout(() => appendMessage('I could not find a confident answer. Please send a support request and our team will follow up.', 'bot'), 120);
+            }
+        }
+
+        function setOpen(isOpen) {
+            panel.classList.toggle('hidden', !isOpen);
+            panel.classList.toggle('support-bot-panel-open', isOpen);
+            toggle.setAttribute('aria-expanded', String(isOpen));
+            toggle.setAttribute('aria-label', isOpen ? 'Close support bot' : 'Open support bot');
+            toggle.querySelector('i').className = isOpen ? 'fa-solid fa-xmark text-xl' : 'fa-solid fa-headset text-xl transition group-hover:scale-110';
+            if (isOpen) search.focus();
+        }
+
+        function showContactForm() {
+            actions.classList.add('hidden');
+            contactForm.classList.remove('hidden');
+            contactForm.querySelector('input[name="name"]').focus();
+        }
+
+        function showFaqActions() {
+            contactForm.classList.add('hidden');
+            actions.classList.remove('hidden');
+            search.focus();
+        }
+
+        function renderSearchResults() {
+            const query = search.value.trim().toLowerCase();
+            searchResults.innerHTML = '';
+            if (!query) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            const matches = faq.filter(item => `${item.q} ${item.a}`.toLowerCase().includes(query));
+            matches.forEach(item => {
+                const result = document.createElement('button');
+                result.type = 'button';
+                result.textContent = item.q;
+                result.className = 'support-bot-chip block w-full rounded-lg px-3 py-2 text-left text-[11px]';
+                result.addEventListener('click', () => {
+                    search.value = '';
+                    searchResults.classList.add('hidden');
+                    answerQuestion(item.q);
+                });
+                searchResults.appendChild(result);
+            });
+            if (!matches.length) {
+                const noResult = document.createElement('p');
+                noResult.textContent = 'No matching help article. Contact support below.';
+                noResult.className = 'px-2 py-2 text-[11px] text-slate-500';
+                searchResults.appendChild(noResult);
+            }
+            searchResults.classList.remove('hidden');
+        }
+
+        toggle.addEventListener('click', () => setOpen(panel.classList.contains('hidden')));
+        closeBtn.addEventListener('click', () => setOpen(false));
+        document.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.classList.contains('hidden')) setOpen(false); });
+        document.querySelectorAll('[data-support-question]').forEach(button => button.addEventListener('click', () => answerQuestion(button.dataset.supportQuestion)));
+        search.addEventListener('input', renderSearchResults);
+        contactBtn.addEventListener('click', showContactForm);
+        backBtn.addEventListener('click', showFaqActions);
+
+        contactForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const submit = contactForm.querySelector('button[type="submit"]');
+            const csrf = contactForm.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+            submit.disabled = true;
+            submit.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i>Sending...';
+            formStatus.classList.add('hidden');
+            try {
+                const response = await fetch("{% url 'support' %}", {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrf },
+                    body: new FormData(contactForm),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to send request.');
+                contactForm.reset();
+                formStatus.textContent = 'Request received. Our support team will follow up soon.';
+                formStatus.className = 'text-[11px] text-emerald-400';
+            } catch (error) {
+                formStatus.textContent = error.message || 'Something went wrong. Please try again.';
+                formStatus.className = 'text-[11px] text-rose-400';
+            } finally {
+                formStatus.classList.remove('hidden');
+                submit.disabled = false;
+                submit.innerHTML = '<i class="fa-solid fa-paper-plane mr-1.5"></i>Send support request';
+            }
+        });
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

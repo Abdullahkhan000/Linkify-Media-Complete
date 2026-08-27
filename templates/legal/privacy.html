@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <div class="absolute -top-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+        <div class="glass-panel p-6 md:p-12 rounded-3xl border border-slate-800">
+            <!-- Header -->
+            <div class="border-b border-slate-800 pb-8">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div>
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            Legal Documentation
+                        </span>
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-white mt-4 tracking-tight">Privacy Policy</h1>
+                        <p class="text-slate-400 text-sm mt-3 max-w-2xl leading-relaxed">
+                            This policy explains what information Linkify Media collects, why we use it, and the choices available to you.
+                        </p>
+                    </div>
+                    <div class="shrink-0 rounded-2xl bg-slate-950/80 border border-slate-800 px-4 py-3 text-sm">
+                        <p class="text-slate-500">Last updated</p>
+                        <p class="text-white font-semibold mt-1">August 5, 2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-8 border-b border-slate-800">
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5">
+                    <i class="fa-solid fa-database text-indigo-400 text-lg"></i>
+                    <h2 class="text-white font-bold mt-3">Limited collection</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed mt-2">We collect information needed to provide accounts, API access, support, and usage controls.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5">
+                    <i class="fa-solid fa-lock text-emerald-400 text-lg"></i>
+                    <h2 class="text-white font-bold mt-3">Security focused</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed mt-2">Access controls, password hashing, and operational safeguards help protect account data.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5">
+                    <i class="fa-solid fa-user-check text-cyan-400 text-lg"></i>
+                    <h2 class="text-white font-bold mt-3">Your choices</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed mt-2">You can contact us about access, correction, deletion, or questions about your information.</p>
+                </div>
+            </div>
+
+            <!-- Contents -->
+            <div class="grid lg:grid-cols-[0.28fr_1fr] gap-10 pt-9">
+                <aside class="lg:sticky lg:top-8 h-fit">
+                    <p class="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-4">On this page</p>
+                    <nav class="space-y-2 text-sm border-l border-slate-800 pl-4">
+                        <a href="#information" class="block text-slate-400 hover:text-indigo-400 transition">Information we collect</a>
+                        <a href="#usage" class="block text-slate-400 hover:text-indigo-400 transition">How we use information</a>
+                        <a href="#sharing" class="block text-slate-400 hover:text-indigo-400 transition">Sharing and providers</a>
+                        <a href="#security" class="block text-slate-400 hover:text-indigo-400 transition">Security and retention</a>
+                        <a href="#rights" class="block text-slate-400 hover:text-indigo-400 transition">Your choices and rights</a>
+                        <a href="#contact" class="block text-slate-400 hover:text-indigo-400 transition">Contact us</a>
+                    </nav>
+                </aside>
+
+                <div class="space-y-10 text-slate-300 text-sm leading-relaxed">
+                    <section id="scope" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">1</span><h2 class="text-xl font-bold text-white">Scope of this policy</h2></div>
+                        <p>This Privacy Policy applies to the Linkify Media website, dashboard, API services, and related support interactions. It describes our handling of information when you create an account, use our API, contact support, or browse the service.</p>
+                    </section>
+
+                    <section id="information" class="scroll-mt-8 space-y-4">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">2</span><h2 class="text-xl font-bold text-white">Information we collect</h2></div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-user text-indigo-400 mr-2"></i>Account information</h3><p class="text-slate-500 mt-2">Email address, name, password credentials, account preferences, subscription tier, and account identifiers.</p></div>
+                            <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-code text-cyan-400 mr-2"></i>API activity</h3><p class="text-slate-500 mt-2">API key identifiers, endpoint paths, timestamps, response status, and usage counts used for quotas and diagnostics.</p></div>
+                            <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-envelope text-emerald-400 mr-2"></i>Support information</h3><p class="text-slate-500 mt-2">Information you choose to include when contacting support, such as your email, issue description, and technical context.</p></div>
+                            <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-5"><h3 class="text-white font-semibold"><i class="fa-solid fa-globe text-amber-400 mr-2"></i>Technical information</h3><p class="text-slate-500 mt-2">Basic browser, device, security, and server information may be processed to operate and protect the service.</p></div>
+                        </div>
+                    </section>
+
+                    <section id="usage" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">3</span><h2 class="text-xl font-bold text-white">How we use information</h2></div>
+                        <p>We use information to create and maintain accounts, authenticate requests, provide media metadata services, enforce plan limits, measure usage, prevent abuse, send service communications, respond to support requests, process subscriptions, and improve reliability.</p>
+                        <div class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5"><p class="text-indigo-100"><i class="fa-solid fa-circle-info text-indigo-400 mr-2"></i>We do not use developer API activity to sell personal profiles or expose private account information to other customers.</p></div>
+                    </section>
+
+                    <section id="sharing" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">4</span><h2 class="text-xl font-bold text-white">Sharing and third-party providers</h2></div>
+                        <p>We may share limited information with service providers that help us operate the platform, such as hosting, email delivery, payment processing, authentication, logging, and media metadata providers. These providers receive information needed for their defined service role and are expected to handle it appropriately.</p>
+                        <p>We may also disclose information where reasonably necessary to comply with law, enforce our terms, protect the security of the service, investigate abuse, or protect the rights and safety of users and others.</p>
+                    </section>
+
+                    <section id="security" class="scroll-mt-8 space-y-4">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">5</span><h2 class="text-xl font-bold text-white">Security and retention</h2></div>
+                        <p>We use reasonable technical and organisational safeguards appropriate to the information we process. Passwords are stored using Django's password hashing system. Access to operational data is limited according to role and service needs.</p>
+                        <p>We retain account and usage information for as long as needed to provide the service, enforce agreements, meet operational requirements, resolve disputes, and comply with applicable obligations. Retention periods may vary depending on the type and purpose of the information.</p>
+                        <div class="grid md:grid-cols-3 gap-3 text-xs"><div class="rounded-xl bg-slate-950 border border-slate-800 p-4"><p class="text-emerald-400 font-semibold">Account data</p><p class="text-slate-500 mt-1">While your account is active and as needed for legitimate records.</p></div><div class="rounded-xl bg-slate-950 border border-slate-800 p-4"><p class="text-cyan-400 font-semibold">Usage logs</p><p class="text-slate-500 mt-1">Retained for quotas, analytics, security, and troubleshooting.</p></div><div class="rounded-xl bg-slate-950 border border-slate-800 p-4"><p class="text-indigo-400 font-semibold">Support records</p><p class="text-slate-500 mt-1">Retained as needed to resolve and document support matters.</p></div></div>
+                    </section>
+
+                    <section id="cookies" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">6</span><h2 class="text-xl font-bold text-white">Cookies and sessions</h2></div>
+                        <p>Linkify Media may use essential session technologies to keep you signed in, protect forms, maintain security, and remember necessary service state. We may also use limited operational analytics where configured. You can control cookies through your browser, although disabling essential cookies may affect account functionality.</p>
+                    </section>
+
+                    <section id="rights" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">7</span><h2 class="text-xl font-bold text-white">Your choices and rights</h2></div>
+                        <p>Depending on your location and applicable law, you may have rights to request access to, correction of, deletion of, or information about the processing of your personal information. You may also be able to object to or restrict certain processing.</p>
+                        <p>To make a request, contact us using the address below. We may need to verify your identity and clarify the scope of your request before responding.</p>
+                    </section>
+
+                    <section id="children" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">8</span><h2 class="text-xl font-bold text-white">Children's privacy</h2></div>
+                        <p>The service is intended for developers and businesses and is not directed to children. If you believe a child has provided personal information to us, please contact us so we can review and take appropriate action.</p>
+                    </section>
+
+                    <section id="changes" class="scroll-mt-8 space-y-3">
+                        <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-bold">9</span><h2 class="text-xl font-bold text-white">Changes to this policy</h2></div>
+                        <p>We may update this policy when our services, providers, or legal obligations change. We will update the date at the top of this page and may provide additional notice for material changes where appropriate.</p>
+                    </section>
+
+                    <section id="contact" class="scroll-mt-8 rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-6 md:p-8 space-y-3">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-paper-plane text-indigo-400 text-xl"></i><h2 class="text-xl font-bold text-white">Contact us</h2></div>
+                        <p>If you have questions about this Privacy Policy or want to submit a privacy request, contact:</p>
+                        <a href="mailto:support@linkifymedia.com" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold">support@linkifymedia.com <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+                    </section>
+
+                    <p class="text-xs text-slate-500 border-t border-slate-800 pt-6">This document is a working website draft and should be reviewed by a qualified legal professional for the jurisdictions, providers, data practices, and regulatory requirements that apply to your business.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FAQ & Support Center - Linkify Media{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-answer {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+        transition: grid-template-rows 280ms ease, opacity 220ms ease;
+    }
+
+    .faq-answer > div {
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .faq-answer.is-open {
+        grid-template-rows: 1fr;
+        opacity: 1;
+    }
+
+    .faq-item.is-hidden {
+        display: none;
+    }
+
+    .faq-trigger:focus-visible,
+    .faq-category:focus-visible,
+    #faq-search:focus-visible,
+    #clear-search:focus-visible {
+        outline: 2px solid rgb(129, 140, 248);
+        outline-offset: 3px;
+    }
+
+    .faq-category.is-active {
+        border-color: rgba(99, 102, 241, 0.55);
+        background: rgba(99, 102, 241, 0.12);
+        color: rgb(165, 180, 252);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -top-40 -right-32 h-96 w-96 rounded-full bg-indigo-600/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute top-[32rem] -left-48 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute bottom-20 right-0 h-80 w-80 rounded-full bg-purple-500/5 blur-3xl"></div>
+
+    <main class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-20">
+        <!-- Hero -->
+        <section class="mx-auto max-w-4xl text-center">
+            <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">
+                <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-400"></span>
+                Support Center
+            </div>
+
+            <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+                Answers for your next
+                <span class="bg-gradient-to-r from-indigo-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent"> integration.</span>
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-400 md:text-lg">
+                Find clear answers about API access, authentication, usage limits, billing, and the tools that power your media workflow.
+            </p>
+
+            <div class="mx-auto mt-9 max-w-2xl">
+                <label for="faq-search" class="sr-only">Search frequently asked questions</label>
+                <div class="group flex items-center gap-3 rounded-2xl border border-slate-700/80 bg-slate-950/70 px-4 py-3 shadow-2xl shadow-indigo-950/20 transition focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/10">
+                    <i class="fa-solid fa-magnifying-glass text-slate-500 transition group-focus-within:text-indigo-400"></i>
+                    <input id="faq-search" type="search" autocomplete="off" placeholder="Search questions, API keys, limits..." class="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-600">
+                    <kbd class="hidden rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-[10px] font-semibold text-slate-500 sm:inline-block">⌘ K</kbd>
+                    <button id="clear-search" type="button" class="hidden rounded-lg px-2 py-1 text-xs text-slate-500 transition hover:bg-slate-800 hover:text-white" aria-label="Clear search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <p id="faq-status" class="mt-3 text-xs text-slate-500" aria-live="polite">Showing all frequently asked questions</p>
+            </div>
+
+            <div class="mt-7 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+                <span class="rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5"><i class="fa-solid fa-bolt mr-1.5 text-amber-400"></i>Fast answers</span>
+                <span class="rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5"><i class="fa-solid fa-code mr-1.5 text-cyan-400"></i>Developer-first</span>
+                <span class="rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5"><i class="fa-solid fa-shield-halved mr-1.5 text-emerald-400"></i>Security aware</span>
+            </div>
+        </section>
+
+        <!-- FAQ Workspace -->
+        <section class="mt-16 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+            <aside class="lg:sticky lg:top-8 lg:self-start">
+                <div class="mb-4 flex items-center justify-between lg:block">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Browse topics</p>
+                    <span class="rounded-full border border-slate-800 bg-slate-900/60 px-2 py-1 text-[10px] font-mono text-slate-500">FAQ / 01</span>
+                </div>
+
+                <nav id="faq-categories" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1" aria-label="FAQ categories">
+                    <button type="button" data-category="all" class="faq-category is-active flex items-center gap-3 rounded-xl border border-indigo-500/50 bg-indigo-500/10 px-3 py-3 text-left text-xs font-semibold text-indigo-300 transition hover:border-indigo-400/60" aria-pressed="true">
+                        <i class="fa-solid fa-grid-2 w-4 text-center"></i><span>All questions</span>
+                    </button>
+                    <button type="button" data-category="getting-started" class="faq-category flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3 text-left text-xs font-semibold text-slate-400 transition hover:border-indigo-500/40 hover:text-indigo-300" aria-pressed="false">
+                        <i class="fa-solid fa-rocket w-4 text-center text-indigo-400"></i><span>Getting started</span>
+                    </button>
+                    <button type="button" data-category="api" class="faq-category flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3 text-left text-xs font-semibold text-slate-400 transition hover:border-cyan-500/40 hover:text-cyan-300" aria-pressed="false">
+                        <i class="fa-solid fa-terminal w-4 text-center text-cyan-400"></i><span>API usage</span>
+                    </button>
+                    <button type="button" data-category="account" class="faq-category flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3 text-left text-xs font-semibold text-slate-400 transition hover:border-purple-500/40 hover:text-purple-300" aria-pressed="false">
+                        <i class="fa-solid fa-user-gear w-4 text-center text-purple-400"></i><span>Account</span>
+                    </button>
+                    <button type="button" data-category="billing" class="faq-category flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3 text-left text-xs font-semibold text-slate-400 transition hover:border-amber-500/40 hover:text-amber-300" aria-pressed="false">
+                        <i class="fa-solid fa-credit-card w-4 text-center text-amber-400"></i><span>Billing</span>
+                    </button>
+                    <button type="button" data-category="security" class="faq-category flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3 text-left text-xs font-semibold text-slate-400 transition hover:border-emerald-500/40 hover:text-emerald-300" aria-pressed="false">
+                        <i class="fa-solid fa-shield-halved w-4 text-center text-emerald-400"></i><span>Security</span>
+                    </button>
+                </nav>
+
+                <div class="mt-6 hidden rounded-2xl border border-slate-800 bg-slate-950/40 p-4 lg:block">
+                    <p class="text-xs font-semibold text-white">Can’t find your answer?</p>
+                    <p class="mt-2 text-xs leading-5 text-slate-500">Our support team can help with account-specific questions.</p>
+                    <a href="{% url 'support' %}" class="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 transition hover:text-indigo-300">Contact support <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                </div>
+            </aside>
+
+            <div>
+                <div class="mb-5 flex items-end justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">Knowledge base</p>
+                        <h2 class="mt-2 text-2xl font-bold text-white md:text-3xl">Frequently asked questions</h2>
+                    </div>
+                    <span id="faq-count" class="shrink-0 rounded-full border border-slate-800 bg-slate-900/70 px-3 py-1.5 text-xs font-mono text-slate-400">12 results</span>
+                </div>
+
+                <div id="faq-list" class="space-y-3">
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="getting-started" data-search="what is linkify media api getting started media metadata movie tv anime">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-xs font-bold text-indigo-400">01</span><span class="text-sm font-semibold leading-6 text-white md:text-base">What is Linkify Media?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Linkify Media is a developer-focused media intelligence API for discovering movies, TV shows, and anime, then returning structured metadata and useful discovery links through a unified interface.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="getting-started" data-search="how get api key create free key sign up account">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-xs font-bold text-indigo-400">02</span><span class="text-sm font-semibold leading-6 text-white md:text-base">How do I get an API key?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Create an account from the Linkify Media homepage, then open your Developer Dashboard. From there, choose <strong class="font-semibold text-slate-300">Generate New Key</strong>, give the key a recognizable name, and store it securely.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="api" data-search="how authenticate request x api key header api usage endpoint">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-xs font-bold text-cyan-400">03</span><span class="text-sm font-semibold leading-6 text-white md:text-base">How do I authenticate an API request?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Send your API key in the <code class="rounded bg-slate-950 px-1.5 py-1 text-xs text-cyan-300">X-API-Key</code> request header. Never expose a private key in browser-side code, public repositories, screenshots, or client applications.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="api" data-search="search endpoint query q type movie show anime response metadata links">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-xs font-bold text-cyan-400">04</span><span class="text-sm font-semibold leading-6 text-white md:text-base">What can the search endpoint return?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Depending on the matched title, the response can include the official title, release year, genres, runtime, ratings, poster URL, cast information, and links to relevant media platforms.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="api" data-search="rate limit daily quota requests usage dashboard 100 free requests">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-xs font-bold text-cyan-400">05</span><span class="text-sm font-semibold leading-6 text-white md:text-base">How do rate limits and quotas work?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Your daily allowance depends on your current plan. The Developer Dashboard shows your request volume, quota usage, and recent activity so you can monitor consumption before reaching a limit.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="account" data-search="multiple api keys dashboard key name rotate revoke delete credentials">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-xs font-bold text-purple-400">06</span><span class="text-sm font-semibold leading-6 text-white md:text-base">Can I create more than one API key?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Yes, where your plan allows it. Using separate named keys for environments such as development, staging, and production makes rotation and monitoring easier.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="account" data-search="forgot password account email change close delete profile support">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-xs font-bold text-purple-400">07</span><span class="text-sm font-semibold leading-6 text-white md:text-base">What should I do if I lose access to my account?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Use the available account recovery flow first. If you still cannot sign in, contact support with the account email and enough context for us to verify ownership. Do not send your API key in a support message.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="billing" data-search="plans pricing paid subscription billing upgrade invoice payment">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-xs font-bold text-amber-400">08</span><span class="text-sm font-semibold leading-6 text-white md:text-base">When do I need a paid plan?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">A paid plan may be useful when your product needs higher request limits, additional key capacity, or heavier batch workloads. Check the current plan details in the dashboard before upgrading.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="billing" data-search="cancel subscription refund payment billing support">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-xs font-bold text-amber-400">09</span><span class="text-sm font-semibold leading-6 text-white md:text-base">How can I manage billing or cancel a plan?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Open the billing area from your dashboard to review the current plan and available account actions. For payment-specific questions, contact support using the details below.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="security" data-search="secure api key secret protect credentials browser github rotate security">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-400">10</span><span class="text-sm font-semibold leading-6 text-white md:text-base">How should I protect my API key?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Keep keys in server-side environment variables or a secrets manager. Do not place them in frontend JavaScript, commit them to source control, or share them in screenshots. Revoke and replace a key immediately if it may have been exposed.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="security" data-search="api error 401 403 429 status code troubleshooting request failed">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-400">11</span><span class="text-sm font-semibold leading-6 text-white md:text-base">Why is my API request returning an error?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Start by checking the endpoint, query parameters, API-key header, plan quota, and response status code. If the request still fails, send support the endpoint, status code, timestamp, and a redacted request example—never the secret key itself.</p></div></div>
+                    </article>
+
+                    <article class="faq-item glass-panel overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700" data-category="api" data-search="documentation examples sdk integration support docs">
+                        <button type="button" class="faq-trigger flex w-full items-center justify-between gap-5 px-5 py-5 text-left md:px-6" aria-expanded="false">
+                            <span class="flex items-start gap-4"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-xs font-bold text-cyan-400">12</span><span class="text-sm font-semibold leading-6 text-white md:text-base">Where can I find integration examples?</span></span>
+                            <span class="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-400 transition-transform"><i class="fa-solid fa-plus text-xs"></i></span>
+                        </button>
+                        <div class="faq-answer"><div><p class="px-5 pb-5 pl-16 text-sm leading-7 text-slate-400 md:px-6 md:pb-6 md:pl-[4.5rem]">Visit the API documentation for endpoint details, request examples, response structures, and authentication guidance. You can also use the interactive playground on the homepage to test a request before integrating it.</p></div></div>
+                    </article>
+                </div>
+
+                <div id="faq-empty" class="hidden rounded-3xl border border-dashed border-slate-700 bg-slate-950/40 px-6 py-14 text-center">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h3 class="mt-4 text-base font-bold text-white">No matching questions</h3>
+                    <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">Try a different keyword or contact our support team for account-specific help.</p>
+                    <a href="{% url 'support' %}" class="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500">Contact support <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Support CTA -->
+        <section class="relative mt-16 overflow-hidden rounded-3xl border border-indigo-500/25 bg-gradient-to-br from-indigo-500/10 via-slate-950/70 to-cyan-500/5 p-7 md:p-10">
+            <div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+            <div class="relative flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
+                <div class="max-w-2xl">
+                    <span class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">Need a human?</span>
+                    <h2 class="mt-3 text-2xl font-bold text-white md:text-3xl">Still stuck? We’re here to help.</h2>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Tell us what you’re building, what you tried, and where you got blocked. Our support team will point you in the right direction.</p>
+                </div>
+                <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
+                    <a href="{% url 'docs-page' %}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-indigo-500 hover:text-white"><i class="fa-solid fa-book-open"></i>Read the docs</a>
+                    <a href="{% url 'support' %}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500"><i class="fa-solid fa-message"></i>Contact support</a>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const initFaq = () => {
+    const search = document.getElementById('faq-search');
+    const clearSearch = document.getElementById('clear-search');
+    const status = document.getElementById('faq-status');
+    const count = document.getElementById('faq-count');
+    const empty = document.getElementById('faq-empty');
+    const items = [...document.querySelectorAll('.faq-item')];
+    const triggers = [...document.querySelectorAll('.faq-trigger')];
+    const categories = [...document.querySelectorAll('.faq-category')];
+    let activeCategory = 'all';
+
+    function updateResults() {
+        const query = (search.value || '').trim().toLowerCase();
+        let visible = 0;
+
+        items.forEach((item) => {
+            const categoryMatch = activeCategory === 'all' || item.dataset.category === activeCategory;
+            const textMatch = !query || item.dataset.search.includes(query);
+            const shouldShow = categoryMatch && textMatch;
+            item.classList.toggle('is-hidden', !shouldShow);
+            item.hidden = !shouldShow;
+            if (shouldShow) visible += 1;
+        });
+
+        count.textContent = `${visible} result${visible === 1 ? '' : 's'}`;
+        empty.classList.toggle('hidden', visible !== 0);
+        clearSearch.classList.toggle('hidden', !query);
+        status.textContent = query ? `${visible} matching question${visible === 1 ? '' : 's'} for “${search.value}”` : activeCategory === 'all' ? 'Showing all frequently asked questions' : `Showing ${activeCategory.replace('-', ' ')} questions`;
+    }
+
+    function openItem(item) {
+        const trigger = item.querySelector('.faq-trigger');
+        const answer = item.querySelector('.faq-answer');
+        const icon = item.querySelector('.faq-icon');
+        const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        answer.classList.toggle('is-open', !isOpen);
+        icon.style.transform = !isOpen ? 'rotate(45deg)' : '';
+        item.classList.toggle('border-indigo-500/40', !isOpen);
+    }
+
+    triggers.forEach((trigger) => {
+        trigger.addEventListener('click', () => openItem(trigger.closest('.faq-item')));
+        trigger.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openItem(trigger.closest('.faq-item'));
+            }
+        });
+    });
+
+    categories.forEach((button) => {
+        button.addEventListener('click', () => {
+            activeCategory = button.dataset.category;
+            categories.forEach((category) => {
+                const active = category === button;
+                category.classList.toggle('is-active', active);
+                category.setAttribute('aria-pressed', String(active));
+            });
+            updateResults();
+        });
+    });
+
+    search.addEventListener('input', updateResults);
+    clearSearch.addEventListener('click', () => {
+        search.value = '';
+        search.focus();
+        updateResults();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            search.focus();
+        }
+    });
+
+    updateResults();
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFaq, { once: true });
+} else {
+    initFaq();
+}
+</script>
+{% endblock %}

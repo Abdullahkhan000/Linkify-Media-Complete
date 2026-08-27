@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation - Linkify Media{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-5xl font-extrabold text-white mb-4 animate-fade-in">Documentation</h1>
+    <p class="text-xl text-slate-400 mb-12 animate-fade-in">Everything you need to integrate Linkify Media into your application.</p>
+
+    <!-- Authentication Section -->
+    <section id="authentication" class="mb-16">
+        <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Authentication</h2>
+        <p class="text-slate-300 mb-4">All API requests must include your API Key in the request headers. You can find or create your keys in the <a href="{% url 'dashboard' %}" class="text-blue-400 hover:underline">Dashboard</a>.</p>
+        
+        <div class="glass p-6 rounded-xl">
+            <h3 class="text-lg font-semibold text-white mb-2">Request Header</h3>
+            <div class="bg-slate-900 p-4 rounded-lg font-mono text-sm">
+                <span class="text-blue-400">X-API-Key:</span> <span class="text-slate-400">your_uuid_api_key_here</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Base URL Section -->
+    <section id="base-url" class="mb-16">
+        <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Base URL</h2>
+        <p class="text-slate-300 mb-4">All API endpoints are relative to the following base URL:</p>
+        <div class="glass p-6 rounded-xl">
+            <div class="bg-slate-900 p-4 rounded-lg font-mono text-sm text-green-400">
+                https://linkify-media.com/api/
+            </div>
+        </div>
+    </section>
+
+    <!-- Endpoints Section -->
+    <section id="endpoints" class="mb-16">
+        <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Endpoints</h2>
+
+        <!-- Search Endpoint -->
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">GET</span>
+                <h3 class="text-2xl font-bold text-white">/search/</h3>
+            </div>
+            <p class="text-slate-300 mb-4">Fetch verified media links for a specific movie or TV show title.</p>
+            
+            <h4 class="text-lg font-semibold text-slate-200 mb-2">Query Parameters</h4>
+            <table class="w-full text-left mb-6 border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-700 text-slate-400 uppercase text-xs">
+                        <th class="py-2 pr-4">Parameter</th>
+                        <th class="py-2 pr-4">Type</th>
+                        <th class="py-2 pr-4">Required</th>
+                        <th class="py-2">Description</th>
+                    </tr>
+                </thead>
+                <tbody class="text-slate-300 text-sm">
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 pr-4 font-mono text-blue-300">q</td>
+                        <td class="py-3 pr-4 italic">string</td>
+                        <td class="py-3 pr-4 text-red-400">Yes</td>
+                        <td class="py-3">The title of the movie or TV show.</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 pr-4 font-mono text-blue-300">type</td>
+                        <td class="py-3 pr-4 italic">string</td>
+                        <td class="py-3 pr-4">No</td>
+                        <td class="py-3">Either <code class="bg-slate-800 px-1 rounded">movie</code> (default) or <code class="bg-slate-800 px-1 rounded">tv</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Batch Endpoint -->
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold">POST</span>
+                <h3 class="text-2xl font-bold text-white">/batch/</h3>
+                <span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-xs font-bold uppercase">Pro Only</span>
+            </div>
+            <p class="text-slate-300 mb-4">Fetch links for multiple items in a single request (Max 10 items).</p>
+            
+            <h4 class="text-lg font-semibold text-slate-200 mb-2">Request Body (JSON)</h4>
+            <div class="glass p-4 rounded-xl mb-4">
+                <pre class="bg-slate-900 p-4 rounded-lg font-mono text-sm text-slate-400">
+{
+  "items": [
+    { "q": "Inception", "type": "movie" },
+    { "q": "The Last of Us", "type": "tv" }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <!-- Usage Endpoint -->
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">GET</span>
+                <h3 class="text-2xl font-bold text-white">/usage/</h3>
+            </div>
+            <p class="text-slate-300 mb-4">Check your current plan limits and remaining daily request quota.</p>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section id="examples" class="mb-16">
+        <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Code Examples</h2>
+
+        <div class="space-y-8">
+            <!-- cURL -->
+            <div>
+                <h3 class="text-xl font-bold text-white mb-3">cURL</h3>
+                <div class="glass p-4 rounded-xl">
+                    <pre class="bg-slate-900 p-4 rounded-lg font-mono text-sm text-blue-400 break-all overflow-x-auto whitespace-pre-wrap">
+curl -X GET "https://linkify-media.com/api/search/?q=Inception" \
+     -H "X-API-Key: your_api_key_here"</pre>
+                </div>
+            </div>
+
+            <!-- Python -->
+            <div>
+                <h3 class="text-xl font-bold text-white mb-3">Python (Requests)</h3>
+                <div class="glass p-4 rounded-xl">
+                    <pre class="bg-slate-900 p-4 rounded-lg font-mono text-sm text-slate-400 overflow-x-auto">
+import requests
+
+url = "https://linkify-media.com/api/search/"
+headers = {
+    "X-API-Key": "your_api_key_here"
+}
+params = {
+    "q": "Inception",
+    "type": "movie"
+}
+
+response = requests.get(url, headers=headers, params=params)
+data = response.json()
+print(data)</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plan Limits Section -->
+    <section id="plan-limits" class="mb-16">
+        <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Plan Limits</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass p-6 rounded-xl border-slate-700">
+                <h3 class="text-xl font-bold text-white mb-1">Free</h3>
+                <p class="text-3xl font-bold text-blue-400 mb-4">50<span class="text-sm text-slate-400 font-normal"> / day</span></p>
+                <ul class="text-sm text-slate-400 space-y-2">
+                    <li>• 1 API Key</li>
+                    <li>• Standard Search</li>
+                    <li>• Basic Support</li>
+                </ul>
+            </div>
+            <div class="glass p-6 rounded-xl border-blue-500/30 ring-1 ring-blue-500/20">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-xl font-bold text-white font-bold">Pro</h3>
+                    <span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Popular</span>
+                </div>
+                <p class="text-3xl font-bold text-blue-400 mb-4">2,000<span class="text-sm text-slate-400 font-normal"> / day</span></p>
+                <ul class="text-sm text-slate-400 space-y-2">
+                    <li>• 5 API Keys</li>
+                    <li>• Batch Requests</li>
+                    <li>• Faster Rate Limits</li>
+                </ul>
+            </div>
+            <div class="glass p-6 rounded-xl border-slate-700">
+                <h3 class="text-xl font-bold text-white mb-1">Business</h3>
+                <p class="text-3xl font-bold text-blue-400 mb-4">Custom</p>
+                <ul class="text-sm text-slate-400 space-y-2">
+                    <li>• Unlimited Keys</li>
+                    <li>• Unlimited Usage</li>
+                    <li>• Priority 24/7 Support</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
