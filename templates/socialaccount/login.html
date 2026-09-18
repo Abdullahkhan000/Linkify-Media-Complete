@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if process == 'connect' %}Connect {{ provider.name }}{% else %}Continue with {{ provider.name }}{% endif %} - Linkify Media{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-md rounded-3xl border border-indigo-500/20 bg-slate-900/80 p-8 text-center shadow-2xl shadow-indigo-950/30">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-2xl font-black text-slate-900 shadow-lg">
+      {% if provider.id == 'google' %}<span class="text-red-500">G</span>{% else %}<i class="fa-brands fa-github text-slate-900"></i>{% endif %}
+    </div>
+    <span class="mt-6 inline-flex rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.18em] text-indigo-300">Secure OAuth</span>
+    <h1 class="mt-4 text-3xl font-bold text-white">{% if process == 'connect' %}Connect {{ provider.name }}{% else %}Continue with {{ provider.name }}{% endif %}</h1>
+    <p class="mt-3 text-sm leading-relaxed text-slate-400">{% if process == 'connect' %}Connect your {{ provider.name }} account to Linkify Media for faster sign-in.{% else %}You are about to securely sign in to Linkify Media using your {{ provider.name }} account.{% endif %}</p>
+    <form method="post" class="mt-7 space-y-3">
+      {% csrf_token %}
+      {{ redirect_field }}
+      <button type="submit" class="w-full rounded-xl bg-indigo-600 px-5 py-3.5 font-semibold text-white transition hover:bg-indigo-500">Continue with {{ provider.name }} <i class="fa-solid fa-arrow-right ml-2"></i></button>
+    </form>
+    <a href="{% url 'account_login' %}" class="mt-5 inline-flex text-sm text-slate-500 transition hover:text-indigo-300">Cancel and return to sign in</a>
+    <p class="mt-7 text-[11px] leading-relaxed text-slate-600">Linkify Media never receives your {{ provider.name }} password. OAuth access is handled by the provider.</p>
+  </div>
+</div>
+{% endblock %}

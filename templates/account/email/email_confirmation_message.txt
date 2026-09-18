@@ -1,0 +1,10 @@
+Hello {{ user.get_username }},
+
+Welcome to Linkify Media.
+
+Verify your email address by opening this link:
+{{ activate_url }}
+
+This link expires soon. If you did not create this account, you can safely ignore this message.
+
+Linkify Media Support

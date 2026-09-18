@@ -9,6 +9,10 @@
         <p class="text-xl text-slate-400">Choose the perfect plan for your application needs.</p>
     </div>
 
+    {% if not billing_configured %}
+    <div class="mx-auto mb-8 max-w-4xl rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Billing checkout is safely disabled until the LemonSqueezy environment variables are configured.</div>
+    {% endif %}
+
     <!-- Current Plan Info -->
     <div class="glass p-6 rounded-xl mb-12 flex flex-col md:flex-row justify-between items-center max-w-4xl mx-auto border-blue-500/30">
         <div>
@@ -19,7 +23,8 @@
             {% if profile.tier == 'free' %}
                 <p class="text-slate-300">Upgrade to Pro or Business to unlock advanced features.</p>
             {% else %}
-                <p class="text-slate-300">Your subscription is active. Manage it via Lemon Squeezy portal.</p>
+                <p class="text-slate-300">Your subscription is active.</p>
+                <form method="post" action="{% url 'billing-portal' %}" class="mt-3">{% csrf_token %}<button class="text-sm font-semibold text-indigo-400 hover:text-indigo-300">Open secure customer portal →</button></form>
             {% endif %}
         </div>
     </div>
@@ -74,11 +79,13 @@
             {% if profile.tier == 'pro' %}
                 <button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed text-center">Active Plan</button>
             {% else %}
+                {% if billing_configured %}
                 <form action="{% url 'checkout' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="tier" value="pro">
                     <button type="submit" class="w-full py-3 rounded-lg font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors text-center">Upgrade to Pro</button>
                 </form>
+                {% else %}<button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed">Checkout unavailable</button>{% endif %}
             {% endif %}
         </div>
 
@@ -93,20 +100,22 @@
                     <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Unlimited requests
                 </li>
-                <li class="flex items-center text-slate-500">
+                <li class="flex items-center">
                     <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Custom Endpoints
+                    100 API keys · 100 items per batch
                 </li>
             </ul>
 
             {% if profile.tier == 'business' %}
                 <button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed text-center">Active Plan</button>
             {% else %}
+                {% if billing_configured %}
                 <form action="{% url 'checkout' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="tier" value="business">
                     <button type="submit" class="w-full py-3 rounded-lg font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors text-center">Go Business</button>
                 </form>
+                {% else %}<button disabled class="w-full py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed">Checkout unavailable</button>{% endif %}
             {% endif %}
         </div>
 

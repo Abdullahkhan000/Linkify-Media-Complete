@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#0b1020;color:#e5e7eb;font-family:Inter,Arial,sans-serif;line-height:1.6;">
+    <div style="width:100%;padding:44px 16px;background:#0b1020;box-sizing:border-box;">
+      <div style="max-width:600px;margin:0 auto;background:#111827;border:1px solid #263248;border-radius:20px;overflow:hidden;">
+        <div style="padding:28px 32px;background:linear-gradient(135deg,#2563eb,#4f46e5 55%,#7c3aed);">
+          <div style="font-size:22px;font-weight:800;letter-spacing:-.02em;color:#ffffff;">Linkify<span style="color:#c4b5fd;">Media</span></div>
+          <div style="margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#dbeafe;">Account security</div>
+        </div>
+        <div style="padding:34px 32px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:#312e81;color:#c4b5fd;text-align:center;line-height:48px;font-size:22px;">!</div>
+          <h1 style="margin:22px 0 12px;color:#ffffff;font-size:26px;line-height:1.25;">An account already exists</h1>
+          <p style="margin:0 0 18px;color:#cbd5e1;font-size:15px;">Someone tried to continue with Google or another sign-in method using this email address:</p>
+          <div style="margin:0 0 24px;padding:14px 16px;border:1px solid #334155;border-radius:12px;background:#0f172a;color:#ffffff;font-size:15px;font-weight:700;word-break:break-word;">{{ email }}</div>
+          <p style="margin:0 0 18px;color:#cbd5e1;font-size:15px;">To protect your account, please sign in with your existing email and password first. If you forgot your password, reset it using the secure link below, then connect Google or GitHub from your profile.</p>
+          <p style="margin:28px 0;text-align:center;">
+            <a href="{{ password_reset_url }}" style="display:inline-block;padding:13px 22px;border-radius:12px;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Reset your password</a>
+          </p>
+          <p style="margin:0;color:#94a3b8;font-size:13px;">If you did not try to sign in, you can safely ignore this email. Your account remains protected and no password was changed.</p>
+        </div>
+        <div style="padding:20px 32px;border-top:1px solid #263248;color:#64748b;font-size:12px;">
+          This security message was sent by Linkify Media. Please do not reply to this automated email.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "mfa/base_manage.html" %}
+
+{% block page_heading %}Two-factor authentication{% endblock %}
+{% block page_description %}Use an authenticator app and one-time recovery codes to keep your Linkify Media account secure.{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  {% if "totp" in MFA_SUPPORTED_TYPES %}
+  <article class="rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div><div class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen-button text-indigo-300"></i><h2 class="font-semibold text-white">Authenticator app</h2>{% if authenticators.totp %}<span class="rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">Active</span>{% else %}<span class="rounded-full bg-amber-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">Not set up</span>{% endif %}</div><p class="mt-2 text-sm text-slate-400">{% if authenticators.totp %}Your sign-ins require a rotating code from your authenticator app.{% else %}Add Google Authenticator, 1Password, Authy, or another TOTP app.{% endif %}</p></div>
+      {% if authenticators.totp %}<a href="{% url 'mfa_deactivate_totp' %}" class="rounded-xl border border-rose-500/30 px-4 py-2 text-sm font-semibold text-rose-300 hover:bg-rose-500/10">Deactivate</a>{% else %}<a href="{% url 'mfa_activate_totp' %}" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Set up authenticator</a>{% endif %}
+    </div>
+  </article>
+  {% endif %}
+
+  {% if "recovery_codes" in MFA_SUPPORTED_TYPES %}
+  <article class="rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><div class="flex items-center gap-2"><i class="fa-solid fa-key text-violet-300"></i><h2 class="font-semibold text-white">Recovery codes</h2></div><p class="mt-2 text-sm text-slate-400">Use a one-time recovery code if you lose access to your authenticator device.</p></div>{% if is_mfa_enabled %}<a href="{% url 'mfa_view_recovery_codes' %}" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">Manage codes</a>{% else %}<span class="text-xs text-slate-600">Enable authenticator first</span>{% endif %}</div>
+  </article>
+  {% endif %}
+</div>
+<div class="mt-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-xs leading-6 text-slate-400"><i class="fa-solid fa-circle-info mr-2 text-indigo-300"></i>Save recovery codes in a password manager. Each code can be used only once.</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Confirm Email Address - Linkify Media{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center py-16 px-4">
+  <div class="glass w-full max-w-lg p-8 rounded-3xl border border-indigo-500/20 text-center shadow-2xl">
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/15 flex items-center justify-center"><i class="fa-solid fa-shield-check text-3xl text-indigo-300"></i></div>
+    <h1 class="text-3xl font-bold text-white mt-6">Confirm your email</h1>
+    {% if confirmation %}
+      {% if can_confirm %}
+        <p class="text-slate-400 leading-relaxed mt-3">Confirm that <a href="mailto:{{ confirmation.email_address.email }}" class="text-indigo-300 hover:text-indigo-200">{{ confirmation.email_address.email }}</a> belongs to your Linkify Media account.</p>
+        {% url 'account_confirm_email' confirmation.key as action_url %}
+        <form method="post" action="{{ action_url }}" class="mt-7">
+          {% csrf_token %}
+          {{ redirect_field }}
+          <button type="submit" class="w-full px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">Confirm email address</button>
+        </form>
+      {% else %}
+        <p class="text-slate-400 leading-relaxed mt-3">This email address is already confirmed for another account.</p>
+      {% endif %}
+    {% else %}
+      <p class="text-slate-400 leading-relaxed mt-3">This confirmation link is invalid or has expired. Sign in and request a new verification email from your profile.</p>
+      <a href="{% url 'account_login' %}" class="inline-flex mt-7 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">Go to sign in</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

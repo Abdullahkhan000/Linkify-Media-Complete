@@ -36,6 +36,7 @@ env/
 venv/
 ENV/
 env.bak/
+node_modules/
 venv.bak/
 
 # IDEs
@@ -71,3 +72,6 @@ support-bot-install.md
 templates/landing-premium.html
 templates/landing-premium-live.html
 templates/landing-premium-full-demo.html
+
+# Generated frontend scratch/cache
+.npm/

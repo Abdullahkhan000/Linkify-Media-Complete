@@ -2,9 +2,14 @@ from django.urls import path
 from .views import (
     APIKeyListCreateView,
     APIKeyDetailView,
+    APIKeyRotateView,
     SearchAPIView,
     BatchAPIView,
     UsageAPIView,
+    SearchResultsAPIView,
+    MediaDetailAPIView,
+    TrendingAPIView,
+    PersonSearchAPIView,
     # Page Views
     LandingPageView, 
     DashboardView, 
@@ -13,6 +18,7 @@ from .views import (
     ProfileView,
     CreateLemonSqueezyCheckoutView,
     LemonSqueezyWebhookView,
+    LemonSqueezyCustomerPortalView,
     # New Views
     PrivacyPolicyView,
     AboutPageView,
@@ -20,6 +26,15 @@ from .views import (
     SupportView,
     UsageLogsListView,
     FAQView,
+    SupportChatAPIView,
+    SupportTicketCreateAPIView,
+    ResendVerificationView,
+    AccountDeleteView,
+    HealthView,
+    ReadinessView,
+    OpenAPISchemaView,
+    SwaggerUIView,
+    UsageLogsCSVView,
 )
 
 urlpatterns = [
@@ -31,6 +46,7 @@ urlpatterns = [
     path("docs/", DocsPageView.as_view(), name="docs-page"),
     path("billing/", BillingView.as_view(), name="billing"),
     path("billing/checkout/", CreateLemonSqueezyCheckoutView.as_view(), name="checkout"),
+    path("billing/portal/", LemonSqueezyCustomerPortalView.as_view(), name="billing-portal"),
     path("billing/webhook/", LemonSqueezyWebhookView.as_view(), name="lemonsqueezy-webhook"),
     
     # New Pages
@@ -39,11 +55,28 @@ urlpatterns = [
     path("faq/", FAQView.as_view(), name="faq"),
     path("support/", SupportView.as_view(), name="support"),
     path("usage-logs/", UsageLogsListView.as_view(), name="usage-logs"),
+    path("usage-logs/export/", UsageLogsCSVView.as_view(), name="usage-logs-export"),
 
     # API Endpoints (JSON)
     path('api/keys/',          APIKeyListCreateView.as_view(), name='apikey-list-create'),
     path('api/keys/<int:pk>/', APIKeyDetailView.as_view()),
+    path('api/keys/<int:pk>/rotate/', APIKeyRotateView.as_view(), name='apikey-rotate'),
     path('api/search/',        SearchAPIView.as_view()),
     path('api/batch/',         BatchAPIView.as_view()),
     path('api/usage/',         UsageAPIView.as_view()),
+    path('api/v1/search/',     SearchAPIView.as_view(), name='v1-search'),
+    path('api/v1/search/results/', SearchResultsAPIView.as_view(), name='v1-search-results'),
+    path('api/v1/batch/',      BatchAPIView.as_view(), name='v1-batch'),
+    path('api/v1/usage/',      UsageAPIView.as_view(), name='v1-usage'),
+    path('api/v1/media/<str:media_type>/<int:media_id>/', MediaDetailAPIView.as_view(), name='v1-media-detail'),
+    path('api/v1/trending/', TrendingAPIView.as_view(), name='v1-trending'),
+    path('api/v1/people/search/', PersonSearchAPIView.as_view(), name='v1-person-search'),
+    path('api/schema/',        OpenAPISchemaView.as_view(), name='openapi-schema'),
+    path('api/docs/',          SwaggerUIView.as_view(), name='swagger-ui'),
+    path('api/health/',        HealthView.as_view(), name='health'),
+    path('api/ready/',         ReadinessView.as_view(), name='ready'),
+    path('api/support/chat/',  SupportChatAPIView.as_view(), name='support-chat'),
+    path('api/support/ticket/', SupportTicketCreateAPIView.as_view(), name='support-ticket-create'),
+    path('account/verification/resend/', ResendVerificationView.as_view(), name='resend-verification'),
+    path('account/delete/', AccountDeleteView.as_view(), name='account-delete'),
 ]

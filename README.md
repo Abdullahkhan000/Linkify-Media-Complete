@@ -1,308 +1,134 @@
-<div align="center">
+# Linkify Media
 
-# 🎬 Linkify Media — Enterprise Media & Metadata API SaaS Platform
+Linkify Media is a Django and Django REST Framework SaaS starter for TMDB-backed movie and TV metadata. It includes verified accounts, hashed and scoped API keys, quota enforcement, usage analytics, LemonSqueezy billing hooks, support tickets, a browser demo, and a developer dashboard.
 
-[![Django](https://img.shields.io/badge/Django-6.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://djangoproject.com/)
-[![DRF](https://img.shields.io/badge/Django_REST_Framework-3.17-red?style=for-the-badge&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
-[![Celery](https://img.shields.io/badge/Celery-Task_Queue-37B24D?style=for-the-badge&logo=celery&logoColor=white)](https://docs.celeryq.dev/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+## What is implemented
 
-<p align="center">
-  <b>A high-performance, developer-first RESTful API platform and SaaS dashboard for media search, metadata aggregation, API key management, rate limiting, and monetization.</b>
-</p>
+- TMDB movie and TV title lookup with metadata enrichment and one-hour Redis/local cache.
+- Versioned `/api/v1/` endpoints plus an OpenAPI 3.1 schema and Swagger UI.
+- API secrets hashed at rest, one-time secret display, scopes, expiry, revocation, and rotation.
+- Atomic daily quotas, per-minute limits, request status/latency logs, charts, and CSV export.
+- Short-lived signed browser-demo tokens with per-IP limits; there is no hardcoded demo API key.
+- Mandatory email verification before key creation, Google/GitHub sign-in support, and Resend delivery.
+- LemonSqueezy checkout, signed/idempotent webhooks, subscription downgrades, and customer portal access.
+- Docker deployment, SQLite for local development, optional PostgreSQL, optional Redis, and health/readiness endpoints.
 
-[✨ Features](#-features) •
-[🚀 Quick Start](#-quick-start) •
-[🐳 Docker Guide](#-docker-setup) •
-[💻 Local Setup](#-local-setup) •
-[🔑 API Reference](#-api-reference) •
-[⚙️ Configuration](#%EF%B8%8F-environment-variables)
+Linkify currently uses TMDB as its metadata provider. IMDb, Rotten Tomatoes, Metacritic, Letterboxd, and JustWatch values are outbound links, not independently aggregated datasets.
 
----
+## Requirements
 
-</div>
+- Python 3.12
+- Docker 20.10+ for the container workflow
+- A TMDB key for live media search (the rest of the site boots safely without one)
 
-## 🌟 Overview
+## Local setup
 
-**Linkify Media** is a full-featured Django & Django REST Framework application designed to deliver real-time movie, TV series, and media metadata with built-in API key authorization, usage tracking, tiered subscriptions via **LemonSqueezy**, and a modern web dashboard.
-
-Whether you're running it locally or deploying containerized workloads with **Docker**, Linkify Media provides enterprise-ready scalability, task queues with Celery/Redis, and clean UI components out-of-the-box.
-
----
-
-## ✨ Features
-
-- 🔍 **Real-Time Media Search**: Multi-provider metadata query engine powered by TMDB API.
-- 🔑 **API Key Management**: Instant API key generation, rotation, and tier scoping (`Free`, `Pro`, `Business`).
-- ⚡ **Automated Usage Logs & Middleware**: Dynamic request tracking, custom middleware verification, and usage stats.
-- 💳 **Subscription & Billing**: Seamless integration with **LemonSqueezy** checkouts & webhook events.
-- 📧 **Transactional Emails**: Resend API integration for account events and notifications.
-- 📊 **User & Admin Dashboard**: Interactive front-end views for API key generation, logs, billing, and system docs.
-- 🐳 **Docker Native**: Pre-configured `Dockerfile` and `docker-compose.yml` for zero-friction setup.
-
----
-
-## 🛠️ Tech Stack
-
-| Component | Technology | Description |
-|---|---|---|
-| **Backend Framework** | Django 6.0 & DRF 3.17 | Robust Python REST API framework |
-| **Database** | SQLite (Dev) / PostgreSQL (Prod) | Relational database storage |
-| **Task Queue** | Celery + Redis | Asynchronous background job processor |
-| **Authentication** | Django Allauth | Email-based authentication & social auth ready |
-| **Payments** | LemonSqueezy SDK & Webhooks | Automated tier upgrades & checkout links |
-| **Containerization** | Docker & Docker Compose | Containerized application setup |
-
----
-
-## 🚀 Quick Start
-
-### 📋 Prerequisites
-
-Make sure you have the following installed on your machine:
-- **Python**: `3.10` or higher
-- **Git**: `2.x+`
-- **Docker Desktop** *(Optional, for containerized run)*: `20.10+`
-
----
-
-## 🐳 Docker Setup (Recommended)
-
-Run the entire application in isolated containers with **Docker Compose**:
-
-### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/Abdullahkhan000/Linkify-Media-Complete.git
-cd "Linkify-Media-Complete"
-```
-
-### 2️⃣ Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
+git clone https://github.com/Brayanfury007/my-linkify.git
+cd my-linkify
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+npm ci
+npm run build:css
 cp .env.example .env
-```
-*(Update your `TMDB_API_KEY`, `RESEND_API_KEY`, and secrets in `.env`)*
-
-### 3️⃣ Build and Launch Containers
-```bash
-docker-compose up --build -d
-```
-
-### 4️⃣ Check Status & Logs
-```bash
-docker-compose ps
-docker-compose logs -f web
-```
-
-### 5️⃣ Access the Application
-Open your browser and navigate to:
-- 🌐 **Web Dashboard & Landing Page**: `http://localhost:8000`
-- 🛠️ **Django Admin Portal**: `http://localhost:8000/admin/`
-
-To stop the Docker containers:
-```bash
-docker-compose down
-```
-
----
-
-## 💻 Local Setup (Without Docker)
-
-If you prefer running the app directly on your host environment:
-
-### 1️⃣ Clone & Navigate
-```bash
-git clone https://github.com/Abdullahkhan000/Linkify-Media-Complete.git
-cd "Linkify-Media-Complete"
-```
-
-### 2️⃣ Create & Activate Virtual Environment
-- **Windows (PowerShell/CMD)**:
-  ```powershell
-  python -m venv .venv
-  .\.venv\Scripts\activate
-  ```
-- **macOS / Linux**:
-  ```bash
-  python3 -m venv .venv
-  source .venv/bin/activate
-  ```
-
-### 3️⃣ Install Dependencies
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 4️⃣ Set Up Environment Variables
-Create a `.env` file in the root directory:
-```bash
-cp .env.example .env
-```
-
-### 5️⃣ Run Database Migrations
-```bash
 python manage.py migrate
-```
-
-### 6️⃣ Create Superuser (Admin)
-```bash
-python manage.py createsuperuser
-```
-
-### 7️⃣ Start Development Server
-```bash
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/` in your browser! 🚀
+Open <http://127.0.0.1:8000/>. Swagger UI is available at <http://127.0.0.1:8000/api/docs/>.
 
----
+## Docker
 
-## ⚙️ Environment Variables
+```bash
+cp .env.example .env
+docker compose up --build -d
+docker compose ps
+docker compose logs -f web
+```
 
-Create `.env` in the root folder with the following variables:
+The web readiness endpoint is `/api/ready/`. Stop the stack with `docker compose down`.
+
+## Configuration
+
+Use `.env.example` as the complete non-secret template. Important production values are:
 
 ```ini
-# Django Settings
-SECRET_KEY=your-django-secret-key
-DEBUG=True
-ALLOWED_HOSTS=*
+SECRET_KEY=a-long-random-production-secret
+DEBUG=False
+ALLOWED_HOSTS=api.example.com
+CSRF_TRUSTED_ORIGINS=https://api.example.com
+DATABASE_URL=postgresql://user:password@host:5432/database
+REDIS_URL=redis://redis:6379/0
+TMDB_API_KEY=your-tmdb-key
 
-# External Services
-TMDB_API_KEY=your_tmdb_api_key_here
-RESEND_API_KEY=your_resend_api_key_here
-
-# LemonSqueezy Billing & Webhook Settings
-LEMONSQUEEZY_API_KEY=your_lemonsqueezy_key
-LEMONSQUEEZY_STORE_ID=your_store_id
-LEMONSQUEEZY_WEBHOOK_SECRET=your_webhook_secret
-
-# Redis / Celery (Optional)
-REDIS_URL=redis://localhost:6379/0
+LEMONSQUEEZY_API_KEY=your-api-key
+LEMONSQUEEZY_STORE_ID=your-store-id
+LEMONSQUEEZY_VARIANT_PRO=your-pro-variant-id
+LEMONSQUEEZY_VARIANT_BIZ=your-business-variant-id
+LEMONSQUEEZY_WEBHOOK_SECRET=your-webhook-secret
 ```
 
----
+When `DEBUG=False`, `SECRET_KEY` is mandatory and secure cookies, HTTPS redirect, and HSTS default to enabled. If TLS redirects are handled outside Django, override the relevant settings explicitly and deliberately.
 
-## 🔑 API Reference & Usage
+OAuth provider credentials are loaded into django-allauth `SocialApp` records by `python manage.py configure_social_apps`, which the Docker entrypoint runs after migrations.
 
-### 🛡️ Authentication
-Include your generated API key in the `X-API-KEY` request header or `api_key` query parameter.
+## API
 
----
+Send credentials only through the `X-API-Key` header. Query-string keys are intentionally unsupported because URLs commonly leak into logs and browser history.
 
-### 1️⃣ Search Media
-Query movies and TV shows with automatic TMDB enrichment.
-
-- **Endpoint**: `GET /api/search/`
-- **Headers**: `X-API-KEY: <your-api-key>`
-- **Query Params**: `query=Inception`
-
-#### 💻 `cURL` Example:
-```bash
-curl -X GET "http://localhost:8000/api/search/?query=Inception" \
-     -H "X-API-KEY: 123e4567-e89b-12d3-a456-426614174000"
-```
-
-#### 🐍 `Python` Example:
-```python
-import requests
-
-url = "http://localhost:8000/api/search/"
-headers = {"X-API-KEY": "123e4567-e89b-12d3-a456-426614174000"}
-params = {"query": "Interstellar"}
-
-response = requests.get(url, headers=headers, params=params)
-print(response.json())
-```
-
----
-
-### 2️⃣ Batch Media Metadata
-Process multiple query requests in a single payload.
-
-- **Endpoint**: `POST /api/batch/`
-- **Headers**: `X-API-KEY: <your-api-key>`
-- **Body**:
-```json
-{
-  "titles": ["The Dark Knight", "Avatar", "Oppenheimer"]
-}
-```
-
----
-
-### 3️⃣ Manage API Keys
-List or create API keys for your account.
-
-- **Endpoint**: `GET / POST /api/keys/`
-- **Authentication**: Session / Cookie Auth (Logged in user)
-
----
-
-### 4️⃣ API Usage Analytics
-Retrieve total request counts and endpoint breakdown.
-
-- **Endpoint**: `GET /api/usage/`
-- **Headers**: `X-API-KEY: <your-api-key>`
-
----
-
-## 📁 Project Architecture
-
-```
-drf linkify media app/
-├── 📁 api/                   # Core REST API app
-│   ├── adapters.py          # Custom Allauth adapter
-│   ├── middleware.py        # API key verification middleware
-│   ├── models.py            # Profile, APIKey, UsageLog models
-│   ├── serializers.py       # DRF Serializers
-│   ├── views.py             # API endpoints & web dashboard views
-│   └── urls.py              # URL routing
-├── 📁 core/                  # Django project settings
-│   ├── settings.py          # Main settings file
-│   ├── urls.py              # Root URL router
-│   ├── wsgi.py              # WSGI entry point
-│   └── asgi.py              # ASGI entry point
-├── 📁 templates/             # HTML Templates (Landing, Dashboard, Docs)
-├── 📄 Dockerfile            # Docker build container recipe
-├── 📄 docker-compose.yml    # Docker Multi-container orchestration
-├── 📄 manage.py             # Django CLI entry script
-├── 📄 requirements.txt      # Python dependencies
-└── 📄 README.md             # Project documentation
-```
-
----
-
-## 🧪 Testing
-
-Run test suites using Django's built-in test runner:
+### Search
 
 ```bash
-python manage.py test api
+curl "http://localhost:8000/api/v1/search/?q=Inception&type=movie&country=us" \
+  -H "X-API-Key: lm_live_your_secret"
 ```
 
----
+Optional `fields` aliases include `title`, `year`, `genres`, `runtime`, `rating`, `poster`, `cast`, `tmdb`, `imdb`, and `justwatch`.
 
-## 🤝 Contributing
+For discovery workflows, use:
 
-Contributions are always welcome!
-1. **Fork** the repository
-2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
+- `GET /api/v1/search/results/?q=Dune&type=movie&page=1&year=2021` for paginated results.
+- `GET /api/v1/media/movie/438631/?country=US` for details, cast, recommendations, and watch providers.
+- `GET /api/v1/trending/?type=all` for weekly trending media.
+- `GET /api/v1/people/search/?q=Denis%20Villeneuve` for cast and creator search.
 
----
+### Batch
 
-## 📄 License
+```bash
+curl -X POST "http://localhost:8000/api/v1/batch/" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: lm_live_your_secret" \
+  -d '{"items":[{"q":"Dune","type":"movie"},{"q":"The Bear","type":"tv"}]}'
+```
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+Batch requires the `batch` scope and a Pro or Business plan. Limits are 25 and 100 items respectively; the browser demo allows 3.
 
----
+### Usage
 
-<div align="center">
-  <sub>Built with ❤️ using Python, Django, and DRF.</sub>
-</div>
+```bash
+curl "http://localhost:8000/api/v1/usage/" \
+  -H "X-API-Key: lm_live_your_secret"
+```
+
+API keys are shown only once. Store them in a server-side secret manager or environment variable, never in browser JavaScript or source control.
+
+Starter clients are included in `sdk/python/linkify.py` and `sdk/javascript/linkify.mjs`. An importable collection is available at `postman/Linkify_Media.postman_collection.json`.
+
+## Operations and checks
+
+```bash
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test
+python manage.py check --deploy
+```
+
+- Liveness: `GET /api/health/`
+- Readiness: `GET /api/ready/`
+- OpenAPI schema: `GET /api/schema/`
+- Swagger UI: `GET /api/docs/`
+
+## License
+
+[MIT](LICENSE)

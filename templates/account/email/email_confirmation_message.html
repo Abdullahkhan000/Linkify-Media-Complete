@@ -1,0 +1,23 @@
+{% load account %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify your email</title></head>
+<body style="margin:0;background:#0b1120;color:#e2e8f0;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+  <div style="max-width:560px;margin:0 auto;padding:42px 20px">
+    <div style="border:1px solid #24314d;border-radius:22px;background:#111a2e;padding:34px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#818cf8">LINKIFY MEDIA</div>
+      <h1 style="font-size:28px;line-height:1.2;color:#fff;margin:22px 0 12px">Verify your email address</h1>
+      <p style="color:#94a3b8;margin:0 0 26px">Hello {{ user.get_username }}, please verify your email to activate secure account recovery and notifications.</p>
+      {% if activate_url %}
+      <a href="{{ activate_url }}" style="display:inline-block;border-radius:12px;background:#4f46e5;color:#fff;text-decoration:none;font-weight:700;padding:13px 20px">Verify email address</a>
+      <p style="font-size:12px;color:#64748b;margin:24px 0 0;word-break:break-all">If the button does not work, open this link:<br>{{ activate_url }}</p>
+      {% elif code %}
+      <p style="font-size:14px;color:#94a3b8">Enter this verification code in your open browser window:</p>
+      <div style="font-size:28px;font-weight:800;letter-spacing:.18em;color:#a5b4fc">{{ code }}</div>
+      {% endif %}
+      <p style="font-size:12px;color:#64748b;margin:28px 0 0">If you did not create this account, you can safely ignore this email.</p>
+    </div>
+    <p style="font-size:12px;color:#475569;text-align:center;margin:20px 0 0">Linkify Media developer support</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{% block head_title %}Two-factor authentication{% endblock %} · Linkify Media{% endblock %}
+
+{% block content %}
+<section class="mx-auto flex min-h-[70vh] max-w-xl items-center justify-center px-4 py-12">
+  <div class="w-full rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl shadow-indigo-950/20 sm:p-10">
+    <div class="mb-8 flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300"><i class="fa-solid fa-shield-halved"></i></div>
+      <div><p class="text-xs font-semibold uppercase tracking-[.18em] text-indigo-300">Account protection</p><p class="mt-1 text-sm text-slate-400">Linkify Media Security</p></div>
+    </div>
+    {% if messages %}{% for message in messages %}<div class="mb-5 rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-sm text-indigo-200">{{ message }}</div>{% endfor %}{% endif %}
+    {% block content_inner %}{% endblock %}
+  </div>
+</section>
+{% endblock %}

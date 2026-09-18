@@ -38,7 +38,7 @@
                     Developer Dashboard
                 </a>
             {% endif %}
-            <a href="#live-demo" class="px-10 py-4 rounded-2xl bg-slate-900 border border-slate-800 text-white font-extrabold hover:bg-slate-800 transition-all text-lg">
+            <a href="#live-demo" class="px-10 py-4 rounded-2xl bg-white border border-white text-slate-950 font-extrabold hover:bg-slate-200 transition-all text-lg">
                 Try Live Demo
             </a>
         </div>
@@ -60,7 +60,7 @@
                     <!-- Mode Toggle -->
                     <div class="flex p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-8">
                         <button id="mode-single" onclick="setDemoMode('single')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white">Single Search</button>
-                        <button id="mode-batch" onclick="setDemoMode('batch')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white">Batch Mode</button>
+                        <button id="mode-batch" onclick="setDemoMode('batch')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white">Batch Mode</button>
                     </div>
 
                     <div class="space-y-6">
@@ -104,9 +104,9 @@
                             <div class="w-3 h-3 rounded-full bg-rose-500/50"></div>
                             <div class="w-3 h-3 rounded-full bg-amber-500/50"></div>
                             <div class="w-3 h-3 rounded-full bg-emerald-500/50"></div>
-                            <span id="endpoint-label" class="ml-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">GET /api/search/</span>
+                            <span id="endpoint-label" class="ml-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">GET /api/v1/search/</span>
                         </div>
-                        <div id="demo-status" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Idle</div>
+                        <div id="demo-status" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Idle</div>
                     </div>
                     
                     <div class="flex-1 p-6 md:p-10 font-mono text-[13px] leading-relaxed overflow-auto custom-scrollbar relative">
@@ -119,9 +119,9 @@
                         </div>
 
                         <div id="demo-output" class="text-slate-400">
-                            <span class="text-slate-600">// Select a mode, enter a query, and click "Run API Request".</span>
+                            <span class="text-slate-400">// Select a mode, enter a query, and click "Run API Request".</span>
                             <br>
-                            <span class="text-slate-600">// Batch Mode allows querying multiple titles in one request.</span>
+                            <span class="text-slate-400">// Batch Mode allows querying multiple titles in one request.</span>
                         </div>
                     </div>
                 </div>
@@ -141,8 +141,8 @@
                 <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">Multi-Source Aggregation</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Unified metadata from TMDB, IMDb, Rotten Tomatoes, and JustWatch in a single response.</p>
+                <h3 class="text-xl font-bold text-white mb-3">Verified TMDB Metadata</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Reliable movie and TV metadata with direct discovery links for major entertainment platforms.</p>
             </div>
             
             <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-blue-500/30 transition-all group">
@@ -150,7 +150,7 @@
                     <i class="fa-solid fa-bolt text-2xl text-blue-400"></i>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-3">Asynchronous Engine</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">High-performance async core ensures sub-second responses even for complex multi-provider queries.</p>
+                <p class="text-slate-400 text-sm leading-relaxed">Async provider calls, bounded batches, retries, timeouts, and shared caching keep integrations predictable.</p>
             </div>
             
             <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-purple-500/30 transition-all group">
@@ -158,7 +158,7 @@
                     <i class="fa-solid fa-code text-2xl text-purple-400"></i>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-3">Developer First DX</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Swagger documentation, clean JSON schemas, and SDK-ready endpoints for rapid integration.</p>
+                <p class="text-slate-400 text-sm leading-relaxed">OpenAPI 3.1, Swagger documentation, scoped keys, and versioned endpoints for rapid integration.</p>
             </div>
         </div>
     </div>
@@ -166,40 +166,10 @@
     <!-- Registration Section -->
     <div id="get-key" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-tight">Get Your Free API Key.</h2>
+                <h2 class="text-3xl md:text-5xl font-black text-white mb-5 tracking-tight">Build securely from day one.</h2>
+                <p class="mb-12 text-slate-400">Create your account, verify your email, then generate a scoped API key that is shown only once.</p>
             
-            {% if success %}
-                <div class="glass-panel p-8 rounded-[2.5rem] border border-emerald-500/30 bg-emerald-500/5 text-left shadow-2xl shadow-emerald-950/20">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-500/20 text-white">
-                            <i class="fa-solid fa-check-double text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white">Account Created!</h3>
-                            <p class="text-emerald-400/80 text-sm font-medium">Your private API key is ready for integration.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="relative group">
-                        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                        <div class="relative bg-slate-950 border border-slate-800 p-5 rounded-2xl font-mono text-lg text-emerald-400 flex items-center justify-between overflow-hidden">
-                            <span class="truncate mr-4">{{ new_api_key }}</span>
-                            <button onclick="navigator.clipboard.writeText('{{ new_api_key }}'); alert('Key copied!')" class="shrink-0 text-slate-500 hover:text-white transition-colors">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 flex flex-col sm:flex-row items-center gap-4">
-                        <a href="{% url 'dashboard' %}" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-white text-slate-950 font-bold hover:bg-slate-200 transition-all text-center">
-                            Go to Dashboard
-                        </a>
-                        <p class="text-[11px] text-slate-500 text-center sm:text-left leading-relaxed">
-                            <i class="fa-solid fa-circle-info mr-1"></i> Save this key now. It will not be shown again for security reasons.
-                        </p>
-                    </div>
-                </div>
-            {% elif user.is_authenticated %}
+            {% if user.is_authenticated %}
                 <div class="glass-panel p-12 rounded-[3rem] border border-slate-800">
                     <p class="text-slate-400 mb-8">You are already logged in as <span class="text-white font-bold">{{ user.email }}</span>.</p>
                     <a href="{% url 'dashboard' %}" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
@@ -210,13 +180,13 @@
                 <div class="glass-panel p-2 rounded-[2rem] border border-slate-800 shadow-2xl">
                     <form method="POST" class="flex flex-col md:flex-row gap-2">
                         {% csrf_token %}
-                        <input type="text" name="name" required placeholder="Full Name" 
+                        <input type="text" name="name" required placeholder="Full Name" value="{{ form.name.value|default:'' }}"
                                class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
                         <div class="hidden md:block w-px h-8 bg-slate-800 self-center"></div>
-                        <input type="email" name="email" required placeholder="Email Address" 
+                        <input type="email" name="email" required placeholder="Email Address" value="{{ form.email.value|default:'' }}"
                                class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
                         <button type="submit" class="px-8 py-4 rounded-[1.5rem] bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">
-                            Get Free Key
+                            Continue Secure Signup
                         </button>
                     </form>
                 </div>
@@ -224,7 +194,7 @@
                     <p class="mt-4 text-rose-400 text-sm font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ form.non_field_errors.0|default:form.email.errors.0 }}</p>
                 {% endif %}
                 <p class="mt-6 text-slate-500 text-xs font-medium">
-                    <i class="fa-solid fa-bolt-lightning text-amber-500 mr-1"></i> No credit card required. Start with 100 requests/day.
+                    <i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Email verification required. No credit card needed.
                 </p>
             {% endif %}
         </div>
@@ -265,6 +235,7 @@
 <script>
 let demoMode = 'single';
 let mediaType = 'movie';
+const demoToken = '{{ demo_token|escapejs }}';
 
 function setDemoMode(mode) {
     demoMode = mode;
@@ -278,20 +249,20 @@ function setDemoMode(mode) {
 
     if (mode === 'single') {
         singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
-        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white';
+        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white';
         typeSelector.classList.remove('opacity-50', 'pointer-events-none');
         queryLabel.textContent = 'Search Query';
         queryInput.placeholder = 'e.g. Inception...';
         batchHint.classList.add('hidden');
-        endpointLabel.textContent = 'GET /api/search/';
+        endpointLabel.textContent = 'GET /api/v1/search/';
     } else {
         batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
-        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-white';
+        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white';
         typeSelector.classList.add('opacity-50', 'pointer-events-none');
         queryLabel.textContent = 'Batch Titles';
         queryInput.placeholder = 'Inception, The Boys, Naruto...';
         batchHint.classList.remove('hidden');
-        endpointLabel.textContent = 'POST /api/batch/';
+        endpointLabel.textContent = 'POST /api/v1/batch/';
     }
 }
 
@@ -314,6 +285,11 @@ async function runDemo() {
         alert('Please enter at least one title.');
         return;
     }
+    if (!demoToken) {
+        output.innerHTML = '<span class="text-amber-400">// Public demo is disabled in this environment. Create a free account to use the API.</span>';
+        status.textContent = 'Demo unavailable';
+        return;
+    }
 
     // Reset UI
     loader.classList.remove('hidden');
@@ -326,20 +302,20 @@ async function runDemo() {
         const csrf = document.querySelector('[name="csrfmiddlewaretoken"]')?.value || '';
 
         if (demoMode === 'single') {
-            url = `/api/search/?q=${encodeURIComponent(query)}&type=${mediaType}`;
+            url = `/api/v1/search/?q=${encodeURIComponent(query)}&type=${mediaType}`;
             options = {
                 method: 'GET',
-                headers: { 'X-API-Key': 'demo_key', 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 'X-Demo-Token': demoToken, 'X-Requested-With': 'XMLHttpRequest' }
             };
         } else {
             // Batch Mode
-            url = '/api/batch/';
+            url = '/api/v1/batch/';
             const titles = query.split(',').map(t => t.trim()).filter(t => t.length > 0);
             const items = titles.map(t => ({ q: t, type: 'movie' })); // Defaulting to movie for batch demo
             options = {
                 method: 'POST',
                 headers: { 
-                    'X-API-Key': 'demo_key', 
+                    'X-Demo-Token': demoToken,
                     'X-Requested-With': 'XMLHttpRequest',
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrf

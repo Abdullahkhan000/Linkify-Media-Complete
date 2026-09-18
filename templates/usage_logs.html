@@ -7,11 +7,9 @@
     <div class="flex items-center justify-between mb-8">
         <div>
             <h1 class="text-4xl font-bold text-white">Usage Logs</h1>
-            <p class="text-gray-400 mt-2">A detailed history of your API requests.</p>
+            <p class="text-gray-400 mt-2">Status, latency, endpoint and credential audit trail.</p>
         </div>
-        <a href="{% url 'dashboard' %}" class="px-6 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 transition-all text-gray-300">
-            Back to Dashboard
-        </a>
+        <div class="flex gap-2"><a href="{% url 'usage-logs-export' %}" class="px-4 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 text-gray-300">Export CSV</a><a href="{% url 'dashboard' %}" class="px-4 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 text-gray-300">Dashboard</a></div>
     </div>
 
     <div class="glass rounded-3xl border border-white/10 overflow-hidden">
@@ -21,7 +19,8 @@
                     <tr class="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-[11px] tracking-widest font-bold">
                         <th class="px-8 py-5">API Key</th>
                         <th class="px-8 py-5">Endpoint</th>
-                        <th class="px-8 py-5">Date</th>
+                        <th class="px-8 py-5">Time</th>
+                        <th class="px-8 py-5">Latency</th>
                         <th class="px-8 py-5 text-right">Status</th>
                     </tr>
                 </thead>
@@ -29,15 +28,16 @@
                     {% for log in logs %}
                     <tr class="hover:bg-white/[0.02] transition-colors text-sm">
                         <td class="px-8 py-5 text-gray-200">{{ log.api_key.name }}</td>
-                        <td class="px-8 py-5 text-gray-400 font-mono text-xs">{{ log.endpoint }}</td>
-                        <td class="px-8 py-5 text-gray-400">{{ log.date|date:"M d, Y" }}</td>
+                        <td class="px-8 py-5 text-gray-400 font-mono text-xs">{{ log.method }} {{ log.endpoint }}</td>
+                        <td class="px-8 py-5 text-gray-400">{{ log.created_at|date:"M d, H:i:s" }}</td>
+                        <td class="px-8 py-5 text-gray-400">{% if log.latency_ms != None %}{{ log.latency_ms }}ms{% else %}—{% endif %}</td>
                         <td class="px-8 py-5 text-right">
-                            <span class="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold uppercase tracking-wider">Success</span>
+                            {% if log.status_code and log.status_code < 400 %}<span class="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold">{{ log.status_code }}</span>{% else %}<span class="px-3 py-1 bg-rose-500/10 text-rose-400 rounded-full text-[10px] font-bold">{{ log.status_code|default:"pending" }}</span>{% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-8 py-20 text-center text-gray-500 italic">
+                        <td colspan="5" class="px-8 py-20 text-center text-gray-500 italic">
                             No usage logs found. Start using your API key to see history.
                         </td>
                     </tr>

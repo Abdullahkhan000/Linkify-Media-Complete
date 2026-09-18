@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Connecting {{ provider }} - Linkify Media{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-md rounded-3xl border border-indigo-500/20 bg-slate-900/80 p-8 text-center shadow-2xl shadow-indigo-950/30">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/15"><i class="fa-solid fa-shield-halved animate-pulse text-2xl text-indigo-300"></i></div>
+    <h1 class="mt-6 text-2xl font-bold text-white">Connecting securely</h1>
+    <p class="mt-3 text-sm leading-relaxed text-slate-400">We are taking you to {{ provider }} to complete authentication. This page will redirect automatically.</p>
+    <div class="mx-auto mt-7 h-1.5 w-40 overflow-hidden rounded-full bg-slate-800"><div class="h-full w-1/2 animate-pulse rounded-full bg-indigo-500"></div></div>
+    <a href="{{ redirect_to }}" class="mt-7 inline-flex rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-500">Continue manually <i class="fa-solid fa-arrow-right ml-2"></i></a>
+    <p class="mt-6 text-[11px] text-slate-600">If the redirect does not start, use the button above.</p>
+  </div>
+</div>
+{{ redirect_to|json_script:"oauth-redirect-url" }}
+<script>window.setTimeout(function(){ window.location.replace(JSON.parse(document.getElementById('oauth-redirect-url').textContent)); }, 250);</script>
+{% endblock %}

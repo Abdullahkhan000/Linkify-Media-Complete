@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Connected Accounts - Linkify Media{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-12"><div class="mb-8"><span class="text-xs font-semibold uppercase tracking-[.18em] text-indigo-400">Account security</span><h1 class="mt-3 text-4xl font-bold text-white">Connected accounts</h1><p class="mt-3 text-slate-400">Manage the Google and GitHub accounts connected to Linkify Media.</p></div>
+  <div class="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 md:p-8">
+    {% if form.accounts %}<div class="space-y-3">{% for account in form.accounts %}<label class="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4"><span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-300"><i class="fa-brands fa-{{ account.get_provider|lower }}"></i></span><span><span class="block font-semibold text-white">{{ account.get_provider.name }}</span><span class="block text-xs text-slate-500">{{ account.get_account.extra_data.email|default:"Connected sign-in" }}</span></span></span><input type="radio" name="account" value="{{ account.pk }}" form="disconnect-form" class="accent-indigo-500"></label>{% endfor %}</div><form id="disconnect-form" method="post" action="{% url 'socialaccount_connections' %}" class="mt-5"><input type="hidden" name="action" value="disconnect"><input type="hidden" name="account" id="disconnect-account"><button type="submit" class="rounded-xl border border-rose-500/30 px-4 py-2.5 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10" onclick="document.getElementById('disconnect-account').value=document.querySelector('input[name=account]:checked')?.value||''">Disconnect selected account</button></form>{% else %}<div class="rounded-2xl border border-dashed border-slate-700 p-8 text-center"><i class="fa-solid fa-link-slash text-2xl text-slate-600"></i><p class="mt-3 text-sm text-slate-400">No social accounts are connected yet.</p></div>{% endif %}
+  </div><a href="{% url 'profile' %}" class="mt-6 inline-flex text-sm text-indigo-300 hover:text-indigo-200">Back to profile</a>
+</div>
+{% endblock %}

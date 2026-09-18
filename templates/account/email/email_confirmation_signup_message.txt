@@ -1,0 +1,10 @@
+Hello {{ user.get_username }},
+
+Thanks for creating your Linkify Media account.
+
+Verify your email address here:
+{{ activate_url }}
+
+If you did not create this account, you can safely ignore this message.
+
+Linkify Media Support

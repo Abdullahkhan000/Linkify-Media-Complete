@@ -12,18 +12,22 @@
             Create Account ✨
         </h2>
 
+        {% include "account/social_buttons.html" %}
+
         <form method="POST" class="space-y-5">
             {% csrf_token %}
 
             <!-- Email -->
             <div class="relative">
                 <input id="id_email" type="email" name="email" required
+                    value="{{ form.email.value|default:'' }}"
                     class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
                 <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
                     peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
                     Email
                 </label>
+                {% if form.email.errors %}<p class="text-red-400 text-xs mt-1">{{ form.email.errors.as_text }}</p>{% endif %}
             </div>
 
             <!-- Password -->
@@ -57,7 +61,7 @@
             <!-- Terms -->
             <div class="flex items-center text-sm text-gray-400">
                 <input type="checkbox" name="terms" id="id_terms" required class="accent-blue-500 mr-2">
-                I agree to the Terms & Conditions
+                I agree to the <a href="{% url 'terms-of-service' %}" class="ml-1 text-blue-400 hover:underline">Terms & Conditions</a>
             </div>
             {% if form.non_field_errors %}
                 <div class="text-red-400 text-sm">{{ form.non_field_errors }}</div>

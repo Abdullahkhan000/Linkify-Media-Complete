@@ -12,31 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        },
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Compiled Tailwind CSS -->
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
     
     <!-- FontAwesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -201,7 +178,7 @@
 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    <button id="mobile-menu-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-menu" class="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                 </div>
@@ -245,12 +222,10 @@
                         <span class="text-xl font-bold text-white">Linkify<span class="text-indigo-400">Media</span></span>
                     </a>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        High-performance, async media indexing API linking TMDB, IMDb, Rotten Tomatoes, and streaming platforms in sub-milliseconds.
+                        Secure, async TMDB metadata APIs with scoped credentials, usage analytics, and reliable developer tooling.
                     </p>
                     <div class="flex items-center gap-4 text-slate-400 pt-2">
-                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
-                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
-                        <a href="#" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-discord text-lg"></i></a>
+                        <a href="https://github.com/Brayanfury007/my-linkify" aria-label="Linkify Media on GitHub" class="hover:text-indigo-400 transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
                     </div>
                 </div>
 
@@ -260,7 +235,7 @@
                         <li><a href="{% url 'docs-page' %}" class="hover:text-indigo-400 transition-colors">Documentation</a></li>
                         <li><a href="{% url 'dashboard' %}" class="hover:text-indigo-400 transition-colors">API Dashboard</a></li>
                         <li><a href="{% url 'billing' %}" class="hover:text-indigo-400 transition-colors">Plans & Limits</a></li>
-                        <li><a href="/api/search/?q=Inception" target="_blank" class="hover:text-indigo-400 transition-colors">Live API Endpoint</a></li>
+                        <li><a href="{% url 'swagger-ui' %}" target="_blank" class="hover:text-indigo-400 transition-colors">Interactive API Reference</a></li>
                     </ul>
                 </div>
 
@@ -279,10 +254,9 @@
                     <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3">
                         <div class="flex items-center gap-2 text-xs font-medium text-emerald-400">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            All Systems Operational
+                            Health endpoint available
                         </div>
-                        <p class="text-xs text-slate-400">Latency: <span class="text-slate-200 font-mono">14ms</span></p>
-                        <p class="text-xs text-slate-400">Uptime: <span class="text-slate-200 font-mono">99.98%</span></p>
+                        <p class="text-xs text-slate-400"><a href="{% url 'health' %}" class="text-slate-200 hover:text-indigo-300">Check live service health →</a></p>
                     </div>
                 </div>
             </div>
@@ -342,7 +316,8 @@
                 <div class="space-y-2.5">
                     <input name="name" type="text" required maxlength="120" placeholder="Your name" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
                     <input name="email" type="email" required maxlength="254" placeholder="Email address" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
-                    <select name="category" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-slate-300 outline-none focus:border-indigo-500">
+                    <label for="support-category" class="sr-only">Support category</label>
+                    <select id="support-category" name="category" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-slate-300 outline-none focus:border-indigo-500">
                         <option value="general">General question</option><option value="api">API usage</option><option value="account">Account access</option><option value="billing">Billing</option><option value="security">Security concern</option>
                     </select>
                     <input name="subject" type="text" required maxlength="180" placeholder="Subject" class="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500">
@@ -365,6 +340,7 @@
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
             });
         }
     </script>

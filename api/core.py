@@ -1,14 +1,52 @@
 import asyncio
 import aiohttp
+import hashlib
+import json
 from difflib import SequenceMatcher
-from decouple import config
+from urllib.parse import quote_plus
+
+from django.conf import settings
+from django.core.cache import cache
+
 from .utils import slugify, fetch_json, head_exists
 
-TMDB_API_KEY = config("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 
-CACHE = {}
+
+async def fetch_tmdb_endpoint(path: str, params=None, cache_ttl=900):
+    if not settings.TMDB_API_KEY:
+        return {"Error": "Media provider is not configured.", "code": "provider_not_configured"}
+    safe_path = str(path).strip("/")
+    if ".." in safe_path or not safe_path:
+        return {"Error": "Invalid provider path.", "code": "invalid_request"}
+    request_params = {**(params or {}), "api_key": settings.TMDB_API_KEY}
+    cache_identity = json.dumps([safe_path, request_params], sort_keys=True)
+    cache_key = f"tmdb:{hashlib.sha256(cache_identity.encode()).hexdigest()}"
+    cached = await cache.aget(cache_key)
+    if cached is not None:
+        return cached
+    timeout = aiohttp.ClientTimeout(total=settings.API_REQUEST_TIMEOUT)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        result = await fetch_json(session, f"{TMDB_BASE_URL}/{safe_path}", request_params)
+    if result is None:
+        return {"Error": "Media provider request failed.", "code": "provider_unavailable"}
+    await cache.aset(cache_key, result, timeout=cache_ttl)
+    return result
+
+
+def summarize_result(item):
+    poster = item.get("poster_path") or item.get("profile_path")
+    release_date = item.get("release_date") or item.get("first_air_date")
+    return {
+        "id": item.get("id"),
+        "media_type": item.get("media_type"),
+        "title": item.get("title") or item.get("name"),
+        "release_year": release_date[:4] if release_date else None,
+        "overview": item.get("overview"),
+        "rating": item.get("vote_average"),
+        "poster_url": f"{IMAGE_BASE}{poster}" if poster else None,
+    }
 
 def rank_candidates(results, query):
     """
@@ -54,7 +92,7 @@ async def fetch_tmdb_data(title: str, media: str, session):
     search = await fetch_json(
         session,
         search_url,
-        {"api_key": TMDB_API_KEY, "query": title}
+        {"api_key": settings.TMDB_API_KEY, "query": title}
     )
 
     if not search or not isinstance(search, dict) or not search.get("results"):
@@ -70,8 +108,8 @@ async def fetch_tmdb_data(title: str, media: str, session):
     credits_url = f"{details_url}/credits"
 
     details, credits = await asyncio.gather(
-        fetch_json(session, details_url, {"api_key": TMDB_API_KEY}),
-        fetch_json(session, credits_url, {"api_key": TMDB_API_KEY})
+        fetch_json(session, details_url, {"api_key": settings.TMDB_API_KEY}),
+        fetch_json(session, credits_url, {"api_key": settings.TMDB_API_KEY})
     )
 
     if not details or not isinstance(details, dict):
@@ -140,7 +178,7 @@ def filter_fields(result: dict, fields_param: str) -> dict:
         "tmdb rating": "TMDB Rating",
         "poster": "Poster URL",
         "poster url": "Poster URL",
-        "cast": "Top Cast font-medium",
+        "cast": "Top Cast",
         "top cast": "Top Cast",
         "tmdb": "TMDB Link",
         "tmdb link": "TMDB Link",
@@ -170,14 +208,22 @@ def filter_fields(result: dict, fields_param: str) -> dict:
     return filtered if filtered else result
 
 async def fetch_media_links(title: str, media: str, country: str = "us"):
+    if not settings.TMDB_API_KEY:
+        return {
+            "Error": "Media search is temporarily unavailable because the provider is not configured.",
+            "code": "provider_not_configured",
+        }
+
     media = normalize_media_type(media)
     country_code = (country or "us").strip().lower()
-    
-    cache_key = f"{title}_{media}_{country_code}"
-    if cache_key in CACHE:
-        return CACHE[cache_key]
 
-    async with aiohttp.ClientSession() as session:
+    cache_key = f"media:{title.strip().lower()}:{media}:{country_code}"
+    cached_result = await cache.aget(cache_key)
+    if cached_result is not None:
+        return cached_result
+
+    timeout = aiohttp.ClientTimeout(total=settings.API_REQUEST_TIMEOUT)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         data = await fetch_tmdb_data(title, media, session)
         
         # Smart fallback: if searching 'tv' returns nothing, try 'movie' (and vice versa)
@@ -202,8 +248,8 @@ async def fetch_media_links(title: str, media: str, country: str = "us"):
             "Rotten Tomatoes": rt_final,
             "Metacritic": f"https://www.metacritic.com/search/{media}/{data['slug']}/results",
             "Letterboxd": f"https://letterboxd.com/film/{data['slug']}/" if media == "movie" else None,
-            f"JustWatch ({country_code.upper()})": f"https://www.justwatch.com/{country_code}/search?q={title}"
+            f"JustWatch ({country_code.upper()})": f"https://www.justwatch.com/{country_code}/search?q={quote_plus(title)}"
         }
 
-        CACHE[cache_key] = result
+        await cache.aset(cache_key, result, timeout=3600)
         return result
