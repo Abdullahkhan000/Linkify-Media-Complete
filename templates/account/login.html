@@ -17,41 +17,91 @@
         <form method="POST" class="space-y-5">
             {% csrf_token %}
 
-            <!-- Email -->
+            {% if form.non_field_errors %}
+                <div class="p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-red-400 text-sm">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Email / Username -->
             <div class="relative">
-                <input id="id_login" type="text" name="login" required
-                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
-                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                <input
+                    id="id_login"
+                    type="text"
+                    name="login"
+                    required
+                    autocomplete="username"
+                    value="{{ form.login.value|default:'' }}"
+                    placeholder="Email or Username"
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent"
+                >
+
+                <label
+                    for="id_login"
+                    class="absolute left-3 top-3 text-gray-400 text-sm transition-all
                     peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
-                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
-                    Email
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm"
+                >
+                    Email / Username
                 </label>
+
+                {% if form.login.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {{ form.login.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Password -->
             <div class="relative">
-                <input id="id_password" type="password" name="password" required
-                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
-                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
+                <input
+                    id="id_password"
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent"
+                >
+
+                <label
+                    for="id_password"
+                    class="absolute left-3 top-3 text-gray-400 text-sm transition-all
                     peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
-                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm"
+                >
                     Password
                 </label>
+
+                {% if form.password.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Remember & Forgot -->
             <div class="flex items-center justify-between text-sm text-gray-400">
                 <label for="id_remember" class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="remember" id="id_remember" class="accent-blue-500">
+                    <input
+                        type="checkbox"
+                        name="remember"
+                        id="id_remember"
+                        class="accent-blue-500"
+                    >
                     Remember me
                 </label>
-                <a href="{% url 'account_reset_password' %}" class="hover:text-blue-400">Forgot Password?</a>
+
+                <a href="{% url 'account_reset_password' %}" class="hover:text-blue-400">
+                    Forgot Password?
+                </a>
             </div>
 
             <!-- Button -->
-            <button type="submit"
-                class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 
-                hover:scale-[1.02] transition-all duration-300 shadow-lg">
+            <button
+                type="submit"
+                class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600
+                hover:scale-[1.02] transition-all duration-300 shadow-lg"
+            >
                 Sign In
             </button>
         </form>
