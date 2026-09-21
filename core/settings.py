@@ -42,6 +42,7 @@ OTHER_APPS = [
     'rest_framework',
     'allauth',
     'allauth.account',
+    'allauth.headless',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
@@ -52,6 +53,15 @@ INSTALLED_APPS += OTHER_APPS
 
 SITE_ID = 1
 
+FRONTEND_URL = os.getenv(
+    'FRONTEND_URL',
+    'http://localhost:3000' if DEBUG else '',
+).strip().rstrip('/')
+if FRONTEND_URL and urlparse(FRONTEND_URL).scheme not in {'http', 'https'}:
+    raise ImproperlyConfigured('FRONTEND_URL must be an http or https URL.')
+if FRONTEND_URL and FRONTEND_URL not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -59,13 +69,30 @@ AUTHENTICATION_BACKENDS = [
 
 # allauth config
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
-ACCOUNT_EMAIL_VERIFICATION = os.getenv('ACCOUNT_EMAIL_VERIFICATION', 'none')
+# Verification is deliberately disabled for the initial launch. Set this to
+# "mandatory" when transactional email and a public site domain are ready.
+ACCOUNT_EMAIL_VERIFICATION = os.getenv('ACCOUNT_EMAIL_VERIFICATION', 'none').strip().lower()
+if ACCOUNT_EMAIL_VERIFICATION not in {'none', 'optional', 'mandatory'}:
+    raise ImproperlyConfigured(
+        'ACCOUNT_EMAIL_VERIFICATION must be none, optional, or mandatory.'
+    )
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
+ACCOUNT_FORMS = {'signup': 'api.forms.LinkifySignupForm'}
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_ADAPTER = 'api.adapters.CustomAccountAdapter'
+HEADLESS_ONLY = False
+HEADLESS_FRONTEND_URLS = {
+    'account_confirm_email': f'{FRONTEND_URL}/verify-email/{{key}}',
+    'account_reset_password': f'{FRONTEND_URL}/forgot-password',
+    'account_reset_password_from_key': f'{FRONTEND_URL}/reset-password/{{key}}',
+    'account_signup': f'{FRONTEND_URL}/signup',
+    'socialaccount_login_error': f'{FRONTEND_URL}/login?social=error',
+} if FRONTEND_URL else {}
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

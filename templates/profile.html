@@ -1,123 +1,46 @@
 {% extends "base.html" %}
-
-{% block title %}My Profile - Linkify Media{% endblock %}
-
+{% block title %}Account settings · Linkify Media{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto py-8">
-    <h1 class="text-4xl font-bold mb-8 text-white">Profile Settings</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <!-- Sidebar Info -->
-        <div class="space-y-6">
-            <div class="glass p-6 rounded-2xl border border-white/10 text-center">
-                <div class="w-24 h-24 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white">
-                    {{ user.email|slice:":1"|upper }}
-                </div>
-                <h2 class="text-xl font-semibold">{{ user.get_full_name|default:user.email }}</h2>
-                <p class="text-blue-400 text-sm font-medium uppercase mt-1">{{ profile.tier }} Plan</p>
-                
-                <div class="mt-6 pt-6 border-t border-white/5 space-y-3 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Status</span>
-                        <span class="text-green-400">Active</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Joined</span>
-                        <span class="text-gray-200">{{ user.date_joined|date:"M Y" }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass p-4 rounded-2xl border border-white/10">
-                <a href="{% url 'account_change_password' %}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors text-gray-300">
-                    <span class="text-xl">🔑</span>
-                    Change Password
-                </a>
-                <a href="{% url 'billing' %}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors text-gray-300">
-                    <span class="text-xl">💳</span>
-                    Manage Billing
-                </a>
-            </div>
-        </div>
-
-        <!-- Main Settings -->
-        <div class="md:col-span-2 space-y-8">
-            
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="p-4 rounded-xl {% if message.tags == 'success' %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <div class="glass p-8 rounded-2xl border border-white/10">
-                <h3 class="text-xl font-semibold mb-6">Personal Information</h3>
-                
-                <form method="POST" class="space-y-6">
-                    {% csrf_token %}
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-sm text-gray-400 ml-1">First Name</label>
-                            <input type="text" name="first_name" value="{{ user.first_name }}"
-                                class="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:border-blue-500 outline-none transition-all">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-sm text-gray-400 ml-1">Last Name</label>
-                            <input type="text" name="last_name" value="{{ user.last_name }}"
-                                class="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:border-blue-500 outline-none transition-all">
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-400 ml-1">Email Address</label>
-                        <input type="email" value="{{ user.email }}" disabled
-                            class="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-gray-500 cursor-not-allowed">
-                        <p class="text-[10px] text-gray-500 ml-1 italic">Email cannot be changed.</p>
-                    </div>
-
-                    <div class="rounded-xl border {% if email_address and email_address.verified %}border-green-500/30 bg-green-500/10{% else %}border-amber-500/30 bg-amber-500/10{% endif %} p-4">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <p class="text-sm font-semibold {% if email_address and email_address.verified %}text-green-400{% else %}text-amber-400{% endif %}">
-                                    {% if email_address and email_address.verified %}Email verified{% else %}Email verification required{% endif %}
-                                </p>
-                                <p class="text-xs text-gray-400 mt-1">
-                                    {% if email_address and email_address.verified %}Your account email is verified and ready for secure account recovery.{% else %}Verify your email to enable trusted password recovery and account notifications.{% endif %}
-                                </p>
-                            </div>
-                            {% if not email_address or not email_address.verified %}
-                                <form method="POST" action="{% url 'resend-verification' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="shrink-0 px-3 py-2 rounded-lg bg-amber-500/15 text-amber-300 text-xs font-semibold hover:bg-amber-500/25 transition">Resend email</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20">
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="glass p-8 rounded-2xl border border-white/10 bg-red-500/5">
-                <h3 class="text-xl font-semibold mb-2 text-red-400">Danger Zone</h3>
-                <p class="text-gray-400 text-sm mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-                
-                <form method="POST" action="{% url 'account-delete' %}" class="space-y-4 max-w-lg">
-                    {% csrf_token %}
-                    <input type="email" name="confirm_email" required placeholder="Type your account email to confirm" class="w-full p-3 bg-white/5 border border-red-500/20 rounded-xl text-sm text-white placeholder-gray-600 focus:border-red-500 outline-none">
-                    {% if user.has_usable_password %}<input type="password" name="password" required placeholder="Enter your password" class="w-full p-3 bg-white/5 border border-red-500/20 rounded-xl text-sm text-white placeholder-gray-600 focus:border-red-500 outline-none">{% endif %}
-                    <button type="submit" class="px-6 py-2 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-xl text-sm transition-all">Delete Account Permanently</button>
-                </form>
-            </div>
-        </div>
-
+<section class="mx-auto max-w-[1240px] px-4 py-12 sm:px-6 lg:px-10 lg:py-20">
+    <div class="reveal flex flex-col gap-6 border-b border-white/[.07] pb-10 md:flex-row md:items-end md:justify-between">
+        <div><p class="eyebrow">Identity & security</p><h1 class="mt-4 text-4xl font-black tracking-[-0.055em] text-white md:text-6xl">Account control room.</h1><p class="mt-4 max-w-2xl text-sm leading-7 text-[#8e9a91]">Update how you appear, manage sign-in methods, and permanently remove your workspace.</p></div>
+        <a href="{% url 'dashboard' %}" class="ghost-button px-5 py-3 text-sm"><i class="fa-solid fa-arrow-left text-xs"></i> Back to console</a>
     </div>
-</div>
+
+    <div class="mt-10 grid gap-7 lg:grid-cols-[.7fr_1.3fr]">
+        <aside class="space-y-5">
+            <article class="surface reveal reveal-delay-1 rounded-[1.75rem] p-7">
+                <div class="flex items-center gap-4"><span class="grid h-16 w-16 place-items-center rounded-2xl bg-[#c8ff5a] text-2xl font-black text-[#071006]">{{ user.username|first|upper }}</span><div class="min-w-0"><h2 class="truncate text-xl font-black text-white">@{{ user.username }}</h2><p class="mt-1 truncate text-sm text-[#8e9a91]">{{ user.email }}</p></div></div>
+                <div class="mt-7 grid grid-cols-2 gap-3"><div class="rounded-2xl border border-white/[.06] bg-white/[.025] p-4"><p class="mono-label text-[9px] uppercase text-[#667168]">Plan</p><p class="mt-2 font-black capitalize text-[#c8ff5a]">{{ profile.tier }}</p></div><div class="rounded-2xl border border-white/[.06] bg-white/[.025] p-4"><p class="mono-label text-[9px] uppercase text-[#667168]">Member since</p><p class="mt-2 text-sm font-bold text-white">{{ user.date_joined|date:"M Y" }}</p></div></div>
+            </article>
+            <nav class="surface reveal reveal-delay-2 grid rounded-[1.5rem] p-2 text-sm font-semibold">
+                {% if user.has_usable_password %}<a href="{% url 'account_change_password' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-key w-5 text-[#c8ff5a]"></i>Change password</a>{% else %}<a href="{% url 'account_set_password' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-key w-5 text-[#c8ff5a]"></i>Set a password</a>{% endif %}
+                <a href="{% url 'socialaccount_connections' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-plug w-5 text-cyan-300"></i>Connected accounts</a>
+                <a href="{% url 'billing' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-credit-card w-5 text-white"></i>Billing & plan</a>
+            </nav>
+        </aside>
+
+        <div class="space-y-7">
+            <article class="surface reveal reveal-delay-1 rounded-[1.75rem] p-6 sm:p-8">
+                <div><p class="eyebrow">Public identity</p><h2 class="mt-3 text-2xl font-black tracking-tight text-white">Profile details</h2></div>
+                <form method="post" class="mt-8 space-y-5" novalidate>{% csrf_token %}
+                    {% if profile_form.non_field_errors %}<div class="form-alert">{{ profile_form.non_field_errors|striptags }}</div>{% endif %}
+                    <div><label for="id_username" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Username</label><input id="id_username" name="username" value="{{ profile_form.username.value|default:'' }}" maxlength="150" autocomplete="username" class="saas-input" required>{% if profile_form.username.errors %}<p class="field-error">{{ profile_form.username.errors|striptags }}</p>{% else %}<p class="mt-2 text-xs text-[#68736b]">Used for sign-in and shown in your console.</p>{% endif %}</div>
+                    <div class="grid gap-5 sm:grid-cols-2"><div><label for="id_first_name" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">First name</label><input id="id_first_name" name="first_name" value="{{ profile_form.first_name.value|default:'' }}" maxlength="150" autocomplete="given-name" class="saas-input">{% if profile_form.first_name.errors %}<p class="field-error">{{ profile_form.first_name.errors|striptags }}</p>{% endif %}</div><div><label for="id_last_name" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Last name</label><input id="id_last_name" name="last_name" value="{{ profile_form.last_name.value|default:'' }}" maxlength="150" autocomplete="family-name" class="saas-input">{% if profile_form.last_name.errors %}<p class="field-error">{{ profile_form.last_name.errors|striptags }}</p>{% endif %}</div></div>
+                    <div><label class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Account email</label><div class="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-black/10 px-4 py-3.5 text-sm text-[#9aa59d]"><i class="fa-regular fa-envelope text-cyan-300"></i><span class="min-w-0 flex-1 truncate">{{ user.email }}</span>{% if verification_enabled %}{% if email_address and email_address.verified %}<span class="rounded-full bg-[#c8ff5a]/10 px-2 py-1 text-[10px] font-bold text-[#c8ff5a]">VERIFIED</span>{% else %}<span class="rounded-full bg-amber-400/10 px-2 py-1 text-[10px] font-bold text-amber-300">PENDING</span>{% endif %}{% else %}<span class="rounded-full bg-white/[.05] px-2 py-1 text-[10px] font-bold text-[#9aa59d]">ACTIVE</span>{% endif %}</div><p class="mt-2 text-xs text-[#68736b]">Email changes can be managed through account security when mail delivery is configured.</p></div>
+                    <button type="submit" class="neon-button px-6 py-3"><span class="relative z-10">Save profile</span></button>
+                </form>
+            </article>
+
+            <article class="surface reveal reveal-delay-2 rounded-[1.75rem] border-rose-400/10 p-6 sm:p-8">
+                <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-rose-400/10 text-rose-300"><i class="fa-solid fa-triangle-exclamation"></i></span><div><p class="text-xs font-black uppercase tracking-[.16em] text-rose-300">Danger zone</p><h2 class="mt-2 text-2xl font-black text-white">Delete this account</h2><p class="mt-2 max-w-xl text-sm leading-6 text-[#89958c]">This permanently deletes your profile, API keys, usage history, support conversations, and billing connection.</p></div></div>
+                <form method="post" action="{% url 'account-delete' %}" class="mt-7 grid gap-4 sm:grid-cols-2" novalidate>{% csrf_token %}
+                    <div><label for="id_confirmation" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Type {{ user.username }}</label><input id="id_confirmation" name="confirmation" class="saas-input border-rose-400/20" autocomplete="off" placeholder="{{ user.username }}" required></div>
+                    {% if user.has_usable_password %}<div><label for="id_delete_password" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Current password</label><input id="id_delete_password" name="password" type="password" class="saas-input border-rose-400/20" autocomplete="current-password" placeholder="Confirm your password" required></div>{% endif %}
+                    <div class="sm:col-span-2"><button type="submit" class="rounded-full border border-rose-400/30 bg-rose-400/10 px-6 py-3 text-sm font-black text-rose-200 transition hover:bg-rose-400/20" onclick="return confirm('Permanently delete your Linkify Media account? This cannot be undone.')">Delete account permanently</button></div>
+                </form>
+            </article>
+        </div>
+    </div>
+</section>
 {% endblock %}

@@ -21,6 +21,7 @@ PUBLIC_API_PATHS = {
     "/api/support/chat/",
     "/api/support/ticket/",
 }
+SESSION_API_PREFIXES = ("/api/keys/", "/api/v1/account/")
 
 
 def client_ip(request):
@@ -71,7 +72,7 @@ class APIKeyMiddleware:
         if not normalized_path.startswith("/api/"):
             return self.get_response(request)
 
-        if normalized_path in PUBLIC_API_PATHS or normalized_path.startswith("/api/keys/"):
+        if normalized_path in PUBLIC_API_PATHS or normalized_path.startswith(SESSION_API_PREFIXES):
             return self.get_response(request)
 
         request_started = time.monotonic()

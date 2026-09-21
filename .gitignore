@@ -37,6 +37,7 @@ venv/
 ENV/
 env.bak/
 node_modules/
+.next/
 venv.bak/
 
 # IDEs

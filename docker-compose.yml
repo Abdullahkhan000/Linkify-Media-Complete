@@ -1,4 +1,18 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: linkify-media-frontend:latest
+    environment:
+      DJANGO_INTERNAL_URL: http://web:8000
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
   web:
     build:
       context: .
@@ -9,6 +23,8 @@ services:
     environment:
       SQLITE_DB_PATH: /app/data/db.sqlite3
       REDIS_URL: redis://redis:6379/0
+      FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-localhost,127.0.0.1,web}"
     ports:
       - "${DJANGO_PORT:-8000}:8000"
     volumes:

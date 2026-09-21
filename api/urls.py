@@ -35,6 +35,8 @@ from .views import (
     OpenAPISchemaView,
     SwaggerUIView,
     UsageLogsCSVView,
+    AccountProfileAPIView,
+    AccountDeleteAPIView,
 )
 
 urlpatterns = [
@@ -79,4 +81,6 @@ urlpatterns = [
     path('api/support/ticket/', SupportTicketCreateAPIView.as_view(), name='support-ticket-create'),
     path('account/verification/resend/', ResendVerificationView.as_view(), name='resend-verification'),
     path('account/delete/', AccountDeleteView.as_view(), name='account-delete'),
+    path('api/v1/account/profile/', AccountProfileAPIView.as_view(), name='v1-account-profile'),
+    path('api/v1/account/delete/', AccountDeleteAPIView.as_view(), name='v1-account-delete'),
 ]

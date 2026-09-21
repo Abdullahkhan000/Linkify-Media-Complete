@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import (
     APIKey,
     BillingWebhookEvent,
@@ -32,17 +33,32 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.text import slugify
 import requests
 from allauth.account.models import EmailAddress
 from allauth.account.views import PasswordChangeView as AllauthPasswordChangeView
 from allauth.account.views import SignupView as AllauthSignupView
 from django.contrib import messages
 
-from .forms import QuickSignUpForm, SupportRequestForm
+from .forms import AccountDeleteForm, ProfileUpdateForm, QuickSignUpForm, SupportRequestForm
 from .middleware import DAILY_LIMITS, client_ip, demo_token, throttle
 from .support_bot import generate_reply
 
 logger = logging.getLogger(__name__)
+
+
+def email_verification_required():
+    return settings.ACCOUNT_EMAIL_VERIFICATION == 'mandatory'
+
+
+def user_email_is_trusted(user):
+    if not email_verification_required():
+        return True
+    return EmailAddress.objects.filter(
+        user=user,
+        email__iexact=user.email,
+        verified=True,
+    ).exists()
 
 # ─────────────────────────────────────────
 # API Key CRUD Views
@@ -57,11 +73,7 @@ class APIKeyListCreateView(LoginRequiredMixin, APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        if not EmailAddress.objects.filter(
-            user=request.user,
-            email__iexact=request.user.email,
-            verified=True,
-        ).exists():
+        if not user_email_is_trusted(request.user):
             return Response(
                 {'error': 'Verify your email address before creating an API key.'},
                 status=status.HTTP_403_FORBIDDEN,
@@ -561,11 +573,7 @@ class BillingView(LoginRequiredMixin, TemplateView):
 
 class CreateLemonSqueezyCheckoutView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        if not EmailAddress.objects.filter(
-            user=request.user,
-            email__iexact=request.user.email,
-            verified=True,
-        ).exists():
+        if not user_email_is_trusted(request.user):
             messages.error(request, 'Verify your email before starting checkout.')
             return redirect('billing')
         tier = request.POST.get('tier')
@@ -940,12 +948,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         limit_map = {'free': 1, 'pro': 5, 'business': 100}
         max_keys = limit_map.get(profile.tier, 1)
         active_keys = api_keys.filter(is_active=True, revoked_at__isnull=True)
-        email_verified = EmailAddress.objects.filter(
-            user=self.request.user,
-            email__iexact=self.request.user.email,
-            verified=True,
-        ).exists()
+        email_verified = user_email_is_trusted(self.request.user)
         context['email_verified'] = email_verified
+        context['verification_enabled'] = email_verification_required()
         context['can_create_key'] = email_verified and active_keys.count() < max_keys
 
         logs = UsageLog.objects.filter(api_key__user=self.request.user)
@@ -1059,23 +1064,24 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         context['profile'] = profile
         context['email_address'] = self.request.user.emailaddress_set.filter(email=self.request.user.email).first()
+        context['verification_enabled'] = email_verification_required()
+        context['profile_form'] = kwargs.get('profile_form') or ProfileUpdateForm(instance=self.request.user)
+        context['delete_form'] = AccountDeleteForm(user=self.request.user)
         return context
 
     def post(self, request, *args, **kwargs):
-        user = request.user
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
-        
-        messages.success(request, "Profile updated successfully!")
-        return redirect('profile')
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile and username were updated.")
+            return redirect('profile')
+        return self.render_to_response(self.get_context_data(profile_form=form))
 
 class ResendVerificationView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        if request.user.emailaddress_set.filter(verified=True).exists():
+        if not email_verification_required():
+            messages.info(request, "Email verification is currently disabled for this launch.")
+        elif request.user.emailaddress_set.filter(verified=True).exists():
             messages.info(request, "Your email address is already verified.")
         else:
             email_address, _ = EmailAddress.objects.get_or_create(
@@ -1091,19 +1097,68 @@ class ResendVerificationView(LoginRequiredMixin, View):
 class AccountDeleteView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         user = request.user
-        confirmation_email = request.POST.get("confirm_email", "").strip().lower()
-        password = request.POST.get("password", "")
-
-        if confirmation_email != user.email.lower():
-            messages.error(request, "Enter your current email address to confirm account deletion.")
-            return redirect("profile")
-        if user.has_usable_password() and not user.check_password(password):
-            messages.error(request, "The password is incorrect. Your account was not deleted.")
+        form = AccountDeleteForm(request.POST, user=user)
+        if not form.is_valid():
+            for errors in form.errors.values():
+                messages.error(request, errors[0])
             return redirect("profile")
 
         logout(request)
         user.delete()
         return redirect("landing-page")
+
+
+class AccountProfileAPIView(APIView):
+    """Session-authenticated account data used by the Next.js frontend."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "tier": profile.tier,
+            "email_verified": request.user.emailaddress_set.filter(
+                email__iexact=request.user.email,
+                verified=True,
+            ).exists(),
+            "verification_required": email_verification_required(),
+            "created_at": request.user.date_joined,
+        })
+
+    def patch(self, request):
+        form = ProfileUpdateForm(request.data, instance=request.user)
+        if not form.is_valid():
+            return Response(
+                {field: [str(error) for error in errors] for field, errors in form.errors.items()},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user = form.save()
+        return Response({
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        })
+
+
+class AccountDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        form = AccountDeleteForm(request.data, user=user)
+        if not form.is_valid():
+            return Response(
+                {field: [str(error) for error in errors] for field, errors in form.errors.items()},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        logout(request)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CustomPasswordChangeView(AllauthPasswordChangeView):
@@ -1119,6 +1174,13 @@ class SecureSignupView(AllauthSignupView):
     def get_initial(self):
         initial = super().get_initial()
         pending_email = self.request.session.get('pending_signup_email', '')
+        pending_name = self.request.session.get('pending_signup_name', '')
         if pending_email:
             initial['email'] = pending_email
+        suggested_username = slugify(pending_name).replace('-', '_')[:30]
+        if (
+            len(suggested_username) >= 3
+            and not User.objects.filter(username__iexact=suggested_username).exists()
+        ):
+            initial['username'] = suggested_username
         return initial

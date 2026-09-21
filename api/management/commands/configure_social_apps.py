@@ -32,18 +32,17 @@ class Command(BaseCommand):
             client_id, secret = credentials[provider]
 
             if not client_id or not secret:
+                for stale_app in SocialApp.objects.filter(provider=provider, sites=site):
+                    stale_app.sites.remove(site)
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Skipping {provider}: client ID or secret is not configured."
+                        f"Disabled {provider}: client ID or secret is not configured."
                     )
                 )
                 continue
 
-            app = (
-                SocialApp.objects.filter(provider=provider)
-                .order_by("id")
-                .first()
-            )
+            site_apps = SocialApp.objects.filter(provider=provider, sites=site).order_by("id")
+            app = site_apps.first()
             if app is None:
                 app = SocialApp(provider=provider, name=provider.title())
 
@@ -53,6 +52,8 @@ class Command(BaseCommand):
             app.key = ""
             app.save()
             app.sites.set([site])
+            for duplicate in site_apps.exclude(pk=app.pk):
+                duplicate.sites.remove(site)
             configured += 1
             self.stdout.write(self.style.SUCCESS(f"Configured {provider} SocialApp."))
 

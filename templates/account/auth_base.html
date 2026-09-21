@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-stage">
+    <div class="auth-grid reveal">
+        <aside class="auth-visual">
+            <div class="auth-visual-copy relative z-10 flex h-full flex-col justify-between">
+                <div>
+                    <p class="eyebrow">Secure developer access</p>
+                    <h1 class="mt-6 max-w-xl text-4xl font-black leading-[1.05] tracking-[-0.055em] text-white sm:text-5xl">Your media stack starts with <span class="gradient-text">one clean connection.</span></h1>
+                    <p class="mt-6 max-w-lg text-sm leading-7 text-[#9aa59d]">Protected sessions, recoverable accounts, social sign-in, and API secrets that are never stored in plaintext.</p>
+                </div>
+                <div class="mt-12 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-black/10 p-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#c8ff5a]/10 text-[#c8ff5a]"><i class="fa-solid fa-shield-halved"></i></span><div><p class="text-xs font-bold text-white">Secure by default</p><p class="mt-1 text-[10px] text-[#78837b]">CSRF + hardened sessions</p></div></div>
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-black/10 p-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-cyan-400/10 text-cyan-300"><i class="fa-solid fa-rotate"></i></span><div><p class="text-xs font-bold text-white">Always recoverable</p><p class="mt-1 text-[10px] text-[#78837b]">Password reset ready</p></div></div>
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-black/10 p-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-white/[.06] text-white"><i class="fa-solid fa-fingerprint"></i></span><div><p class="text-xs font-bold text-white">One-time secrets</p><p class="mt-1 text-[10px] text-[#78837b]">Hashed API credentials</p></div></div>
+                </div>
+            </div>
+        </aside>
+        <div class="auth-panel flex items-center">
+            <div class="mx-auto w-full max-w-md">
+                {% block auth_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

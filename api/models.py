@@ -16,38 +16,10 @@ class Profile(models.Model):
         ('pro', 'Pro'),
         ('business', 'Business'),
     ]
-
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile'
-    )
-    tier = models.CharField(
-        max_length=20,
-        choices=TIER_CHOICES,
-        default='free'
-    )
-    lemonsqueezy_customer_id = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
-    )
-    subscription_id = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
-    )
-
-    company_name = models.CharField(
-        max_length=255,
-        blank=True,
-        default=""
-    )
-    job_title = models.CharField(
-        max_length=255,
-        blank=True,
-        default=""
-    )
+    user                    = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    tier                    = models.CharField(max_length=20, choices=TIER_CHOICES, default='free')
+    lemonsqueezy_customer_id = models.CharField(max_length=255, blank=True, null=True)
+    subscription_id         = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} — {self.tier} Profile"

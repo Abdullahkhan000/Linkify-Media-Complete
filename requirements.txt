@@ -15,7 +15,7 @@ click-plugins==1.1.1.2
 click-repl==0.3.0
 colorama==0.4.6
 Django==6.0.4
-django-allauth==65.15.1
+django-allauth[headless]==65.15.1
 djangorestframework==3.17.1
 frozenlist==1.8.0
 idna==3.11

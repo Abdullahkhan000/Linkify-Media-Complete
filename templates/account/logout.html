@@ -1,19 +1,3 @@
-{% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}Sign Out - Linkify Media{% endblock %}
-{% block content %}
-<div class="min-h-[70vh] flex items-center justify-center px-4 py-16">
-  <div class="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/80 p-8 text-center shadow-2xl">
-    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800"><i class="fa-solid fa-right-from-bracket text-2xl text-slate-300"></i></div>
-    <h1 class="mt-6 text-2xl font-bold text-white">Sign out of Linkify Media?</h1>
-    <p class="mt-3 text-sm leading-relaxed text-slate-400">Your session will be closed on this device. You can sign in again whenever you are ready.</p>
-    <form method="post" action="{% url 'account_logout' %}" class="mt-7 space-y-3">
-      {% csrf_token %}
-      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
-      <button type="submit" class="w-full rounded-xl bg-indigo-600 px-5 py-3.5 font-semibold text-white transition hover:bg-indigo-500">Sign out securely</button>
-    </form>
-    <a href="javascript:history.back()" class="mt-5 inline-flex text-sm text-slate-500 transition hover:text-indigo-300">Cancel</a>
-  </div>
-</div>
-{% endblock %}
+{% extends "account/auth_base.html" %}
+{% block title %}Sign out · Linkify Media{% endblock %}
+{% block auth_content %}<div class="text-center"><span class="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/[.04] text-2xl text-white"><i class="fa-solid fa-arrow-right-from-bracket"></i></span><p class="eyebrow mt-7">End session</p><h2 class="mt-4 text-3xl font-black tracking-[-0.04em] text-white">Sign out securely?</h2><p class="mt-4 text-sm leading-7 text-[#89958c]">This browser session will end. Your account, API keys, and usage data remain safe.</p><form method="post" action="{% url 'account_logout' %}" class="mt-8">{% csrf_token %}{% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}<button type="submit" class="neon-button w-full px-6 py-3.5"><span class="relative z-10">Yes, sign me out</span></button></form><a href="{% url 'dashboard' %}" class="ghost-button mt-3 w-full px-6 py-3">Cancel</a></div>{% endblock %}

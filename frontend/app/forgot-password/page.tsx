@@ -1,0 +1,9 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { ArrowLeft, Mail } from "lucide-react";
+import { AuthShell } from "@/components/auth-shell";
+import { backend, errorMessage } from "@/lib/api";
+
+export default function ForgotPasswordPage(){const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[sent,setSent]=useState(false);async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();setBusy(true);setError("");const data=new FormData(event.currentTarget);try{await backend("_allauth/browser/v1/auth/password/request",{method:"POST",body:JSON.stringify({email:data.get("email")})});setSent(true)}catch(reason){setError(errorMessage(reason))}finally{setBusy(false)}}return <AuthShell title="Secure recovery, without the support ticket."><div className="auth-card"><Link href="/login" className="auth-link" style={{display:"inline-flex",gap:7,alignItems:"center",marginBottom:22}}><ArrowLeft size={16}/> Back to sign in</Link><h1 className="display">Reset your password.</h1><p>Enter your account email. If it exists, we’ll send a secure reset link.</p>{error&&<div className="form-alert error">{error}</div>}{sent?<div className="form-alert success" role="status">Check your inbox. For privacy, the same message is shown whether or not that email exists.</div>:<form className="form-grid" onSubmit={submit}><div className="field"><label htmlFor="email">Account email</label><div className="input-wrap"><Mail className="field-icon" size={18}/><input className="input has-icon" id="email" name="email" type="email" autoComplete="email" required placeholder="you@company.com"/></div></div><button className="btn btn-primary btn-full" disabled={busy}>{busy?"Sending…":"Send secure reset link"}</button></form>}</div></AuthShell>}

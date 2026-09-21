@@ -1,13 +1,19 @@
 import json
 import hashlib
 import hmac
+import os
 from unittest.mock import patch
 
 from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.cache import cache
+from django.core.management import call_command
+from allauth.socialaccount.models import SocialApp
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.template.loader import get_template
 from django.urls import reverse
 
 from .middleware import demo_token
@@ -100,9 +106,20 @@ class SecureSignupAndAPIKeyTests(TestCase):
         signup = self.client.get(response['Location'])
         self.assertContains(signup, 'value="new@example.com"')
 
-    def test_unverified_user_cannot_create_key(self):
+    @override_settings(ACCOUNT_EMAIL_VERIFICATION='mandatory')
+    def test_unverified_user_cannot_create_key_when_verification_is_enabled(self):
         response = self.client.post('/api/keys/', {'name': 'Production'}, content_type='application/json')
         self.assertEqual(response.status_code, 403)
+
+    @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_launch_mode_allows_key_creation_without_verification(self):
+        response = self.client.post(
+            '/api/keys/',
+            json.dumps({'name': 'Launch', 'scopes': ['search', 'usage']}),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(response.json()['key'].startswith(APIKey.SECRET_PREFIX))
 
     def test_key_is_shown_once_and_stored_as_hash(self):
         EmailAddress.objects.create(user=self.user, email=self.user.email, verified=True, primary=True)
@@ -129,6 +146,162 @@ class SecureSignupAndAPIKeyTests(TestCase):
         self.client.delete(f'/api/keys/{key.pk}/')
         denied = self.client.get('/api/v1/usage/', HTTP_X_API_KEY=raw_key)
         self.assertEqual(denied.status_code, 401)
+
+
+class HeadlessAccountFlowTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.session_url = "/_allauth/browser/v1/auth/session"
+
+    def post_json(self, path, payload):
+        return self.client.post(path, json.dumps(payload), content_type="application/json")
+
+    def test_signup_requires_terms_and_password_confirmation(self):
+        payload = {
+            "username": "next_builder",
+            "email": "next@example.com",
+            "password": "secure-next-password-42",
+            "password_confirm": "secure-next-password-42",
+        }
+        rejected = self.post_json("/_allauth/browser/v1/auth/signup", payload)
+        self.assertEqual(rejected.status_code, 400)
+        self.assertEqual(rejected.json()["errors"][0]["param"], "terms")
+
+        payload["terms"] = True
+        created = self.post_json("/_allauth/browser/v1/auth/signup", payload)
+        self.assertEqual(created.status_code, 200)
+        self.assertTrue(created.json()["meta"]["is_authenticated"])
+        self.assertTrue(User.objects.filter(username="next_builder").exists())
+
+    def test_login_change_password_and_logout_headless_flow(self):
+        user = User.objects.create_user(
+            username="account_owner",
+            email="owner-next@example.com",
+            password="original-password-42",
+        )
+        EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=False)
+        login = self.post_json("/_allauth/browser/v1/auth/login", {
+            "email": user.email,
+            "password": "original-password-42",
+        })
+        self.assertEqual(login.status_code, 200)
+        self.assertTrue(login.json()["meta"]["is_authenticated"])
+
+        changed = self.post_json("/_allauth/browser/v1/account/password/change", {
+            "current_password": "original-password-42",
+            "new_password": "replacement-password-77",
+        })
+        self.assertEqual(changed.status_code, 200)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password("replacement-password-77"))
+
+        logged_out = self.client.delete(self.session_url)
+        self.assertEqual(logged_out.status_code, 401)
+        self.assertFalse(logged_out.json()["meta"]["is_authenticated"])
+
+    @override_settings(FRONTEND_URL="http://localhost:3000")
+    def test_password_reset_email_targets_next_frontend(self):
+        user = User.objects.create_user(
+            username="reset_owner",
+            email="reset-next@example.com",
+            password="original-password-42",
+        )
+        EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=True)
+        response = self.post_json("/_allauth/browser/v1/auth/password/request", {"email": user.email})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("http://localhost:3000/reset-password/", mail.outbox[0].body)
+
+    def test_profile_update_and_password_confirmed_deletion_api(self):
+        user = User.objects.create_user(
+            username="delete_owner",
+            email="delete-next@example.com",
+            password="delete-password-42",
+        )
+        self.client.force_login(user)
+        updated = self.client.patch(
+            "/api/v1/account/profile/",
+            json.dumps({"username": "renamed_owner", "first_name": "Link", "last_name": "Builder"}),
+            content_type="application/json",
+        )
+        self.assertEqual(updated.status_code, 200)
+        user.refresh_from_db()
+        self.assertEqual(user.username, "renamed_owner")
+
+        rejected = self.client.delete(
+            "/api/v1/account/delete/",
+            json.dumps({"confirmation": "renamed_owner", "password": "wrong-password"}),
+            content_type="application/json",
+        )
+        self.assertEqual(rejected.status_code, 400)
+        deleted = self.client.delete(
+            "/api/v1/account/delete/",
+            json.dumps({"confirmation": "renamed_owner", "password": "delete-password-42"}),
+            content_type="application/json",
+        )
+        self.assertEqual(deleted.status_code, 204)
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
+
+    def test_all_declared_account_templates_compile(self):
+        templates = [
+            "account/account_inactive.html",
+            "account/auth_base.html",
+            "account/email_change.html",
+            "account/email_confirm.html",
+            "account/login.html",
+            "account/logout.html",
+            "account/password_change.html",
+            "account/password_reset.html",
+            "account/password_reset_done.html",
+            "account/password_reset_from_key.html",
+            "account/password_reset_from_key_done.html",
+            "account/password_set.html",
+            "account/reauthenticate.html",
+            "account/signup.html",
+            "account/verification_sent.html",
+            "account/verified_email_required.html",
+            "socialaccount/authentication_error.html",
+            "socialaccount/connections.html",
+            "socialaccount/login.html",
+            "socialaccount/login_cancelled.html",
+            "socialaccount/login_redirect.html",
+            "socialaccount/signup.html",
+        ]
+        for template_name in templates:
+            with self.subTest(template=template_name):
+                self.assertIsNotNone(get_template(template_name))
+
+    def test_headless_google_redirect_is_exposed_only_when_configured(self):
+        empty_config = self.client.get("/_allauth/browser/v1/config").json()
+        self.assertEqual(empty_config["data"]["socialaccount"]["providers"], [])
+
+        site, _ = Site.objects.update_or_create(
+            id=1,
+            defaults={"domain": "testserver", "name": "Test"},
+        )
+        app = SocialApp.objects.create(
+            provider="google",
+            name="Google",
+            client_id="headless-client",
+            secret="headless-secret",
+        )
+        app.sites.add(site)
+
+        configured = self.client.get("/_allauth/browser/v1/config").json()
+        self.assertEqual(
+            configured["data"]["socialaccount"]["providers"][0]["id"],
+            "google",
+        )
+        redirect_response = self.client.post(
+            "/_allauth/browser/v1/auth/provider/redirect",
+            {
+                "provider": "google",
+                "process": "login",
+                "callback_url": "http://localhost:3000/dashboard",
+            },
+        )
+        self.assertEqual(redirect_response.status_code, 302)
+        self.assertTrue(redirect_response["Location"].startswith("https://accounts.google.com/"))
 
 
 @override_settings(DEMO_API_ENABLED=True, TMDB_API_KEY='')
@@ -225,3 +398,133 @@ class BillingWebhookSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.user.profile.refresh_from_db()
         self.assertEqual(self.user.profile.tier, 'free')
+
+
+@override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+class CompleteAccountFlowTests(TestCase):
+    password = 'Strong-launch-password-941!'
+
+    def signup(self, username='launch_user', email='launch@example.com'):
+        return self.client.post('/accounts/signup/', {
+            'username': username,
+            'email': email,
+            'password1': self.password,
+            'password2': self.password,
+            'terms': 'on',
+        })
+
+    def test_signup_creates_account_and_logs_user_in_without_verification(self):
+        response = self.signup()
+        self.assertRedirects(response, '/dashboard/', fetch_redirect_response=False)
+        user = User.objects.get(username='launch_user')
+        self.assertEqual(user.email, 'launch@example.com')
+        self.assertEqual(str(self.client.session['_auth_user_id']), str(user.pk))
+        self.assertTrue(EmailAddress.objects.filter(user=user, email=user.email, primary=True).exists())
+
+    def test_signup_requires_server_side_terms_acceptance(self):
+        response = self.client.post('/accounts/signup/', {
+            'username': 'no_terms',
+            'email': 'no-terms@example.com',
+            'password1': self.password,
+            'password2': self.password,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Accept the Terms and Privacy Policy')
+        self.assertFalse(User.objects.filter(username='no_terms').exists())
+
+    def test_login_accepts_username_and_email(self):
+        self.signup()
+        self.client.post('/accounts/logout/')
+
+        by_username = self.client.post('/accounts/login/', {
+            'login': 'launch_user', 'password': self.password,
+        })
+        self.assertRedirects(by_username, '/dashboard/', fetch_redirect_response=False)
+        self.client.post('/accounts/logout/')
+
+        by_email = self.client.post('/accounts/login/', {
+            'login': 'launch@example.com', 'password': self.password,
+        })
+        self.assertRedirects(by_email, '/dashboard/', fetch_redirect_response=False)
+
+    def test_profile_username_change_rejects_duplicates(self):
+        self.signup()
+        User.objects.create_user(username='reserved_name', email='other@example.com', password=self.password)
+        duplicate = self.client.post('/profile/', {
+            'username': 'RESERVED_NAME', 'first_name': 'Launch', 'last_name': 'Owner',
+        })
+        self.assertEqual(duplicate.status_code, 200)
+        self.assertContains(duplicate, 'already taken')
+
+        changed = self.client.post('/profile/', {
+            'username': 'new_launch_name', 'first_name': 'Launch', 'last_name': 'Owner',
+        })
+        self.assertRedirects(changed, '/profile/', fetch_redirect_response=False)
+        user = User.objects.get(email='launch@example.com')
+        self.assertEqual(user.username, 'new_launch_name')
+        self.assertEqual(user.get_full_name(), 'Launch Owner')
+
+    def test_password_change_and_account_deletion_require_current_password(self):
+        self.signup()
+        changed = self.client.post('/accounts/password/change/', {
+            'oldpassword': self.password,
+            'password1': 'Even-stronger-password-271!',
+            'password2': 'Even-stronger-password-271!',
+        })
+        self.assertRedirects(changed, '/profile/', fetch_redirect_response=False)
+        user = User.objects.get(username='launch_user')
+        self.assertTrue(user.check_password('Even-stronger-password-271!'))
+
+        rejected = self.client.post('/account/delete/', {
+            'confirmation': 'launch_user', 'password': 'wrong-password',
+        })
+        self.assertRedirects(rejected, '/profile/', fetch_redirect_response=False)
+        self.assertTrue(User.objects.filter(pk=user.pk).exists())
+
+        deleted = self.client.post('/account/delete/', {
+            'confirmation': 'launch_user', 'password': 'Even-stronger-password-271!',
+        })
+        self.assertRedirects(deleted, '/', fetch_redirect_response=False)
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_forgot_password_sends_non_enumerating_reset_email(self):
+        self.signup()
+        self.client.post('/accounts/logout/')
+        response = self.client.post('/accounts/password/reset/', {'email': 'launch@example.com'})
+        self.assertRedirects(response, '/accounts/password/reset/done/', fetch_redirect_response=False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('password', mail.outbox[0].subject.lower())
+
+    def test_google_button_only_appears_when_provider_is_configured(self):
+        login = self.client.get('/accounts/login/')
+        self.assertNotContains(login, 'Continue with Google')
+
+        site, _ = Site.objects.update_or_create(id=1, defaults={'domain': 'testserver', 'name': 'Test'})
+        app = SocialApp.objects.create(
+            provider='google', name='Google', client_id='test-client', secret='test-secret',
+        )
+        app.sites.add(site)
+        configured_login = self.client.get('/accounts/login/')
+        self.assertContains(configured_login, 'Continue with Google')
+        self.assertContains(configured_login, '/accounts/google/login/')
+
+    def test_social_app_command_is_idempotent_and_disables_missing_credentials(self):
+        credentials = {
+            'GOOGLE_CLIENT_ID': 'test-google-client',
+            'GOOGLE_CLIENT_SECRET': 'test-google-secret',
+            'GITHUB_CLIENT_ID': '',
+            'GITHUB_CLIENT_SECRET': '',
+            'SITE_DOMAIN': 'testserver',
+            'SITE_NAME': 'Linkify Test',
+        }
+        with patch.dict(os.environ, credentials, clear=False):
+            call_command('configure_social_apps', verbosity=0)
+            call_command('configure_social_apps', verbosity=0)
+        site = Site.objects.get(pk=1)
+        self.assertEqual(SocialApp.objects.filter(provider='google', sites=site).count(), 1)
+
+        credentials.update({'GOOGLE_CLIENT_ID': '', 'GOOGLE_CLIENT_SECRET': ''})
+        with patch.dict(os.environ, credentials, clear=False):
+            call_command('configure_social_apps', verbosity=0)
+        self.assertFalse(SocialApp.objects.filter(provider='google', sites=site).exists())

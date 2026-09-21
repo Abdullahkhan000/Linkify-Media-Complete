@@ -1,6 +1,6 @@
 # Linkify Media
 
-Linkify Media is a Django and Django REST Framework SaaS starter for TMDB-backed movie and TV metadata. It includes verified accounts, hashed and scoped API keys, quota enforcement, usage analytics, LemonSqueezy billing hooks, support tickets, a browser demo, and a developer dashboard.
+Linkify Media is a Next.js + Django REST Framework SaaS starter for TMDB-backed movie and TV metadata. The primary product UI is a responsive Next.js 16 app; Django, DRF and django-allauth provide the secure data and account layer.
 
 ## What is implemented
 
@@ -9,7 +9,9 @@ Linkify Media is a Django and Django REST Framework SaaS starter for TMDB-backed
 - API secrets hashed at rest, one-time secret display, scopes, expiry, revocation, and rotation.
 - Atomic daily quotas, per-minute limits, request status/latency logs, charts, and CSV export.
 - Short-lived signed browser-demo tokens with per-IP limits; there is no hardcoded demo API key.
-- Mandatory email verification before key creation, Google/GitHub sign-in support, and Resend delivery.
+- Username/email login, signup, password recovery, profile editing, account deletion, and optional Google/GitHub sign-in.
+- A colorful, animated Next.js workspace with a same-origin backend-for-frontend proxy; Django templates remain available as complete auth/email fallbacks.
+- Email verification is disabled by default for launch and can later be enabled with one environment setting.
 - LemonSqueezy checkout, signed/idempotent webhooks, subscription downgrades, and customer portal access.
 - Docker deployment, SQLite for local development, optional PostgreSQL, optional Redis, and health/readiness endpoints.
 
@@ -18,6 +20,7 @@ Linkify currently uses TMDB as its metadata provider. IMDb, Rotten Tomatoes, Met
 ## Requirements
 
 - Python 3.12
+- Node.js 24 and npm 11
 - Docker 20.10+ for the container workflow
 - A TMDB key for live media search (the rest of the site boots safely without one)
 
@@ -31,12 +34,18 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 npm ci
 npm run build:css
+cd frontend
+npm ci
+cp .env.example .env.local
+npm run build
+cd ..
 cp .env.example .env
 python manage.py migrate
-python manage.py runserver
+python manage.py configure_social_apps
+python manage.py runserver 8000
 ```
 
-Open <http://127.0.0.1:8000/>. Swagger UI is available at <http://127.0.0.1:8000/api/docs/>.
+In a second terminal, run `cd frontend && npm run dev`, then open <http://localhost:3000/>. Django runs at <http://localhost:8000/> and Swagger remains available at <http://localhost:8000/api/docs/>.
 
 ## Docker
 
@@ -46,6 +55,8 @@ docker compose up --build -d
 docker compose ps
 docker compose logs -f web
 ```
+
+Open <http://localhost:3000/>. The `frontend` container proxies only approved Django routes to the internal `web` service, keeping browser session cookies same-origin.
 
 The web readiness endpoint is `/api/ready/`. Stop the stack with `docker compose down`.
 
@@ -58,6 +69,7 @@ SECRET_KEY=a-long-random-production-secret
 DEBUG=False
 ALLOWED_HOSTS=api.example.com
 CSRF_TRUSTED_ORIGINS=https://api.example.com
+FRONTEND_URL=https://app.example.com
 DATABASE_URL=postgresql://user:password@host:5432/database
 REDIS_URL=redis://redis:6379/0
 TMDB_API_KEY=your-tmdb-key
@@ -72,6 +84,14 @@ LEMONSQUEEZY_WEBHOOK_SECRET=your-webhook-secret
 When `DEBUG=False`, `SECRET_KEY` is mandatory and secure cookies, HTTPS redirect, and HSTS default to enabled. If TLS redirects are handled outside Django, override the relevant settings explicitly and deliberately.
 
 OAuth provider credentials are loaded into django-allauth `SocialApp` records by `python manage.py configure_social_apps`, which the Docker entrypoint runs after migrations.
+
+For local Google sign-in, set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SITE_DOMAIN=localhost:8000`, and `FRONTEND_URL=http://localhost:3000`, then run `python manage.py configure_social_apps`. Register this exact authorized redirect URI in Google Cloud:
+
+```text
+http://localhost:8000/accounts/google/login/callback/
+```
+
+Production must use the matching HTTPS domain. If credentials are absent, social buttons stay hidden instead of opening a broken OAuth flow. `ACCOUNT_EMAIL_VERIFICATION=none` is the launch default; change it to `mandatory` only after outbound mail and your public domain are ready.
 
 ## API
 

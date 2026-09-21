@@ -1,87 +1,41 @@
-{% extends "base.html" %}
-{% load i18n %}
+{% extends "account/auth_base.html" %}
+{% block title %}Create account · Linkify Media{% endblock %}
+{% block auth_content %}
+<p class="eyebrow">Start shipping</p>
+<h2 class="mt-4 text-3xl font-black tracking-[-0.04em] text-white">Create your workspace</h2>
+<p class="mt-3 text-sm leading-6 text-[#89958c]">No verification step right now. Choose your credentials and enter the console instantly.</p>
 
-{% block title %}Sign Up - Linkify Media{% endblock %}
+<div class="mt-7">{% include "account/social_buttons.html" %}</div>
 
-{% block content %}
-<div class="flex items-center justify-center py-12">
-
-    <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl">
-
-        <h2 class="text-3xl font-semibold text-center mb-6">
-            Create Account ✨
-        </h2>
-
-        {% include "account/social_buttons.html" %}
-
-        <form method="POST" class="space-y-5">
-            {% csrf_token %}
-
-            <!-- Email -->
-            <div class="relative">
-                <input id="id_email" type="email" name="email" required
-                    value="{{ form.email.value|default:'' }}"
-                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
-                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
-                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
-                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
-                    Email
-                </label>
-                {% if form.email.errors %}<p class="text-red-400 text-xs mt-1">{{ form.email.errors.as_text }}</p>{% endif %}
-            </div>
-
-            <!-- Password -->
-            <div class="relative">
-                <input id="id_password1" type="password" name="password1" required
-                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
-                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
-                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
-                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
-                    Password
-                </label>
-                {% if form.password1.errors %}
-                    <p class="text-red-400 text-xs mt-1">{{ form.password1.errors.as_text }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="relative">
-                <input id="id_password2" type="password" name="password2" required
-                    class="peer w-full p-3 bg-transparent border border-gray-600 rounded-lg focus:border-blue-500 outline-none placeholder-transparent">
-                <label class="absolute left-3 top-3 text-gray-400 text-sm transition-all 
-                    peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-400
-                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm">
-                    Confirm Password
-                </label>
-                {% if form.password2.errors %}
-                    <p class="text-red-400 text-xs mt-1">{{ form.password2.errors.as_text }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Terms -->
-            <div class="flex items-center text-sm text-gray-400">
-                <input type="checkbox" name="terms" id="id_terms" required class="accent-blue-500 mr-2">
-                I agree to the <a href="{% url 'terms-of-service' %}" class="ml-1 text-blue-400 hover:underline">Terms & Conditions</a>
-            </div>
-            {% if form.non_field_errors %}
-                <div class="text-red-400 text-sm">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            <!-- Button -->
-            <button type="submit"
-                class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 
-                hover:scale-[1.02] transition-all duration-300 shadow-lg">
-                Create Account
-            </button>
-        </form>
-        <!-- Footer -->
-        <p class="text-center text-sm text-gray-400 mt-6">
-            Already have an account?
-            <a href="{% url 'account_login' %}" class="text-blue-400 hover:underline">
-                Sign In
-            </a>
-        </p>
-
+{% if form.non_field_errors %}<div class="form-alert mt-6">{{ form.non_field_errors|striptags }}</div>{% endif %}
+<form method="post" action="{% url 'account_signup' %}" class="mt-7 space-y-4" novalidate>
+    {% csrf_token %}
+    {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    <div>
+        <label for="id_username" class="mb-2 block text-xs font-bold uppercase tracking-[.16em] text-[#8e9a91]">Username</label>
+        <div class="relative"><i class="fa-solid fa-at absolute left-4 top-1/2 -translate-y-1/2 text-[#667168]"></i><input id="id_username" class="saas-input pl-11" type="text" name="username" value="{{ form.username.value|default:'' }}" autocomplete="username" maxlength="150" placeholder="your_handle" required autofocus></div>
+        {% if form.username.errors %}<p class="field-error">{{ form.username.errors|striptags }}</p>{% else %}<p class="mt-2 text-[11px] text-[#68736b]">3+ characters. Letters, numbers and @/./+/-/_ are supported.</p>{% endif %}
     </div>
-</div>
+    <div>
+        <label for="id_email" class="mb-2 block text-xs font-bold uppercase tracking-[.16em] text-[#8e9a91]">Email</label>
+        <div class="relative"><i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-[#667168]"></i><input id="id_email" class="saas-input pl-11" type="email" name="email" value="{{ form.email.value|default:'' }}" autocomplete="email" placeholder="you@example.com" required></div>
+        {% if form.email.errors %}<p class="field-error">{{ form.email.errors|striptags }}</p>{% endif %}
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <label for="id_password1" class="mb-2 block text-xs font-bold uppercase tracking-[.16em] text-[#8e9a91]">Password</label>
+            <div class="relative"><input id="id_password1" class="saas-input pr-11" type="password" name="password1" autocomplete="new-password" placeholder="8+ characters" required><button type="button" data-password-toggle="id_password1" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div>
+            {% if form.password1.errors %}<p class="field-error">{{ form.password1.errors|striptags }}</p>{% endif %}
+        </div>
+        <div>
+            <label for="id_password2" class="mb-2 block text-xs font-bold uppercase tracking-[.16em] text-[#8e9a91]">Confirm</label>
+            <div class="relative"><input id="id_password2" class="saas-input pr-11" type="password" name="password2" autocomplete="new-password" placeholder="Repeat password" required><button type="button" data-password-toggle="id_password2" class="password-toggle" aria-label="Show confirmation"><i class="fa-regular fa-eye"></i></button></div>
+            {% if form.password2.errors %}<p class="field-error">{{ form.password2.errors|striptags }}</p>{% endif %}
+        </div>
+    </div>
+    <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[.07] bg-white/[.025] p-3 text-xs leading-5 text-[#9aa59d]"><input type="checkbox" name="terms" class="mt-0.5 h-4 w-4 shrink-0 accent-[#c8ff5a]" {% if form.terms.value %}checked{% endif %} required><span>I agree to the <a href="{% url 'terms-of-service' %}" class="font-bold text-white hover:text-[#c8ff5a]">Terms</a> and <a href="{% url 'privacy-policy' %}" class="font-bold text-white hover:text-[#c8ff5a]">Privacy Policy</a>.</span></label>
+    {% if form.terms.errors %}<p class="field-error">{{ form.terms.errors|striptags }}</p>{% endif %}
+    <button type="submit" class="neon-button w-full px-6 py-3.5"><span class="relative z-10">Create account</span><i class="fa-solid fa-bolt relative z-10 text-xs"></i></button>
+</form>
+<p class="mt-7 text-center text-sm text-[#7f8a82]">Already have an account? <a href="{% url 'account_login' %}" class="font-bold text-white hover:text-[#c8ff5a]">Sign in</a></p>
 {% endblock %}

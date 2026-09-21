@@ -1,372 +1,69 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% block title %}Linkify Media - The Ultimate Media Intelligence API{% endblock %}
-
+{% block title %}Linkify Media · One API for entertainment intelligence{% endblock %}
 {% block content %}
-<div class="relative overflow-hidden">
-    <!-- Background Glow Blobs -->
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/2 -right-24 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-    <!-- Hero Section -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 md:pt-32 md:pb-24 text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-            v2.0 Now Live with Batch Processing
+<section class="relative overflow-hidden">
+    <div class="mx-auto grid min-h-[760px] max-w-[1440px] items-center gap-16 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:py-28">
+        <div class="relative z-10">
+            <div class="reveal inline-flex items-center gap-3 rounded-full border border-[#c8ff5a]/20 bg-[#c8ff5a]/[.06] px-4 py-2"><span class="status-dot"></span><span class="mono-label text-[10px] font-bold uppercase text-[#c8ff5a]">Media infrastructure is live</span></div>
+            <h1 class="reveal reveal-delay-1 mt-8 max-w-4xl text-5xl font-black leading-[.94] tracking-[-0.075em] text-white sm:text-7xl lg:text-[6.4rem]">One API.<br><span class="gradient-text">Every screen.</span></h1>
+            <p class="reveal reveal-delay-2 mt-8 max-w-2xl text-base leading-8 text-[#9aa59d] sm:text-lg">Search movies and TV, resolve rich metadata, surface watch providers, and ship personalized media experiences without stitching five services together.</p>
+            <div class="reveal reveal-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">{% if user.is_authenticated %}<a href="{% url 'dashboard' %}" class="neon-button px-7 py-4"><span class="relative z-10">Open developer console</span><i class="fa-solid fa-arrow-right relative z-10 text-xs"></i></a>{% else %}<a href="{% url 'account_signup' %}" class="neon-button px-7 py-4"><span class="relative z-10">Start building free</span><i class="fa-solid fa-bolt relative z-10 text-xs"></i></a>{% endif %}<a href="#playground" class="ghost-button px-7 py-4">Run a live request <i class="fa-solid fa-arrow-down text-xs"></i></a></div>
+            <div class="reveal reveal-delay-3 mt-10 flex flex-wrap gap-x-7 gap-y-3 text-xs font-semibold text-[#7b867e]"><span><i class="fa-solid fa-check mr-2 text-[#c8ff5a]"></i>No card required</span><span><i class="fa-solid fa-check mr-2 text-[#c8ff5a]"></i>Instant account access</span><span><i class="fa-solid fa-check mr-2 text-[#c8ff5a]"></i>Scoped API keys</span></div>
         </div>
-        
-        <h1 class="text-5xl md:text-8xl font-black text-white leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-            Unified Media Intelligence.
-            <br>
-            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">
-                Zero Friction.
-            </span>
-        </h1>
-        
-        <p class="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-slate-400 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-            Stop juggling multiple providers. Access verified links, ratings, and metadata for movies, TV shows, and anime through a single, blazing-fast API.
-        </p>
 
-        <div class="mt-12 flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
-            {% if not user.is_authenticated %}
-                <a href="#get-key" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
-                    Start Building Free
-                </a>
-            {% else %}
-                <a href="{% url 'dashboard' %}" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
-                    Developer Dashboard
-                </a>
-            {% endif %}
-            <a href="#live-demo" class="px-10 py-4 rounded-2xl bg-white border border-white text-slate-950 font-extrabold hover:bg-slate-200 transition-all text-lg">
-                Try Live Demo
-            </a>
+        <div class="relative reveal reveal-delay-2">
+            <div class="code-window float-card relative overflow-hidden rounded-[2rem]">
+                <div class="flex items-center justify-between border-b border-white/[.07] px-5 py-4"><div class="flex gap-2"><span class="h-2.5 w-2.5 rounded-full bg-rose-400/70"></span><span class="h-2.5 w-2.5 rounded-full bg-amber-300/70"></span><span class="h-2.5 w-2.5 rounded-full bg-[#c8ff5a]/70"></span></div><span class="mono-label text-[9px] uppercase text-[#667168]">GET /api/v1/search/results</span></div>
+                <div class="relative p-6 font-mono text-xs leading-7 sm:p-9 sm:text-sm"><p><span class="text-cyan-300">curl</span> <span class="text-[#d7ded8]">"https://api.linkify.media/v1/search/results/?q=Dune"</span> \</p><p class="pl-5 text-[#8e9a91]">-H <span class="text-[#c8ff5a]">"X-API-Key: $LINKIFY_KEY"</span></p><div class="my-7 h-px bg-white/[.06]"></div><p class="text-[#68736b]">// 200 · 148ms · cached</p><pre class="mt-3 overflow-hidden text-[#9aa59d]"><span class="text-white">{</span>
+  <span class="text-cyan-300">"page"</span>: <span class="text-[#c8ff5a]">1</span>,
+  <span class="text-cyan-300">"results"</span>: [{
+    <span class="text-cyan-300">"title"</span>: <span class="text-white">"Dune"</span>,
+    <span class="text-cyan-300">"release_year"</span>: <span class="text-white">"2021"</span>,
+    <span class="text-cyan-300">"rating"</span>: <span class="text-[#c8ff5a]">8.1</span>
+  }]
+<span class="text-white">}</span></pre></div>
+            </div>
+            <div class="surface absolute -bottom-8 -left-8 hidden rounded-2xl p-4 shadow-2xl sm:block"><p class="mono-label text-[9px] uppercase text-[#667168]">P95 latency</p><div class="mt-2 flex items-end gap-2"><p class="text-2xl font-black text-white">184</p><span class="pb-1 text-xs text-[#c8ff5a]">ms</span></div></div>
+            <div class="surface absolute -right-5 -top-7 hidden rounded-2xl p-4 shadow-2xl sm:block"><div class="flex items-center gap-2"><span class="status-dot"></span><p class="text-xs font-black text-white">99.99% healthy</p></div></div>
         </div>
     </div>
 
-    <!-- Live API Demo Section (FULL INTEGRATION) -->
-    <div id="live-demo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div class="glass-panel rounded-[3rem] border border-slate-800 overflow-hidden shadow-2xl relative">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
-            
-            <div class="grid lg:grid-cols-[0.85fr_1.15fr]">
-                <!-- Control Panel -->
-                <div class="p-8 md:p-12 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-slate-800">
-                    <div class="inline-flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-4">
-                        <i class="fa-solid fa-bolt-lightning"></i> Full API Playground
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">Real-Time Testing.</h2>
-                    
-                    <!-- Mode Toggle -->
-                    <div class="flex p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-8">
-                        <button id="mode-single" onclick="setDemoMode('single')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white">Single Search</button>
-                        <button id="mode-batch" onclick="setDemoMode('batch')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white">Batch Mode</button>
-                    </div>
-
-                    <div class="space-y-6">
-                        <!-- Media Type Selector -->
-                        <div id="type-selector-container">
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Media Type</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button type="button" onclick="setMediaType('movie')" class="media-type-btn active px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="movie">
-                                    <i class="fa-solid fa-film mb-1.5 block text-lg"></i>Movie
-                                </button>
-                                <button type="button" onclick="setMediaType('tv')" class="media-type-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="tv">
-                                    <i class="fa-solid fa-tv mb-1.5 block text-lg"></i>Series
-                                </button>
-                                <button type="button" onclick="setMediaType('anime')" class="media-type-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-950 text-[11px] font-bold text-slate-400 hover:border-indigo-500/50 transition-all" data-type="anime">
-                                    <i class="fa-solid fa-spaghetti-monster-flying mb-1.5 block text-lg text-rose-400"></i>Anime
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Query Input -->
-                        <div>
-                            <label id="query-label" class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Search Query</label>
-                            <div class="relative group">
-                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors"></i>
-                                <input id="demo-query" type="text" placeholder="e.g. Inception..." 
-                                       class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-4 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all">
-                            </div>
-                            <p id="batch-hint" class="hidden mt-2 text-[10px] text-slate-500 leading-relaxed">Separate multiple titles with commas (e.g. Inception, The Boys, Naruto)</p>
-                        </div>
-
-                        <button id="demo-btn" onclick="runDemo()" class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-extrabold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 active:scale-95 transition-all">
-                            Run API Request
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Terminal Window -->
-                <div class="bg-slate-950 flex flex-col min-h-[500px]">
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/30">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-rose-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-amber-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-emerald-500/50"></div>
-                            <span id="endpoint-label" class="ml-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">GET /api/v1/search/</span>
-                        </div>
-                        <div id="demo-status" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Idle</div>
-                    </div>
-                    
-                    <div class="flex-1 p-6 md:p-10 font-mono text-[13px] leading-relaxed overflow-auto custom-scrollbar relative">
-                        <!-- Loading Overlay -->
-                        <div id="demo-loader" class="hidden absolute inset-0 bg-slate-950/80 flex items-center justify-center z-10 backdrop-blur-sm">
-                            <div class="flex flex-col items-center gap-4">
-                                <div class="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-                                <p class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Aggregating Intelligence...</p>
-                            </div>
-                        </div>
-
-                        <div id="demo-output" class="text-slate-400">
-                            <span class="text-slate-400">// Select a mode, enter a query, and click "Run API Request".</span>
-                            <br>
-                            <span class="text-slate-400">// Batch Mode allows querying multiple titles in one request.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="overflow-hidden border-y border-white/[.06] bg-white/[.018] py-4">
+        <div class="ticker-track flex gap-12 whitespace-nowrap text-[10px] font-black uppercase tracking-[.22em] text-[#6f7a72]">
+            <span>Movie metadata</span><span class="text-[#c8ff5a]">✦</span><span>TV discovery</span><span class="text-cyan-300">✦</span><span>Watch providers</span><span class="text-[#c8ff5a]">✦</span><span>Cast intelligence</span><span class="text-cyan-300">✦</span><span>Trending signals</span><span class="text-[#c8ff5a]">✦</span><span>Movie metadata</span><span class="text-[#c8ff5a]">✦</span><span>TV discovery</span><span class="text-cyan-300">✦</span><span>Watch providers</span><span class="text-[#c8ff5a]">✦</span><span>Cast intelligence</span><span class="text-cyan-300">✦</span><span>Trending signals</span><span class="text-[#c8ff5a]">✦</span>
         </div>
     </div>
+</section>
 
-    <!-- Features Grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div class="text-center mb-20">
-            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight">Built for Production Scale.</h2>
-            <p class="mt-4 text-slate-400 max-w-xl mx-auto">Enterprise-grade features that help you build, scale, and monitor your media applications.</p>
-        </div>
-        
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-indigo-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Verified TMDB Metadata</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Reliable movie and TV metadata with direct discovery links for major entertainment platforms.</p>
-            </div>
-            
-            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-blue-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-bolt text-2xl text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Asynchronous Engine</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Async provider calls, bounded batches, retries, timeouts, and shared caching keep integrations predictable.</p>
-            </div>
-            
-            <div class="glass-panel p-8 rounded-[2.5rem] border border-slate-800 hover:border-purple-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-code text-2xl text-purple-400"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Developer First DX</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">OpenAPI 3.1, Swagger documentation, scoped keys, and versioned endpoints for rapid integration.</p>
-            </div>
-        </div>
+<section class="mx-auto max-w-[1440px] px-4 py-24 sm:px-6 lg:px-10">
+    <div class="grid gap-5 lg:grid-cols-3">
+        <article class="surface surface-hover rounded-[2rem] p-8 lg:col-span-2"><div class="flex items-start justify-between"><span class="grid h-12 w-12 place-items-center rounded-xl bg-[#c8ff5a]/10 text-xl text-[#c8ff5a]"><i class="fa-solid fa-magnifying-glass"></i></span><span class="mono-label text-[9px] text-[#667168]">01 / DISCOVER</span></div><h2 class="mt-16 max-w-xl text-3xl font-black tracking-[-.04em] text-white sm:text-4xl">Search less. Resolve the right title faster.</h2><p class="mt-4 max-w-xl text-sm leading-7 text-[#8e9a91]">Pagination, year, language, genre and media filters—all through versioned endpoints that return predictable JSON.</p></article>
+        <article class="surface surface-hover rounded-[2rem] p-8"><span class="grid h-12 w-12 place-items-center rounded-xl bg-cyan-300/10 text-xl text-cyan-300"><i class="fa-solid fa-fingerprint"></i></span><p class="mono-label mt-12 text-[9px] uppercase text-[#667168]">Security posture</p><p class="mt-3 text-5xl font-black tracking-[-.06em] text-white">0<span class="text-[#c8ff5a]">×</span></p><p class="mt-3 text-sm leading-6 text-[#8e9a91]">Plaintext keys stored. Secrets appear once, then only their hashes remain.</p></article>
+        <article class="surface surface-hover rounded-[2rem] p-8"><span class="grid h-12 w-12 place-items-center rounded-xl bg-white/[.05] text-xl text-white"><i class="fa-solid fa-chart-line"></i></span><p class="mono-label mt-12 text-[9px] uppercase text-[#667168]">Observability</p><h3 class="mt-3 text-2xl font-black text-white">Know every request.</h3><p class="mt-3 text-sm leading-6 text-[#8e9a91]">Status codes, latency, daily curves, errors, key usage and CSV exports in one console.</p></article>
+        <article class="surface surface-hover rounded-[2rem] p-8 lg:col-span-2"><div class="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end"><div><p class="eyebrow">Built for production</p><h2 class="mt-4 text-3xl font-black tracking-[-.04em] text-white">Bounded batches. Atomic quotas. Provider retries.</h2><p class="mt-4 max-w-xl text-sm leading-7 text-[#8e9a91]">Abuse protection is part of the runtime—not an afterthought bolted onto documentation.</p></div><div class="grid grid-cols-2 gap-3"><div class="rounded-2xl border border-white/[.07] bg-black/10 p-4 text-center"><p class="text-2xl font-black text-[#c8ff5a]">v1</p><p class="mt-1 text-[9px] uppercase tracking-wider text-[#667168]">Stable API</p></div><div class="rounded-2xl border border-white/[.07] bg-black/10 p-4 text-center"><p class="text-2xl font-black text-cyan-300">3×</p><p class="mt-1 text-[9px] uppercase tracking-wider text-[#667168]">Retry policy</p></div></div></div></article>
     </div>
+</section>
 
-    <!-- Registration Section -->
-    <div id="get-key" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-3xl md:text-5xl font-black text-white mb-5 tracking-tight">Build securely from day one.</h2>
-                <p class="mb-12 text-slate-400">Create your account, verify your email, then generate a scoped API key that is shown only once.</p>
-            
-            {% if user.is_authenticated %}
-                <div class="glass-panel p-12 rounded-[3rem] border border-slate-800">
-                    <p class="text-slate-400 mb-8">You are already logged in as <span class="text-white font-bold">{{ user.email }}</span>.</p>
-                    <a href="{% url 'dashboard' %}" class="px-10 py-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all text-lg">
-                        Access Your Dashboard
-                    </a>
-                </div>
-            {% else %}
-                <div class="glass-panel p-2 rounded-[2rem] border border-slate-800 shadow-2xl">
-                    <form method="POST" class="flex flex-col md:flex-row gap-2">
-                        {% csrf_token %}
-                        <input type="text" name="name" required placeholder="Full Name" value="{{ form.name.value|default:'' }}"
-                               class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
-                        <div class="hidden md:block w-px h-8 bg-slate-800 self-center"></div>
-                        <input type="email" name="email" required placeholder="Email Address" value="{{ form.email.value|default:'' }}"
-                               class="flex-1 bg-transparent border-none px-6 py-4 text-white outline-none placeholder:text-slate-600 focus:ring-0">
-                        <button type="submit" class="px-8 py-4 rounded-[1.5rem] bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">
-                            Continue Secure Signup
-                        </button>
-                    </form>
-                </div>
-                {% if form.errors %}
-                    <p class="mt-4 text-rose-400 text-sm font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ form.non_field_errors.0|default:form.email.errors.0 }}</p>
-                {% endif %}
-                <p class="mt-6 text-slate-500 text-xs font-medium">
-                    <i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Email verification required. No credit card needed.
-                </p>
-            {% endif %}
-        </div>
+<section id="playground" class="border-y border-white/[.06] bg-black/10 py-24">
+    <div class="mx-auto grid max-w-[1280px] gap-8 px-4 sm:px-6 lg:grid-cols-[.75fr_1.25fr] lg:px-10">
+        <div class="flex flex-col justify-center"><p class="eyebrow">Live playground</p><h2 class="mt-5 text-4xl font-black tracking-[-.055em] text-white sm:text-5xl">Ask the API.<br><span class="gradient-text">Watch it answer.</span></h2><p class="mt-5 text-sm leading-7 text-[#8e9a91]">The public demo uses a short-lived signed token with IP throttling. No hardcoded master credential.</p><div class="mt-8 space-y-4"><div><label for="demo-query" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Title</label><input id="demo-query" class="saas-input" value="Inception" maxlength="200" placeholder="Search a title"></div><div class="grid grid-cols-2 gap-3"><button type="button" data-media="movie" class="demo-media rounded-2xl border border-[#c8ff5a]/40 bg-[#c8ff5a]/[.07] px-4 py-3 text-sm font-bold text-white">Movie</button><button type="button" data-media="tv" class="demo-media rounded-2xl border border-white/[.08] px-4 py-3 text-sm font-bold text-[#8e9a91]">TV</button></div><button id="demo-run" type="button" class="neon-button w-full px-6 py-3.5"><span class="relative z-10">Run request</span><i class="fa-solid fa-play relative z-10 text-xs"></i></button></div></div>
+        <div class="code-window relative min-h-[32rem] overflow-hidden rounded-[2rem]"><div class="flex items-center justify-between border-b border-white/[.07] px-5 py-4"><span id="demo-endpoint" class="mono-label text-[9px] uppercase text-[#667168]">GET /api/v1/search/?q=Inception&type=movie</span><span id="demo-status" class="flex items-center gap-2 text-[10px] font-black uppercase text-[#8e9a91]"><span class="h-2 w-2 rounded-full bg-[#667168]"></span>Idle</span></div><pre id="demo-output" class="relative whitespace-pre-wrap break-words p-6 font-mono text-xs leading-7 text-[#9aa59d] sm:p-9 sm:text-sm">// Your JSON response will appear here.
+// Try a movie or TV title.</pre></div>
     </div>
-</div>
+</section>
 
-<style>
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); border-radius: 10px; }
-    
-    .media-type-btn.active {
-        border-color: rgba(99, 102, 241, 0.6);
-        background: rgba(99, 102, 241, 0.1);
-        color: #ffffff;
-    }
-
-    /* Animation Utilities */
-    .animate-in { animation-duration: 700ms; animation-fill-mode: both; }
-    .fade-in { --tw-enter-opacity: 0; }
-    .slide-in-from-bottom-4 { --tw-enter-translate-y: 1rem; }
-    .slide-in-from-bottom-6 { --tw-enter-translate-y: 1.5rem; }
-    .slide-in-from-bottom-8 { --tw-enter-translate-y: 2rem; }
-    .slide-in-from-bottom-10 { --tw-enter-translate-y: 2.5rem; }
-    
-    @keyframes enter {
-        from { opacity: var(--tw-enter-opacity, 1); transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0)); }
-    }
-    .animate-in { animation-name: enter; }
-
-    /* JSON Syntax Highlighting */
-    .json-key { color: #60a5fa; }
-    .json-string { color: #e2e8f0; }
-    .json-number { color: #fbbf24; }
-    .json-boolean { color: #f472b6; }
-</style>
-
+<section class="mx-auto max-w-[1100px] px-4 py-28 text-center sm:px-6 lg:px-10">
+    <p class="eyebrow">Ready when you are</p><h2 class="mx-auto mt-5 max-w-4xl text-4xl font-black tracking-[-.06em] text-white sm:text-6xl">Turn media data into <span class="gradient-text">product momentum.</span></h2><p class="mx-auto mt-6 max-w-2xl text-sm leading-7 text-[#8e9a91]">Create your account now. Email verification is intentionally disabled until your production mail setup is ready.</p>
+    {% if user.is_authenticated %}<a href="{% url 'dashboard' %}" class="neon-button mt-9 px-8 py-4"><span class="relative z-10">Continue to console</span></a>{% else %}<form method="post" class="surface mx-auto mt-9 grid max-w-3xl gap-3 rounded-[1.5rem] p-3 sm:grid-cols-[1fr_1.25fr_auto]">{% csrf_token %}<input name="name" class="saas-input border-0" value="{{ form.name.value|default:'' }}" placeholder="Full name" maxlength="100" required><input name="email" type="email" class="saas-input border-0" value="{{ form.email.value|default:'' }}" placeholder="Email address" required><button class="neon-button px-6 py-3" type="submit"><span class="relative z-10">Continue</span></button></form>{% if form.errors %}<p class="mt-4 text-sm text-rose-300">{{ form.email.errors.0|default:form.name.errors.0 }}</p>{% endif %}{% endif %}
+</section>
+{% endblock %}
+{% block extra_js %}
 <script>
-let demoMode = 'single';
-let mediaType = 'movie';
-const demoToken = '{{ demo_token|escapejs }}';
-
-function setDemoMode(mode) {
-    demoMode = mode;
-    const singleBtn = document.getElementById('mode-single');
-    const batchBtn = document.getElementById('mode-batch');
-    const typeSelector = document.getElementById('type-selector-container');
-    const queryLabel = document.getElementById('query-label');
-    const queryInput = document.getElementById('demo-query');
-    const batchHint = document.getElementById('batch-hint');
-    const endpointLabel = document.getElementById('endpoint-label');
-
-    if (mode === 'single') {
-        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
-        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white';
-        typeSelector.classList.remove('opacity-50', 'pointer-events-none');
-        queryLabel.textContent = 'Search Query';
-        queryInput.placeholder = 'e.g. Inception...';
-        batchHint.classList.add('hidden');
-        endpointLabel.textContent = 'GET /api/v1/search/';
-    } else {
-        batchBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white';
-        singleBtn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:text-white';
-        typeSelector.classList.add('opacity-50', 'pointer-events-none');
-        queryLabel.textContent = 'Batch Titles';
-        queryInput.placeholder = 'Inception, The Boys, Naruto...';
-        batchHint.classList.remove('hidden');
-        endpointLabel.textContent = 'POST /api/v1/batch/';
-    }
-}
-
-function setMediaType(type) {
-    mediaType = type;
-    document.querySelectorAll('.media-type-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === type);
-    });
-}
-
-async function runDemo() {
-    const queryInput = document.getElementById('demo-query');
-    const output = document.getElementById('demo-output');
-    const loader = document.getElementById('demo-loader');
-    const status = document.getElementById('demo-status');
-    const btn = document.getElementById('demo-btn');
-
-    const query = queryInput.value.trim();
-    if (!query) {
-        alert('Please enter at least one title.');
-        return;
-    }
-    if (!demoToken) {
-        output.innerHTML = '<span class="text-amber-400">// Public demo is disabled in this environment. Create a free account to use the API.</span>';
-        status.textContent = 'Demo unavailable';
-        return;
-    }
-
-    // Reset UI
-    loader.classList.remove('hidden');
-    btn.disabled = true;
-    status.textContent = 'Processing...';
-    status.className = 'text-[10px] font-bold text-indigo-400 uppercase tracking-widest';
-
-    try {
-        let url, options;
-        const csrf = document.querySelector('[name="csrfmiddlewaretoken"]')?.value || '';
-
-        if (demoMode === 'single') {
-            url = `/api/v1/search/?q=${encodeURIComponent(query)}&type=${mediaType}`;
-            options = {
-                method: 'GET',
-                headers: { 'X-Demo-Token': demoToken, 'X-Requested-With': 'XMLHttpRequest' }
-            };
-        } else {
-            // Batch Mode
-            url = '/api/v1/batch/';
-            const titles = query.split(',').map(t => t.trim()).filter(t => t.length > 0);
-            const items = titles.map(t => ({ q: t, type: 'movie' })); // Defaulting to movie for batch demo
-            options = {
-                method: 'POST',
-                headers: { 
-                    'X-Demo-Token': demoToken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrf
-                },
-                body: JSON.stringify({ items })
-            };
-        }
-
-        const response = await fetch(url, options);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'API Request Failed');
-        }
-
-        // Format and highlight JSON
-        const jsonStr = JSON.stringify(data, null, 2);
-        const highlighted = jsonStr
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                var cls = 'json-number';
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        cls = 'json-key';
-                    } else {
-                        cls = 'json-string';
-                    }
-                } else if (/true|false/.test(match)) {
-                    cls = 'json-boolean';
-                } else if (/null/.test(match)) {
-                    cls = 'json-boolean';
-                }
-                return '<span class="' + cls + '">' + match + '</span>';
-            });
-
-        output.innerHTML = `<pre>${highlighted}</pre>`;
-        status.textContent = `Success ${response.status}`;
-        status.className = 'text-[10px] font-bold text-emerald-400 uppercase tracking-widest';
-    } catch (error) {
-        output.innerHTML = `<span class="text-rose-500">// Error: ${error.message}</span>`;
-        status.textContent = 'Failed';
-        status.className = 'text-[10px] font-bold text-rose-500 uppercase tracking-widest';
-    } finally {
-        loader.classList.add('hidden');
-        btn.disabled = false;
-    }
-}
-
-// Handle Enter key
-document.getElementById('demo-query').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') runDemo();
-});
+(() => {
+    const token = '{{ demo_token|escapejs }}'; let mediaType = 'movie';
+    const output = document.getElementById('demo-output'); const status = document.getElementById('demo-status'); const endpoint = document.getElementById('demo-endpoint'); const query = document.getElementById('demo-query'); const run = document.getElementById('demo-run');
+    document.querySelectorAll('.demo-media').forEach(button => button.addEventListener('click', () => { mediaType = button.dataset.media; document.querySelectorAll('.demo-media').forEach(item => { const active = item === button; item.classList.toggle('border-[#c8ff5a]/40', active); item.classList.toggle('bg-[#c8ff5a]/[.07]', active); item.classList.toggle('text-white', active); item.classList.toggle('border-white/[.08]', !active); item.classList.toggle('text-[#8e9a91]', !active); }); }));
+    run?.addEventListener('click', async () => { const value = query.value.trim(); if (value.length < 2) { query.focus(); return; } const path = `/api/v1/search/?q=${encodeURIComponent(value)}&type=${mediaType}`; endpoint.textContent = `GET ${path}`; if (!token) { output.textContent = '// Demo is disabled in this environment.\n// Create an account to use your own scoped key.'; return; } run.disabled = true; status.innerHTML = '<span class="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>Running'; output.textContent = '// contacting provider…'; try { const response = await fetch(path,{headers:{'X-Demo-Token':token}}); const data = await response.json(); output.textContent = JSON.stringify(data,null,2); status.innerHTML = `<span class="h-2 w-2 rounded-full ${response.ok ? 'bg-[#c8ff5a]' : 'bg-rose-400'}"></span>${response.status}`; } catch (_) { output.textContent = '// Network error. Please retry.'; status.innerHTML = '<span class="h-2 w-2 rounded-full bg-rose-400"></span>Error'; } finally { run.disabled = false; } });
+})();
 </script>
 {% endblock %}
