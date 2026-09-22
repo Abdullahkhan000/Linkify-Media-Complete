@@ -5,6 +5,7 @@ export type AuthUser = {
   display?: string;
   first_name?: string;
   last_name?: string;
+  has_usable_password?: boolean;
 };
 
 export type AuthResponse = {
@@ -66,7 +67,6 @@ export function csrfToken(): string {
 
 function backendPath(path: string): string {
   const cleanPath = path.replace(/^\/+/, "");
-
   return `/api/backend/${cleanPath}`;
 }
 
@@ -131,7 +131,8 @@ export async function backend<T = unknown>(
         : null;
 
     throw new BackendError(
-      getPayloadMessage(data) || `Request failed with status ${response.status}.`,
+      getPayloadMessage(data) ||
+        `Request failed with status ${response.status}.`,
       response.status,
       data,
     );
@@ -141,7 +142,7 @@ export async function backend<T = unknown>(
 }
 
 export async function session(): Promise<AuthResponse> {
-  return backend<AuthResponse>("_allauth/browser/v1/auth/session");
+  return backend<AuthResponse>("/_allauth/browser/v1/auth/session");
 }
 
 function getPayloadMessage(payload: ApiErrorPayload | null): string {
@@ -219,6 +220,7 @@ export function errorMessage(reason: unknown): string {
 
   if (reason && typeof reason === "object") {
     const payload = reason as ApiErrorPayload;
+
     return (
       getPayloadMessage(payload) ||
       "Something went wrong. Please try again."
