@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 import uuid
+
 from django.conf import settings
 from django.db import migrations, models
 
@@ -9,157 +10,496 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0006_supportconversation_supportticket_conversation_and_more'),
+        (
+            "api",
+            "0007_harden_api_keys_and_usage",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StatusIncident',
+            name="StatusIncident",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=180)),
-                ('status', models.CharField(choices=[('investigating', 'Investigating'), ('identified', 'Identified'), ('monitoring', 'Monitoring'), ('resolved', 'Resolved')], default='investigating', max_length=20)),
-                ('impact', models.CharField(choices=[('minor', 'Minor'), ('major', 'Major'), ('critical', 'Critical')], default='minor', max_length=20)),
-                ('message', models.TextField()),
-                ('started_at', models.DateTimeField(auto_now_add=True)),
-                ('resolved_at', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=180,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("investigating", "Investigating"),
+                            ("identified", "Identified"),
+                            ("monitoring", "Monitoring"),
+                            ("resolved", "Resolved"),
+                        ],
+                        default="investigating",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "impact",
+                    models.CharField(
+                        choices=[
+                            ("minor", "Minor"),
+                            ("major", "Major"),
+                            ("critical", "Critical"),
+                        ],
+                        default="minor",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "message",
+                    models.TextField(),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "resolved_at",
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-started_at'],
+                "ordering": ["-started_at"],
             },
         ),
+
         migrations.AddField(
-            model_name='apikey',
-            name='last_used_at',
-            field=models.DateTimeField(blank=True, null=True),
+            model_name="profile",
+            name="company_name",
+            field=models.CharField(
+                blank=True,
+                max_length=160,
+            ),
         ),
+
         migrations.AddField(
-            model_name='apikey',
-            name='scopes',
-            field=models.JSONField(blank=True, default=list),
+            model_name="profile",
+            name="job_title",
+            field=models.CharField(
+                blank=True,
+                max_length=120,
+            ),
         ),
+
         migrations.AddField(
-            model_name='profile',
-            name='company_name',
-            field=models.CharField(blank=True, max_length=160),
+            model_name="profile",
+            name="onboarding_completed",
+            field=models.BooleanField(
+                default=False,
+            ),
         ),
-        migrations.AddField(
-            model_name='profile',
-            name='job_title',
-            field=models.CharField(blank=True, max_length=120),
-        ),
-        migrations.AddField(
-            model_name='profile',
-            name='onboarding_completed',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='usagelog',
-            name='latency_ms',
-            field=models.PositiveIntegerField(default=0),
-        ),
-        migrations.AddField(
-            model_name='usagelog',
-            name='method',
-            field=models.CharField(default='GET', max_length=10),
-        ),
-        migrations.AddField(
-            model_name='usagelog',
-            name='status_code',
-            field=models.PositiveSmallIntegerField(default=200),
-        ),
+
         migrations.CreateModel(
-            name='AuditLog',
+            name="AuditLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('action', models.CharField(max_length=120)),
-                ('target_type', models.CharField(blank=True, max_length=80)),
-                ('target_id', models.CharField(blank=True, max_length=120)),
-                ('metadata', models.JSONField(blank=True, default=dict)),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True)),
-                ('user_agent', models.CharField(blank=True, max_length=500)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='audit_logs', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "action",
+                    models.CharField(
+                        max_length=120,
+                    ),
+                ),
+                (
+                    "target_type",
+                    models.CharField(
+                        blank=True,
+                        max_length=80,
+                    ),
+                ),
+                (
+                    "target_id",
+                    models.CharField(
+                        blank=True,
+                        max_length=120,
+                    ),
+                ),
+                (
+                    "metadata",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "user_agent",
+                    models.CharField(
+                        blank=True,
+                        max_length=500,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="audit_logs",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
+
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=120)),
-                ('slug', models.SlugField(max_length=140, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='owned_teams', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=120,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        max_length=140,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="owned_teams",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
+
         migrations.CreateModel(
-            name='WebhookEndpoint',
+            name="WebhookEndpoint",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=120)),
-                ('url', models.URLField(max_length=500)),
-                ('secret', models.CharField(max_length=128)),
-                ('events', models.JSONField(blank=True, default=list)),
-                ('is_active', models.BooleanField(default=True)),
-                ('failure_count', models.PositiveIntegerField(default=0)),
-                ('last_delivery_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webhook_endpoints', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=120,
+                    ),
+                ),
+                (
+                    "url",
+                    models.URLField(
+                        max_length=500,
+                    ),
+                ),
+                (
+                    "secret",
+                    models.CharField(
+                        max_length=128,
+                    ),
+                ),
+                (
+                    "events",
+                    models.JSONField(
+                        blank=True,
+                        default=list,
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                    ),
+                ),
+                (
+                    "failure_count",
+                    models.PositiveIntegerField(
+                        default=0,
+                    ),
+                ),
+                (
+                    "last_delivery_at",
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="webhook_endpoints",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
+
         migrations.CreateModel(
-            name='WebhookDelivery',
+            name="WebhookDelivery",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event', models.CharField(max_length=80)),
-                ('payload', models.JSONField(default=dict)),
-                ('status_code', models.PositiveSmallIntegerField(default=0)),
-                ('success', models.BooleanField(default=False)),
-                ('response_body', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('endpoint', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='deliveries', to='api.webhookendpoint')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "event",
+                    models.CharField(
+                        max_length=80,
+                    ),
+                ),
+                (
+                    "payload",
+                    models.JSONField(
+                        default=dict,
+                    ),
+                ),
+                (
+                    "status_code",
+                    models.PositiveSmallIntegerField(
+                        default=0,
+                    ),
+                ),
+                (
+                    "success",
+                    models.BooleanField(
+                        default=False,
+                    ),
+                ),
+                (
+                    "response_body",
+                    models.TextField(
+                        blank=True,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "endpoint",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="deliveries",
+                        to="api.webhookendpoint",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
+
         migrations.CreateModel(
-            name='TeamInvitation',
+            name="TeamInvitation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=254)),
-                ('role', models.CharField(choices=[('owner', 'Owner'), ('admin', 'Admin'), ('developer', 'Developer'), ('viewer', 'Viewer')], default='developer', max_length=20)),
-                ('token', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('expired', 'Expired')], default='pending', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='api.team')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254,
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("owner", "Owner"),
+                            ("admin", "Admin"),
+                            ("developer", "Developer"),
+                            ("viewer", "Viewer"),
+                        ],
+                        default="developer",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "token",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("accepted", "Accepted"),
+                            ("expired", "Expired"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "team",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="invitations",
+                        to="api.team",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
-                'constraints': [models.UniqueConstraint(fields=('team', 'email', 'status'), name='unique_pending_team_invite')],
+                "ordering": ["-created_at"],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("team", "email", "status"),
+                        name="unique_pending_team_invite",
+                    ),
+                ],
             },
         ),
+
         migrations.CreateModel(
-            name='TeamMembership',
+            name="TeamMembership",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('owner', 'Owner'), ('admin', 'Admin'), ('developer', 'Developer'), ('viewer', 'Viewer')], default='developer', max_length=20)),
-                ('joined_at', models.DateTimeField(auto_now_add=True)),
-                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='api.team')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='team_memberships', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("owner", "Owner"),
+                            ("admin", "Admin"),
+                            ("developer", "Developer"),
+                            ("viewer", "Viewer"),
+                        ],
+                        default="developer",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "joined_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                    ),
+                ),
+                (
+                    "team",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="memberships",
+                        to="api.team",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="team_memberships",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('team', 'user'), name='unique_team_membership')],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("team", "user"),
+                        name="unique_team_membership",
+                    ),
+                ],
             },
         ),
     ]
