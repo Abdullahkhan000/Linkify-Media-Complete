@@ -1,0 +1,280 @@
+{
+  "templates": {
+    "404.html": {
+      "route": "/not-found",
+      "component": "Django template"
+    },
+    "base.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "dashboard_base.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "migrated_content.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "template_reference.html": {
+      "route": "/template-reference",
+      "component": "Django template"
+    },
+    "unavailable_feature.html": {
+      "route": "/workspace-feature",
+      "component": "Django template"
+    },
+    "about.html": {
+      "route": "/about",
+      "component": "Django template"
+    },
+    "analytics.html": {
+      "route": "/analytics",
+      "component": "Django template"
+    },
+    "api_reference.html": {
+      "route": "/api-reference",
+      "component": "Django template"
+    },
+    "audit.html": {
+      "route": "/audit",
+      "component": "Django template"
+    },
+    "billing.html": {
+      "route": "/billing",
+      "component": "Django template"
+    },
+    "dashboard.html": {
+      "route": "/dashboard",
+      "component": "Django template"
+    },
+    "docs.html": {
+      "route": "/docs",
+      "component": "Django template"
+    },
+    "faq.html": {
+      "route": "/faq",
+      "component": "Django template"
+    },
+    "landing.html": {
+      "route": "/",
+      "component": "Django template"
+    },
+    "platform_dashboard.html": {
+      "route": "/platform",
+      "component": "Django template"
+    },
+    "playground.html": {
+      "route": "/playground",
+      "component": "Django template"
+    },
+    "pricing.html": {
+      "route": "/pricing",
+      "component": "Django template"
+    },
+    "profile.html": {
+      "route": "/account",
+      "component": "Django template"
+    },
+    "profile copy.html": {
+      "route": "/account",
+      "component": "Django template"
+    },
+    "status.html": {
+      "route": "/status",
+      "component": "Django template"
+    },
+    "support.html": {
+      "route": "/support",
+      "component": "Django template"
+    },
+    "teams.html": {
+      "route": "/teams",
+      "component": "Django template"
+    },
+    "usage_logs.html": {
+      "route": "/usage-logs",
+      "component": "Django template"
+    },
+    "webhooks.html": {
+      "route": "/webhooks",
+      "component": "Django template"
+    },
+    "legal/privacy.html": {
+      "route": "/privacy",
+      "component": "Django template"
+    },
+    "legal/terms.html": {
+      "route": "/terms",
+      "component": "Django template"
+    },
+    "account/account_already_exists_message.html": {
+      "route": "/account-exists",
+      "component": "Django template"
+    },
+    "account/account_inactive.html": {
+      "route": "/account-inactive",
+      "component": "Django template"
+    },
+    "account/auth_base.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "account/base_entrance.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "account/email/account_already_exists_message.html": {
+      "route": "/account-exists",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_message.html": {
+      "route": "/email-confirmation",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_signup_message.html": {
+      "route": "/verification-sent",
+      "component": "Django template"
+    },
+    "account/email/password_reset_key_message.html": {
+      "route": "/reset-password/:key",
+      "component": "Django template"
+    },
+    "account/email_change.html": {
+      "route": "/change-email",
+      "component": "Django template"
+    },
+    "account/email_confirm.html": {
+      "route": "/verify-email/:key",
+      "component": "Django template"
+    },
+    "account/login.html": {
+      "route": "/login",
+      "component": "Django template"
+    },
+    "account/logout.html": {
+      "route": "/logout",
+      "component": "Django template"
+    },
+    "account/password_change.html": {
+      "route": "/change-password",
+      "component": "Django template"
+    },
+    "account/password_reset.html": {
+      "route": "/forgot-password",
+      "component": "Django template"
+    },
+    "account/password_reset_done.html": {
+      "route": "/password-reset-done",
+      "component": "Django template"
+    },
+    "account/password_reset_from_key.html": {
+      "route": "/reset-password/:key",
+      "component": "Django template"
+    },
+    "account/password_reset_from_key_done.html": {
+      "route": "/password-reset-done",
+      "component": "Django template"
+    },
+    "account/password_set.html": {
+      "route": "/set-password",
+      "component": "Django template"
+    },
+    "account/reauthenticate.html": {
+      "route": "/reauthenticate",
+      "component": "Django template"
+    },
+    "account/signup.html": {
+      "route": "/signup",
+      "component": "Django template"
+    },
+    "account/social_buttons.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "account/verification_sent.html": {
+      "route": "/verification-sent",
+      "component": "Django template"
+    },
+    "account/verified_email_required.html": {
+      "route": "/verified-email-required",
+      "component": "Django template"
+    },
+    "mfa/base_entrance.html": {
+      "route": "/mfa",
+      "component": "Django template"
+    },
+    "mfa/base_manage.html": {
+      "route": "/mfa",
+      "component": "Django template"
+    },
+    "mfa/index.html": {
+      "route": "/mfa",
+      "component": "Django template"
+    },
+    "socialaccount/authentication_error.html": {
+      "route": "/social/error",
+      "component": "Django template"
+    },
+    "socialaccount/base_entrance.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "socialaccount/base_manage.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "socialaccount/connections.html": {
+      "route": "/social/connections",
+      "component": "Django template"
+    },
+    "socialaccount/login.html": {
+      "route": "/social/approval",
+      "component": "Django template"
+    },
+    "socialaccount/login_cancelled.html": {
+      "route": "/social/cancelled",
+      "component": "Django template"
+    },
+    "socialaccount/login_redirect.html": {
+      "route": "/social/redirect",
+      "component": "Django template"
+    },
+    "socialaccount/signup.html": {
+      "route": "/social/signup",
+      "component": "Django template"
+    },
+    "socialaccount/snippets/login_extra.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "socialaccount/snippets/provider_list.html": {
+      "route": "shared",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_message.txt": {
+      "route": "/email-confirmation",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_subject.txt": {
+      "route": "/email-confirmation",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_signup_message.txt": {
+      "route": "/verification-sent",
+      "component": "Django template"
+    },
+    "account/email/email_confirmation_signup_subject.txt": {
+      "route": "/verification-sent",
+      "component": "Django template"
+    },
+    "account/email/password_reset_key_message.txt": {
+      "route": "/reset-password/:key",
+      "component": "Django template"
+    },
+    "account/email/password_reset_key_subject.txt": {
+      "route": "/reset-password/:key",
+      "component": "Django template"
+    }
+  }
+}

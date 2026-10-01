@@ -1,0 +1,6 @@
+{% extends "account/auth_base.html" %}
+{% block title %}{% block head_title %}Account access{% endblock %} · Linkify Media{% endblock %}
+{% block auth_content %}
+<p class="eyebrow">Account protection</p>
+<div class="mt-6">{% block content %}{% endblock %}</div>
+{% endblock %}

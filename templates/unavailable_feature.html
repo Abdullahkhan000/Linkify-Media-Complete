@@ -1,0 +1,6 @@
+{% extends "dashboard_base.html" %}
+{% block title %}{{ feature }} · Linkify Media{% endblock %}
+{% block dashboard_title %}{{ feature }}{% endblock %}
+{% block dashboard_content %}
+<section class="workspace-page workspace-empty-page"><article class="surface empty-feature-card"><div class="empty-feature-icon"><i class="fa-solid fa-circle-info"></i></div><p class="eyebrow">Not available in this backend</p><h1>{{ feature }}</h1><p class="lead">{{ feature_detail }}</p><p>This screen is included so navigation remains complete, but Linkify will not display invented records or claim that unsupported actions were saved.</p><div class="page-actions"><a class="button button-primary" href="{% url 'dashboard' %}">Back to dashboard</a><a class="button button-secondary" href="{% url 'support' %}">Contact support</a></div></article></section>
+{% endblock %}

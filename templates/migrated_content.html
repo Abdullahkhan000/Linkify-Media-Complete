@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} · Linkify Media{% endblock %}
+{% block meta_description %}{{ page.description|default:"Linkify Media product and policy information." }}{% endblock %}
+{% block content %}
+<section class="container content-page">
+  <header class="page-header">
+    <p class="eyebrow">Linkify Media</p>
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}<p class="lead">{{ page.description }}</p>{% endif %}
+  </header>
+  <article class="content-copy migrated-template-copy">{{ page.html|safe }}</article>
+  <div class="page-actions"><a class="button button-secondary" href="{% url 'docs-page' %}">Developer docs</a><a class="button button-primary" href="{% url 'account_signup' %}">Create an account</a></div>
+</section>
+{% endblock %}

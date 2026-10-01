@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% block dashboard_title %}Workspace · Linkify Media{% endblock %}{% endblock %}
+{% block meta_description %}Manage your Linkify Media developer account and API workspace.{% endblock %}
+{% block site_header %}{% endblock %}{% block site_footer %}{% endblock %}{% block support_widget %}{% endblock %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar" data-sidebar>
+    <a class="brand" href="{% url 'dashboard' %}" aria-label="Linkify Media console home"><span class="brand-mark"><i class="fa-solid fa-link"></i></span><span>LINKIFY<br><small style="color:#cbc8e5">MEDIA CONSOLE</small></span></a>
+    <nav class="sidebar-nav" aria-label="Workspace navigation">
+      <a class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}"><i class="fa-solid fa-grid-2"></i><span>Overview</span></a>
+      <a class="sidebar-link {% if request.path == '/analytics/' %}active{% endif %}" href="{% url 'analytics' %}"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a>
+      <a class="sidebar-link {% if request.path|slice:':12' == '/usage-logs/' %}active{% endif %}" href="{% url 'usage-logs' %}"><i class="fa-solid fa-list-check"></i><span>Usage logs</span></a>
+      <a class="sidebar-link {% if request.path == '/api-reference/' %}active{% endif %}" href="{% url 'api-reference' %}"><i class="fa-solid fa-code"></i><span>API reference</span></a>
+      <a class="sidebar-link {% if request.path == '/billing/' %}active{% endif %}" href="{% url 'billing' %}"><i class="fa-regular fa-credit-card"></i><span>Billing</span></a>
+    </nav>
+    <p class="sidebar-label">Manage</p>
+    <nav class="sidebar-nav" aria-label="Account settings">
+      <a class="sidebar-link {% if request.path == '/account/' or request.path == '/profile/' %}active{% endif %}" href="{% url 'profile' %}"><i class="fa-regular fa-user"></i><span>Account settings</span></a>
+      <a class="sidebar-link" href="{% url 'socialaccount_connections' %}"><i class="fa-solid fa-link"></i><span>Connected accounts</span></a>
+      <a class="sidebar-link" href="/accounts/2fa/"><i class="fa-solid fa-shield-halved"></i><span>Two-factor auth</span></a>
+      <a class="sidebar-link" href="{% url 'audit' %}"><i class="fa-solid fa-clock-rotate-left"></i><span>Audit history</span></a>
+      <a class="sidebar-link" href="{% url 'teams' %}"><i class="fa-solid fa-users"></i><span>Teams</span></a>
+      <a class="sidebar-link" href="{% url 'webhooks' %}"><i class="fa-solid fa-tower-broadcast"></i><span>Webhooks</span></a>
+    </nav>
+    <div class="sidebar-plan"><small>Current plan</small><b>{{ user.profile.tier|default:'free'|title }}</b><a href="{% url 'pricing' %}" class="btn btn-secondary btn-full">Compare plans</a></div>
+    <form method="post" action="{% url 'account_logout' %}" class="sidebar-logout">{% csrf_token %}<button class="sidebar-link" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sign out</span></button></form>
+  </aside>
+  <div class="app-main">
+    <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-secondary icon-btn mobile-menu" data-sidebar-toggle type="button" aria-label="Open workspace menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button><div><small style="color:var(--muted)">Developer workspace</small><h1 class="display">{% block page_heading %}Workspace{% endblock %}</h1></div></div><div class="user-chip"><a href="{% url 'support' %}" class="btn btn-secondary icon-btn" aria-label="Support"><i class="fa-regular fa-circle-question"></i></a><a class="user-chip" href="{% url 'profile' %}"><span class="user-avatar">{{ user.username|first|upper }}</span><span><b>{{ user.username }}</b><small style="display:block;color:var(--muted)">{{ user.email }}</small></span></a></div></header>
+    <div class="app-content">{% block dashboard_content %}{% endblock %}</div>
+  </div>
+</div>
+<div class="mobile-drawer-backdrop" data-sidebar-backdrop hidden><aside class="mobile-drawer"><button type="button" class="btn btn-secondary icon-btn" data-sidebar-close aria-label="Close workspace menu"><i class="fa-solid fa-xmark"></i></button><nav class="sidebar-nav" style="margin-top:18px"><a class="sidebar-link" href="{% url 'dashboard' %}"><i class="fa-solid fa-grid-2"></i><span>Overview</span></a><a class="sidebar-link" href="{% url 'analytics' %}"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a><a class="sidebar-link" href="{% url 'usage-logs' %}"><i class="fa-solid fa-list-check"></i><span>Usage logs</span></a><a class="sidebar-link" href="{% url 'api-reference' %}"><i class="fa-solid fa-code"></i><span>API reference</span></a><a class="sidebar-link" href="{% url 'billing' %}"><i class="fa-regular fa-credit-card"></i><span>Billing</span></a><a class="sidebar-link" href="{% url 'profile' %}"><i class="fa-regular fa-user"></i><span>Account settings</span></a><a class="sidebar-link" href="{% url 'audit' %}"><i class="fa-solid fa-clock-rotate-left"></i><span>Audit history</span></a><a class="sidebar-link" href="{% url 'teams' %}"><i class="fa-solid fa-users"></i><span>Teams</span></a><a class="sidebar-link" href="{% url 'webhooks' %}"><i class="fa-solid fa-tower-broadcast"></i><span>Webhooks</span></a></nav></aside></div>
+{% endblock %}

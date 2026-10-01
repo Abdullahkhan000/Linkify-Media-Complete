@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Django template reference · Linkify Media{% endblock %}
+{% block meta_description %}Review sanitized source copy from all Django UI and account email templates.{% endblock %}
+{% block extra_head %}<meta name="robots" content="noindex,follow">{% endblock %}
+{% block content %}<section class="container content-page"><header class="page-header"><p class="eyebrow">Template inventory</p><h1>All {{ templates|length }} Django templates, in one place.</h1><p class="lead">This private-for-inspection archive displays sanitized visible copy from every source HTML page and plain-text account email. It is excluded from search indexing.</p></header><div class="archive-list">{% for item in templates %}<details class="template-reference"><summary><span>{{ item.file }}</span><small>→ {{ item.route }} · {{ item.kind|upper }}</small></summary><div class="migrated-template-copy">{% if item.html %}{{ item.html|safe }}{% elif item.copy %}<ul>{% for line in item.copy %}<li>{{ line }}</li>{% endfor %}</ul>{% else %}<p>No visible copy was extracted from this template.</p>{% endif %}</div></details>{% endfor %}</div></section>{% endblock %}
