@@ -145,7 +145,8 @@ body::before {
 .reveal-delay-2 { animation-delay: .2s; }
 .reveal-delay-3 { animation-delay: .3s; }
 .float-card { animation: floatCard 6s ease-in-out infinite; }
-.ticker-track { width: max-content; animation: ticker 24s linear infinite; }
+.ticker-track { width: max-content; padding-right: 3rem; animation: ticker 24s linear infinite; }
+.ticker-track > span { flex-shrink: 0; }
 
 @media (min-width: 900px) { .auth-grid { grid-template-columns: .95fr 1.05fr; } }
 @media (max-width: 899px) { .auth-visual { display: none; } .auth-panel { min-height: calc(100vh - 7rem); } }
@@ -160,4 +161,5 @@ body::before {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .ticker-track { animation-duration: 60s !important; animation-iteration-count: infinite !important; }
 }

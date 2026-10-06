@@ -9,6 +9,8 @@
     <title>{% block title %}Linkify Media · Media intelligence infrastructure{% endblock %}</title>
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/django-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reference-theme.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {% block extra_head %}{% endblock %}
 </head>
@@ -167,5 +169,7 @@
     })();
     </script>
     {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/hero-typewriter.js' %}" defer></script>
+    <script src="{% static 'js/page-motion.js' %}" defer></script>
 </body>
 </html>
