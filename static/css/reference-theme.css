@@ -317,6 +317,30 @@ body > footer a:focus-visible { outline-color: #dcd6ff; }
 }
 
 /* Documentation: style the existing sections without changing their markup. */
+.connection-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 14px 18px;
+  border: 1px solid #5d518a;
+  border-radius: 14px;
+  background: #282552;
+  color: #fff;
+  box-shadow: 0 12px 36px rgba(40,37,82,.2);
+  transform: translateX(-50%);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.connection-notice[hidden] { display: none; }
+.connection-notice button { flex-shrink: 0; padding: 6px 10px; border: 1px solid #77689f; border-radius: 8px; color: #fff; font-size: 11px; }
+.connection-notice button:focus-visible { outline: 2px solid #dcd6ff; outline-offset: 3px; }
+
 #main-content > div:has(> #authentication) {
   display: grid;
   grid-template-columns: repeat(2,minmax(0,1fr));

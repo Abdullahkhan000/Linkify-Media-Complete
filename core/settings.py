@@ -118,6 +118,7 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'support@linkifymedia.com')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
+    "core.errors.FriendlyErrorMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "api.middleware.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -160,6 +161,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
+CSRF_FAILURE_VIEW = "core.errors.csrf_failure"
 
 
 # Database
