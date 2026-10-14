@@ -148,6 +148,10 @@ class SecureSignupAndAPIKeyTests(TestCase):
         self.assertEqual(denied.status_code, 401)
 
 
+@override_settings(SOCIALACCOUNT_PROVIDERS={
+    'google': {'SCOPE': ['profile', 'email']},
+    'github': {'SCOPE': ['user:email']},
+})
 class HeadlessAccountFlowTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -401,6 +405,10 @@ class BillingWebhookSecurityTests(TestCase):
 
 
 @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+@override_settings(SOCIALACCOUNT_PROVIDERS={
+    'google': {'SCOPE': ['profile', 'email']},
+    'github': {'SCOPE': ['user:email']},
+})
 class CompleteAccountFlowTests(TestCase):
     password = 'Strong-launch-password-941!'
 

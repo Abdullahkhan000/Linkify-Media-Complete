@@ -2,16 +2,22 @@
 {% if social_auth_providers.google or social_auth_providers.github %}
 <div class="space-y-3">
     {% if social_auth_providers.google %}
-    <a href="{% provider_login_url 'google' process='login' %}" class="ghost-button w-full px-5 py-3.5 text-sm">
+    <form method="post" action="{% provider_login_url 'google' process='login' %}">
+    {% csrf_token %}
+    <button type="submit" class="ghost-button w-full px-5 py-3.5 text-sm">
         <span class="grid h-6 w-6 place-items-center rounded-full bg-white text-sm font-black text-slate-950">G</span>
         Continue with Google
-    </a>
+    </button>
+    </form>
     {% endif %}
     {% if social_auth_providers.github %}
-    <a href="{% provider_login_url 'github' process='login' %}" class="ghost-button w-full px-5 py-3.5 text-sm">
+    <form method="post" action="{% provider_login_url 'github' process='login' %}">
+    {% csrf_token %}
+    <button type="submit" class="ghost-button w-full px-5 py-3.5 text-sm">
         <i class="fa-brands fa-github text-lg"></i>
         Continue with GitHub
-    </a>
+    </button>
+    </form>
     {% endif %}
 </div>
 <div class="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.16em] text-[#657068]"><span class="h-px flex-1 bg-white/[.07]"></span><span>or continue manually</span><span class="h-px flex-1 bg-white/[.07]"></span></div>

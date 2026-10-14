@@ -40,7 +40,7 @@
                         <span class="grid h-6 w-6 place-items-center rounded-full bg-[#c8ff5a] text-[10px] font-black text-[#071006]">{{ user.username|first|upper }}</span>
                         {{ user.username }}
                     </a>
-                    <a href="{% url 'account_logout' %}" class="nav-link rounded-full px-4 py-2.5 text-sm font-semibold">Sign out</a>
+                    <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button type="submit" class="nav-link rounded-full px-4 py-2.5 text-sm font-semibold">Sign out</button></form>
                 {% else %}
                     <a href="{% url 'account_login' %}" class="nav-link rounded-full px-4 py-2.5 text-sm font-semibold">Sign in</a>
                     <a href="{% url 'account_signup' %}" class="neon-button px-5 py-2.5 text-sm"><span class="relative z-10">Create account</span><i class="fa-solid fa-arrow-right relative z-10 text-xs"></i></a>
@@ -59,7 +59,7 @@
                 {% if user.is_authenticated %}
                     <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'dashboard' %}">Console</a>
                     <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'profile' %}">Account settings</a>
-                    <a class="mt-2 rounded-2xl border border-rose-400/20 px-4 py-3 font-semibold text-rose-300" href="{% url 'account_logout' %}">Sign out</a>
+                    <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button type="submit" class="mt-2 w-full rounded-2xl border border-rose-400/20 px-4 py-3 text-left font-semibold text-rose-300">Sign out</button></form>
                 {% else %}
                     <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'account_login' %}">Sign in</a>
                     <a class="neon-button mt-2 px-5 py-3" href="{% url 'account_signup' %}"><span class="relative z-10">Create account</span></a>

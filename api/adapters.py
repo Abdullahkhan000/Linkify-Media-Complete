@@ -6,8 +6,24 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 logger = logging.getLogger(__name__)
+
+
+class EnvironmentSocialAccountAdapter(DefaultSocialAccountAdapter):
+    def list_apps(self, request, provider=None, client_id=None):
+        apps = super().list_apps(request, provider=provider, client_id=client_id)
+        # Prefer .env over older database credentials, including records created
+        # by configure_social_apps, so rotating a secret needs only a restart.
+        environment_providers = {
+            name for name, config in settings.SOCIALACCOUNT_PROVIDERS.items()
+            if config.get('APP')
+        }
+        return [
+            app for app in apps
+            if app.provider not in environment_providers or app.pk is None
+        ]
 
 
 class CustomAccountAdapter(DefaultAccountAdapter):

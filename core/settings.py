@@ -100,6 +100,9 @@ HEADLESS_FRONTEND_URLS = {
     'socialaccount_login_error': f'{FRONTEND_URL}/login?social=error',
 } if FRONTEND_URL else {}
 SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_ADAPTER = 'api.adapters.EnvironmentSocialAccountAdapter'
+SOCIALACCOUNT_LOGIN_ON_GET = False
+ACCOUNT_LOGOUT_ON_GET = False
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -109,6 +112,18 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['user:email'],
     },
 }
+
+# Local runserver and Docker both read OAuth credentials on startup.
+# Admin-configured SocialApps remain supported when these values are absent.
+for provider in ('google', 'github'):
+    client_id = os.getenv(f'{provider.upper()}_CLIENT_ID', '').strip()
+    client_secret = os.getenv(f'{provider.upper()}_CLIENT_SECRET', '').strip()
+    if client_id and client_secret:
+        SOCIALACCOUNT_PROVIDERS[provider]['APP'] = {
+            'client_id': client_id,
+            'secret': client_secret,
+            'key': '',
+        }
 
 # Resend Email Config
 RESEND_API_KEY = os.getenv('RESEND_API_KEY')

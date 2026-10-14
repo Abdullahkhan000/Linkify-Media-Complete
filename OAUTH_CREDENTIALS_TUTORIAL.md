@@ -1,5 +1,8 @@
 # Google aur GitHub OAuth Credentials Tutorial
 
+Current quick setup: [OAUTH_SETUP.md](OAUTH_SETUP.md). Credentials now load
+directly from `.env` after a restart; verification defaults to `none` locally.
+
 Ye tutorial aapko in chaar values ko hasil karne aur project ke `.env` file mein add karne ka exact tareeqa batata hai:
 
 ```env
@@ -149,7 +152,7 @@ GitHub OAuth app ke callback field mein production URL set karein:
 https://your-domain.com/accounts/github/login/callback/
 ```
 
-Agar local aur production dono test karne hain, GitHub OAuth app ke current form mein additional callback URLs ka option available ho sakta hai. Agar aapka setup sirf ek callback allow kare, to testing ke waqt local URL aur deployment ke waqt production URL replace karein. [3]
+GitHub OAuth Apps allow one callback URL. Local aur production ke liye alag OAuth Apps banayein. [3]
 
 ## 4. `.env` file mein values add karna
 
