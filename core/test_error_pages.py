@@ -31,7 +31,9 @@ class FriendlyErrorTests(SimpleTestCase):
                 with patch("api.views.DocsPageView.dispatch", side_effect=OperationalError("private-database-path")):
                     with self.assertLogs("django.request", level="ERROR"):
                         response = self.client.get("/docs/")
-                self.assertContains(response, "Still developing. Back soon.", status_code=500)
+                self.assertContains(response, "Something went wrong", status_code=500)
+                self.assertNotContains(response, "Still developing", status_code=500)
+                self.assertNotContains(response, "Service in progress", status_code=500)
                 self.assertNotContains(response, "private-database-path", status_code=500)
                 self.assertNotContains(response, "Traceback", status_code=500)
 
@@ -76,6 +78,12 @@ class FriendlyErrorTests(SimpleTestCase):
         self.assertEqual(worker["Service-Worker-Allowed"], "/")
         self.assertIn("application/javascript", worker["Content-Type"])
         self.assertContains(worker, "event.request.mode !== 'navigate'")
+
+    def test_temporary_outage_is_not_reported_as_unfinished_feature(self):
+        response = self.client.get('/errors/503/')
+        self.assertContains(response, 'Service temporarily unavailable', status_code=503)
+        self.assertNotContains(response, 'Still developing', status_code=503)
+        self.assertNotContains(response, 'Service in progress', status_code=503)
 
     def test_csrf_failure_shows_friendly_403(self):
         from django.test import Client

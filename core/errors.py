@@ -19,17 +19,20 @@ ERROR_MESSAGES = {
     413: ("This request is too large", "Please reduce the size of your request and try again."),
     422: ("Please check your information", "Some of the information could not be accepted. Return to the form and check it."),
     429: ("A little too many requests", "Please wait a moment before trying again."),
-    500: ("Still developing. Back soon.", "We are still improving Linkify Media. This part of the service is temporarily unavailable. Please try again shortly."),
+    500: ("Something went wrong", "We could not load this page due to a server error. Please try again shortly."),
     502: ("A service is taking a break", "We could not reach a service we need. Please try again shortly."),
-    503: ("Still developing. Back soon.", "This part of Linkify Media is being prepared or is temporarily unavailable. Please try again later."),
+    503: ("Service temporarily unavailable", "The service is temporarily unavailable. Please try again shortly."),
     504: ("The service took too long", "A service did not respond in time. Please try again in a moment."),
 }
 
 
-def error_response(code, *, offline=False):
+def error_response(code, *, offline=False, developing=False):
     title, description = ERROR_MESSAGES.get(code, (
         "We could not complete this request", "Please try again, or return to the home page."
     ))
+    if developing:
+        title = "Still developing. Back soon."
+        description = "This part of Linkify Media is still being developed. Please check back soon."
     if offline:
         title = "You are offline"
         description = "Your connection is unavailable. Check your internet connection, then retry this page."
@@ -37,14 +40,16 @@ def error_response(code, *, offline=False):
         "code": "NETWORK" if offline else code,
         "title": title,
         "description": description,
-        "category": "Connection unavailable" if offline else ("Service in progress" if code >= 500 else "Let's get you back"),
+        "category": "Connection unavailable" if offline else ("Service in progress" if developing else ("Service error" if code >= 500 else "Let's get you back")),
         "offline": offline,
+        "developing": developing,
     }
     # Do not use RequestContext: authentication and social-provider processors
     # can depend on the same database that caused the original error.
     template = engines["django"].engine.get_template("errors/page.html")
     response = HttpResponse(template.render(Context(context)), status=200 if offline else code)
     response["Cache-Control"] = "no-store"
+    response.linkify_developing = developing
     return response
 
 
@@ -77,7 +82,7 @@ def preview(request, code):
 
 @require_GET
 def developing(request):
-    return error_response(503)
+    return error_response(503, developing=True)
 
 
 @require_GET
@@ -108,7 +113,10 @@ class FriendlyErrorMiddleware:
             or "text/html" not in response.get("Content-Type", "")
         ):
             return response
-        response.content = error_response(response.status_code).content
+        response.content = error_response(
+            response.status_code,
+            developing=getattr(response, "linkify_developing", False),
+        ).content
         if response.has_header("Content-Length"):
             response["Content-Length"] = str(len(response.content))
         if response.has_header("ETag"):

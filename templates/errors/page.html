@@ -24,7 +24,7 @@
       <p class="description">{{ description }}</p>
       <p class="code">Error code <b>{{ code }}</b></p>
       <div class="actions"><button type="button" class="button primary" id="retry-page">Try again <span aria-hidden="true">↻</span></button><a class="button" href="/">Back to home <span aria-hidden="true">↗</span></a>{% if code == 401 %}<a class="button" href="/accounts/login/">Sign in</a>{% endif %}</div>
-      <p class="connection" id="connection-message" aria-live="polite">{% if offline %}Reconnect, then tap Try again.{% elif code >= 500 %}Thanks for your patience while we work on this.{% else %}You can always continue from the home page.{% endif %}</p>
+      <p class="connection" id="connection-message" aria-live="polite">{% if offline %}Reconnect, then tap Try again.{% elif developing %}Thanks for your patience while we work on this.{% else %}You can always continue from the home page.{% endif %}</p>
     </section>
   </main>
   <footer>Linkify Media · Built for serious media products.</footer>

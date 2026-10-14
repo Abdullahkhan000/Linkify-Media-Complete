@@ -12,8 +12,7 @@ RUN apt-get update \
 
 COPY requirements.txt ./
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && pip install gunicorn==23.0.0
+    && pip install -r requirements.txt
 
 COPY . ./
 
@@ -23,4 +22,4 @@ RUN chmod +x /app/docker/entrypoint.sh \
 EXPOSE 8000
 
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["sh", "-c", "exec gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --access-logfile - --error-logfile -"]
