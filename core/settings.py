@@ -14,6 +14,7 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
+CUSTOM_500_PAGE_ENABLED = os.getenv("CUSTOM_500_PAGE_ENABLED", "False").lower() in {"1", "true", "yes", "on"}
 
 # SECURITY WARNING: keep the secret key used in production secret.
 SECRET_KEY = os.getenv("SECRET_KEY", "").strip()

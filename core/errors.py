@@ -2,9 +2,10 @@
 from pathlib import Path
 
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.template import Context, engines
 from django.views.decorators.http import require_GET
+from django.views.defaults import server_error as default_server_error
 
 
 ERROR_MESSAGES = {
@@ -27,6 +28,10 @@ ERROR_MESSAGES = {
 
 
 def error_response(code, *, offline=False, developing=False):
+    if code == 500 and not settings.CUSTOM_500_PAGE_ENABLED and not offline:
+        response = default_server_error(HttpRequest())
+        response['Cache-Control'] = 'no-store'
+        return response
     title, description = ERROR_MESSAGES.get(code, (
         "We could not complete this request", "Please try again, or return to the home page."
     ))
@@ -109,6 +114,7 @@ class FriendlyErrorMiddleware:
         if (
             request.path.startswith(("/api/", "/_allauth/", "/static/", "/media/"))
             or response.streaming
+            or (response.status_code == 500 and not settings.CUSTOM_500_PAGE_ENABLED)
             or not 400 <= response.status_code <= 599
             or "text/html" not in response.get("Content-Type", "")
         ):

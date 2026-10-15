@@ -7,8 +7,27 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 from .errors import FriendlyErrorMiddleware, error_response
 
 
-@override_settings(SECURE_SSL_REDIRECT=False)
+@override_settings(SECURE_SSL_REDIRECT=False, CUSTOM_500_PAGE_ENABLED=True)
 class FriendlyErrorTests(SimpleTestCase):
+    @override_settings(DEBUG=False, CUSTOM_500_PAGE_ENABLED=False)
+    def test_custom_500_can_be_disabled_without_removing_it(self):
+        self.client.raise_request_exception = False
+        with patch('api.views.DocsPageView.dispatch', side_effect=OperationalError('private-database-path')):
+            with self.assertLogs('django.request', level='ERROR'):
+                response = self.client.get('/docs/')
+        self.assertContains(response, 'Server Error (500)', status_code=500)
+        self.assertNotContains(response, 'Something went wrong', status_code=500)
+        self.assertNotContains(response, 'private-database-path', status_code=500)
+        preview = self.client.get('/errors/500/')
+        self.assertNotContains(preview, 'Something went wrong', status_code=500)
+
+    @override_settings(CUSTOM_500_PAGE_ENABLED=False)
+    def test_disabled_custom_500_preserves_original_response(self):
+        response = HttpResponse('Original server error', status=500)
+        result = FriendlyErrorMiddleware(lambda request: response)(RequestFactory().get('/accounts/login/'))
+        self.assertIs(result, response)
+        self.assertEqual(result.content, b'Original server error')
+
     def test_error_pages_need_no_database(self):
         for code in (400, 401, 403, 404, 405, 408, 409, 410, 413, 422, 429, 500, 502, 503, 504):
             with self.subTest(code=code):
