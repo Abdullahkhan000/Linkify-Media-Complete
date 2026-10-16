@@ -63,12 +63,15 @@
         controller=new AbortController();const signal=controller.signal;
         byId('run').disabled=true;byId('cancel').disabled=false;byId('copy-response').disabled=true;
         byId('response').textContent='Waiting for response...';byId('response-meta').textContent=`${request.method} ${request.url}`;byId('quota').textContent='Waiting for quota information...';status('Request running...');
+        byId('request-id').textContent='';byId('log-link').hidden=true;
         const start=performance.now(),timeout=setTimeout(()=>controller?.abort(),45000);
         try{
             const response=await fetch(request.url,{method:request.method,credentials:'same-origin',cache:'no-store',signal,headers:{Accept:'application/json','X-API-Key':key,'X-CSRFToken':form.querySelector('[name=csrfmiddlewaretoken]').value,...(request.body?{'Content-Type':'application/json'}:{})},body:request.body?JSON.stringify(request.body):undefined});
             const text=await response.text();let data;try{data=JSON.parse(text);}catch(_){data={error:'The server returned a non-JSON response.',status:response.status};}
             lastResponse=JSON.stringify(data,null,2);byId('response').textContent=lastResponse;byId('copy-response').disabled=false;
             byId('response-meta').textContent=`HTTP ${response.status} ${response.statusText} · ${Math.round(performance.now()-start)} ms`;
+            const requestId=response.headers.get('X-Request-ID');
+            if(requestId){byId('request-id').textContent=`Request ID: ${requestId}`;byId('log-link').href='/usage-logs/?request_id='+encodeURIComponent(requestId);byId('log-link').hidden=false;}
             const cost=response.headers.get('X-Quota-Cost'),remaining=response.headers.get('X-Quota-Remaining'),limit=response.headers.get('X-Quota-Limit');
             byId('quota').textContent=cost!==null?`Request cost: ${cost} · Remaining today: ${remaining} · Daily limit: ${limit}`:'Quota information is unavailable for this response. Authentication, scope, and rate-limit checks may reject a request before usage is reserved.';
             status(response.ok?'Request completed.':`Request returned HTTP ${response.status}. Inspect the response for details.`);

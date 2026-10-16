@@ -1,52 +1,25 @@
-{% extends "base.html" %}
-
-{% block title %}Usage Logs - Linkify Media{% endblock %}
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Request Logs · Linkify Media{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/request-logs.css' %}">{% endblock %}
 {% block content %}
-<div class="max-w-6xl mx-auto py-8">
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h1 class="text-4xl font-bold text-white">Usage Logs</h1>
-            <p class="text-gray-400 mt-2">Status, latency, endpoint and credential audit trail.</p>
-        </div>
-        <div class="flex gap-2"><a href="{% url 'usage-logs-export' %}" class="px-4 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 text-gray-300">Export CSV</a><a href="{% url 'dashboard' %}" class="px-4 py-2 glass rounded-xl text-sm border border-white/10 hover:bg-white/5 text-gray-300">Dashboard</a></div>
-    </div>
-
-    <div class="glass rounded-3xl border border-white/10 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-[11px] tracking-widest font-bold">
-                        <th class="px-8 py-5">API Key</th>
-                        <th class="px-8 py-5">Endpoint</th>
-                        <th class="px-8 py-5">Time</th>
-                        <th class="px-8 py-5">Latency</th>
-                        <th class="px-8 py-5 text-right">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                    {% for log in logs %}
-                    <tr class="hover:bg-white/[0.02] transition-colors text-sm">
-                        <td class="px-8 py-5 text-gray-200">{{ log.api_key.name }}</td>
-                        <td class="px-8 py-5 text-gray-400 font-mono text-xs">{{ log.method }} {{ log.endpoint }}</td>
-                        <td class="px-8 py-5 text-gray-400">{{ log.created_at|date:"M d, H:i:s" }}</td>
-                        <td class="px-8 py-5 text-gray-400">{% if log.latency_ms != None %}{{ log.latency_ms }}ms{% else %}—{% endif %}</td>
-                        <td class="px-8 py-5 text-right">
-                            {% if log.status_code and log.status_code < 400 %}<span class="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold">{{ log.status_code }}</span>{% else %}<span class="px-3 py-1 bg-rose-500/10 text-rose-400 rounded-full text-[10px] font-bold">{{ log.status_code|default:"pending" }}</span>{% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="px-8 py-20 text-center text-gray-500 italic">
-                            No usage logs found. Start using your API key to see history.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <p class="mt-6 text-center text-gray-500 text-xs">Showing the last 100 requests. Upgrade to Business for full history.</p>
-</div>
+<section class="request-logs-page">
+  <div class="request-logs-heading"><div><p class="eyebrow">Request tracing</p><h1>Request logs</h1><p>Find a request by its response ID, endpoint, or API key name.</p></div><div class="request-logs-actions"><a class="ghost-button" href="{% url 'usage-logs-export' %}?{{ filter_query }}">Export filtered CSV</a><a class="ghost-button" href="{% url 'dashboard' %}">Dashboard</a></div></div>
+  <form method="get" class="surface request-logs-filters">
+    {% for field in filter_form %}<div><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="request-logs-error">{{ error }}</p>{% endfor %}</div>{% endfor %}
+    {{ filter_form.non_field_errors }}
+    <div class="request-logs-actions"><button class="neon-button" type="submit">Search logs</button><a class="ghost-button" href="{% url 'usage-logs' %}">Clear filters</a></div>
+  </form>
+  <p>{{ page_obj.paginator.count }} matching request{{ page_obj.paginator.count|pluralize }}. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</p>
+  <p id="request-logs-copy-status" role="status" aria-live="polite"></p>
+  <div class="surface request-logs-table" tabindex="0" role="region" aria-label="Request logs table; scroll horizontally on smaller screens">
+    <table><thead><tr><th>Request ID</th><th>API key</th><th>Endpoint</th><th>Time</th><th>Latency</th><th>Status</th></tr></thead><tbody>
+      {% for log in logs %}<tr><td>{% if log.request_id %}<code>{{ log.request_id }}</code><button class="ghost-button request-id-copy" type="button" data-request-id="{{ log.request_id }}" aria-label="Copy request ID {{ log.request_id }}">Copy</button>{% else %}<span>Legacy request — no ID</span>{% endif %}</td><td>{{ log.api_key.name }}</td><td><code>{{ log.method }} {{ log.endpoint }}</code></td><td>{{ log.created_at|date:'Y-m-d H:i:s T' }}</td><td>{% if log.latency_ms != None %}{{ log.latency_ms }} ms{% else %}Pending{% endif %}</td><td>{{ log.status_code|default:'Pending' }}</td></tr>
+      {% empty %}<tr><td colspan="6">No matching requests. Adjust your filters or run a request in the <a href="{% url 'playground' %}">API Playground</a>.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <nav class="request-logs-pagination" aria-label="Request log pages">{% if page_obj.has_previous %}<a class="ghost-button" href="?{{ filter_query }}&page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="ghost-button" href="?{{ filter_query }}&page={{ page_obj.next_page_number }}">Next</a>{% endif %}</nav>
+  <p>Logs cover requests reserved against your API keys, including endpoint errors. Authentication and quota rejections have a response ID but no usage-log entry. Request bodies, query values, and full API secrets are not stored in these logs.</p>
+</section>
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/request-logs.js' %}" defer></script>{% endblock %}

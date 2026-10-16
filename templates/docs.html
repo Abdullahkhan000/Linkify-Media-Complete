@@ -5,6 +5,7 @@
 {% block content %}
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <h1 class="text-5xl font-extrabold text-white mb-4 animate-fade-in">Documentation</h1>
+    <p class="mb-6">API responses include an <code>X-Request-ID</code> header. Copy it into <a href="{% url 'usage-logs' %}" class="underline">Request logs</a> to find the endpoint, status, and latency for a request reserved against your own API key. Authentication and quota rejections receive an ID but do not create usage logs.</p>
     <p class="mb-6"><a href="{% url 'playground' %}" class="ghost-button px-5 py-3 inline-flex">Try the interactive API Playground</a></p>
     <p class="text-xl text-slate-400 mb-12 animate-fade-in">Everything you need to integrate Linkify Media into your application.</p>
 

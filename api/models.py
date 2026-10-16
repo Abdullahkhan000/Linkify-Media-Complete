@@ -118,6 +118,7 @@ class APIKey(models.Model):
         return f"{self.user.username} — {self.name} ({self.tier})"
     
 class UsageLog(models.Model):
+    request_id = models.UUIDField(null=True, blank=True, unique=True, editable=False)
     api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='usagelogs')
     endpoint = models.CharField(max_length=200)
     method = models.CharField(max_length=10, default="GET")

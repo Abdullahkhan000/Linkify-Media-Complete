@@ -46,6 +46,8 @@ from .forms import AccountDeleteForm, ProfileUpdateForm, QuickSignUpForm, Suppor
 from .avatars import AvatarUploadError, cloudinary_ready, save_profile
 from .middleware import DAILY_LIMITS, client_ip, demo_token, throttle
 from .support_bot import generate_reply, redact_secrets
+from .request_logs import filtered_request_logs
+from django.core.paginator import Paginator
 
 logger = logging.getLogger(__name__)
 
@@ -1062,23 +1064,33 @@ class UsageLogsListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get all logs for the current user's API keys, ordered by newest first
-        logs = UsageLog.objects.filter(api_key__user=self.request.user).order_by('-id')[:100]
-        context['logs'] = logs
+        form, logs = filtered_request_logs(self.request)
+        page = Paginator(logs, 50).get_page(self.request.GET.get('page', 1))
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        context.update(logs=page, page_obj=page, filter_form=form, filter_query=params.urlencode())
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['Cache-Control'] = 'private, no-store'
+        return response
 
 
 class UsageLogsCSVView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
+        form, logs = filtered_request_logs(request)
+        if not form.is_valid():
+            return JsonResponse({'error': 'Invalid log filters.', 'details': form.errors}, status=400)
         response = HttpResponse(content_type='text/csv')
+        response['Cache-Control'] = 'private, no-store'
         response['Content-Disposition'] = 'attachment; filename="linkify-usage.csv"'
         writer = csv.writer(response)
-        writer.writerow(['timestamp', 'key', 'method', 'endpoint', 'status', 'latency_ms'])
-        logs = UsageLog.objects.filter(api_key__user=request.user).select_related('api_key').order_by('-created_at')
+        writer.writerow(['timestamp', 'key', 'method', 'endpoint', 'status', 'latency_ms', 'request_id'])
         for log in logs.iterator():
             writer.writerow([
                 log.created_at.isoformat(), log.api_key.prefix, log.method, log.endpoint,
-                log.status_code or '', log.latency_ms if log.latency_ms is not None else '',
+                log.status_code or '', log.latency_ms if log.latency_ms is not None else '', str(log.request_id or ''),
             ])
         return response
 

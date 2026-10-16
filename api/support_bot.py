@@ -29,6 +29,7 @@ Current API behavior:
 - Search results use TMDB metadata including title, year, genres, runtime, rating, poster and cast.
   IMDb, Rotten Tomatoes, Metacritic, Letterboxd and JustWatch are outbound links, not separately aggregated ratings.
 - Users edit names and profile photos at /profile/. Photos accept JPG, PNG or WebP up to 5 MB and 16 megapixels.
+- API responses include X-Request-ID. The API Playground displays it and links to /usage-logs/ for exact lookup. Signed-in developers can filter their own reserved API-key request logs by ID, endpoint, key name, status, and dates, then export filtered CSV. Authentication, scope, and quota rejections have IDs but no usage-log entry.
 - Signed-in users save movies/shows and mark favorites at /watchlist/. They can save watch status, a personal 1–10 rating, and private notes, search their collection, and sort it by title, date, or personal rating. Picked for you recommends new titles from up to three favorites or titles rated at least 8/10; use Refresh recommendations after changing preferences. It needs no personal API key. Where to watch shows country-specific JustWatch/TMDB availability.
 - Google/GitHub login and signup use /accounts/login/ and /accounts/signup/; password reset is /accounts/password/reset/.
 - API keys are scoped, stored as hashes, displayed only once, and can be rotated or revoked.

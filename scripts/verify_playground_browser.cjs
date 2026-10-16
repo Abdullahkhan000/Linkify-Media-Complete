@@ -25,10 +25,27 @@ const {chromium}=require(process.env.SUPPORT_PLAYWRIGHT_PATH || 'playwright');
         assert.equal(keyResponse.status,201);const secret=keyResponse.data.key;
         await page.locator('#playground-key').fill(secret);
         const run=async()=>{const waiting=page.waitForResponse(response=>response.url().startsWith(base+'/api/v1/'));await page.locator('#playground-run').click();const response=await waiting;await page.waitForFunction(()=>!document.getElementById('playground-run').disabled);return response;};
-        assert.equal((await run()).status(),200);
+        const live=await run();assert.equal(live.status(),200);
+        const requestId=live.headers()['x-request-id'];assert(requestId);
         assert(JSON.parse(await page.locator('#playground-response').textContent())['Official Title']);
         assert((await page.locator('#playground-quota').textContent()).includes('Remaining today: 99'));
         console.log('PASS live TMDB search, HTTP status, JSON, timing, and quota headers');
+        assert((await page.locator('#playground-request-id').textContent()).includes(requestId));
+        await page.locator('#playground-log-link').click();
+        assert.equal(await page.locator('.request-logs-table tbody tr').count(),1);
+        assert((await page.locator('.request-logs-table tbody').textContent()).includes(requestId));
+        await page.locator('.request-id-copy').click();
+        assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),requestId);
+        const csv=await page.request.get(new URL(await page.getByRole('link',{name:'Export filtered CSV'}).getAttribute('href'),base).href);
+        assert.equal(csv.status(),200);assert((await csv.text()).includes(requestId));
+        await page.setViewportSize({width:390,height:844});
+        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        await page.screenshot({path:path.join(os.tmpdir(),'linkify-support-browser','request-logs-mobile.png')});
+        await page.locator('#id_request_id').fill('');await page.locator('#id_q').fill('no such endpoint');
+        await page.getByRole('button',{name:'Search logs',exact:true}).click();
+        assert((await page.locator('.request-logs-table tbody').textContent()).includes('No matching requests'));
+        await page.setViewportSize({width:1280,height:900});await page.goto(base+'/playground/');await page.locator('#playground-key').fill(secret);
+        console.log('PASS request ID links to owned logs; exact search, clipboard, filtered CSV, and mobile logs layout');
         for(const endpoint of ['search','results','details','trending','people','usage','batch']){
             await page.locator('#playground-endpoint').selectOption(endpoint);
             for(const language of ['curl','python','javascript']){

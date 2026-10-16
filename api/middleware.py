@@ -1,4 +1,5 @@
 import time
+import uuid
 
 from django.conf import settings
 from django.core.cache import cache
@@ -47,7 +48,11 @@ class SecurityHeadersMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.path.startswith('/api/'):
+            request.request_id = uuid.uuid4()
         response = self.get_response(request)
+        if getattr(request, 'request_id', None):
+            response['X-Request-ID'] = str(request.request_id)
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; script-src 'self' 'unsafe-inline' "
@@ -181,6 +186,7 @@ class APIKeyMiddleware:
                         status=429,
                     )
             log = UsageLog.objects.create(
+                request_id=getattr(request, 'request_id', None),
                 api_key=locked_key,
                 endpoint=normalized_path,
                 method=request.method[:10],

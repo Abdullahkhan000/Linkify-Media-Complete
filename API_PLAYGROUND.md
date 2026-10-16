@@ -1,5 +1,7 @@
 # Developer Playground
 
+API responses also include `X-Request-ID`. The response panel displays it and links to `/usage-logs/?request_id=...` for exact lookup among the signed-in user's reserved API-key requests. See `REQUEST_LOGS.md` for filtering and CSV export.
+
 Open `/playground/` from the dashboard, mobile navigation, or documentation. Sign in, paste a full API key, select an endpoint, edit its parameters, then run it. Keys cannot be recovered from stored hashes; create or rotate a key if you lost the original secret.
 
 Supported endpoints: title search, paginated search results, media details, trending, people search, usage, and batch search. Requests go directly to the existing API with `X-API-Key`; scopes, plan restrictions, throttling, and quota are enforced by the existing middleware. Batch requires the batch scope and a Pro or Business plan.
