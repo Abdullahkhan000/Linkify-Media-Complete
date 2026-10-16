@@ -78,3 +78,4 @@ templates/landing-premium-full-demo.html
 
 # Generated frontend scratch/cache
 .npm/
+.neon

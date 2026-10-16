@@ -1,6 +1,7 @@
 import os
+import sys
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -8,13 +9,14 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.local")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
-CUSTOM_500_PAGE_ENABLED = os.getenv("CUSTOM_500_PAGE_ENABLED", "False").lower() in {"1", "true", "yes", "on"}
+CUSTOM_500_PAGE_ENABLED = os.getenv("CUSTOM_500_PAGE_ENABLED", "True").lower() in {"1", "true", "yes", "on"}
 
 # SECURITY WARNING: keep the secret key used in production secret.
 SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
@@ -191,20 +193,32 @@ DATABASES = {
 }
 
 database_url = os.getenv("DATABASE_URL", "").strip()
+if len(sys.argv) > 1 and sys.argv[1] in {"migrate", "sqlmigrate", "showmigrations"}:
+    database_url = os.getenv("DATABASE_URL_UNPOOLED", "").strip() or database_url
 if database_url:
     parsed_database_url = urlparse(database_url)
     if parsed_database_url.scheme not in {"postgres", "postgresql"}:
         raise ImproperlyConfigured("DATABASE_URL must use the postgres or postgresql scheme.")
+    database_options = parse_qs(parsed_database_url.query)
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": parsed_database_url.path.lstrip("/"),
+        "NAME": unquote(parsed_database_url.path.lstrip("/")),
         "USER": unquote(parsed_database_url.username or ""),
         "PASSWORD": unquote(parsed_database_url.password or ""),
         "HOST": parsed_database_url.hostname or "",
         "PORT": parsed_database_url.port or 5432,
-        "CONN_MAX_AGE": 60,
+        "CONN_MAX_AGE": int(os.getenv("DATABASE_CONN_MAX_AGE", "0")),
         "CONN_HEALTH_CHECKS": True,
-        "OPTIONS": {"sslmode": os.getenv("DATABASE_SSLMODE", "require")},
+        "DISABLE_SERVER_SIDE_CURSORS": True,
+        "OPTIONS": {
+            "sslmode": os.getenv("DATABASE_SSLMODE") or database_options.get("sslmode", ["require"])[0],
+            "connect_timeout": int(os.getenv("DATABASE_CONNECT_TIMEOUT", "15")),
+            **{
+                name: database_options[name][0]
+                for name in ("channel_binding", "sslrootcert", "application_name", "options")
+                if name in database_options
+            },
+        },
     }
 
 

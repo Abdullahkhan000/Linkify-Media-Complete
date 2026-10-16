@@ -2,9 +2,14 @@
   "name": "linkify-media-ui",
   "private": true,
   "scripts": {
+    "build": "npm run build:css",
     "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/app.css --minify"
   },
   "devDependencies": {
     "tailwindcss": "3.4.17"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.1",
+    "@neon/env": "^1.6.2"
   }
 }
