@@ -21,7 +21,7 @@ PUBLIC_API_PATHS = {
     "/api/support/chat/",
     "/api/support/ticket/",
 }
-SESSION_API_PREFIXES = ("/api/keys/", "/api/v1/account/")
+SESSION_API_PREFIXES = ("/api/keys/", "/api/v1/account/", "/api/v1/watchlist/")
 
 
 def client_ip(request):

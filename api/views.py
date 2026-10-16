@@ -222,11 +222,12 @@ class SearchAPIView(APIView):
             return Response({'error': f"No verified media found matching '{query}'."}, status=404)
 
         if isinstance(result, dict) and "Error" in result:
-            error_status = 503 if result.get('code') == 'provider_not_configured' else 404
+            error_status = 503 if result.get('code') in {'provider_not_configured', 'provider_unavailable'} else 404
             return Response({'error': result["Error"]}, status=error_status)
 
         if fields_param and isinstance(result, dict):
-            result = filter_fields(result, fields_param)
+            metadata = {'_cache': result['_cache']} if '_cache' in result else {}
+            result = {**filter_fields(result, fields_param), **metadata}
 
         return Response(result, status=200)
 
@@ -276,25 +277,25 @@ class BatchAPIView(APIView):
             })
 
         async def run_batch():
-            tasks = [
-                fetch_media_links(
-                    item.get('q', ''),
-                    item.get('type', 'movie'),
-                    country=item.get('country', 'us')
-                ) for item in normalized_items
-            ]
+            from .core import normalize_query, normalize_media_type
+            identities = [(normalize_query(item['q']).casefold(), normalize_media_type(item['type']), item['country']) for item in normalized_items]
+            unique = list(dict.fromkeys(identities))
+            tasks = [fetch_media_links(query, media_type, country=country) for query, media_type, country in unique]
             raw_results = await asyncio.wait_for(
                 asyncio.gather(*tasks, return_exceptions=True),
                 timeout=settings.API_REQUEST_TIMEOUT,
             )
             final_results = []
-            for idx, res in enumerate(raw_results):
+            by_identity = dict(zip(unique, raw_results))
+            for idx, identity in enumerate(identities):
+                res = by_identity[identity]
                 if isinstance(res, Exception):
                     final_results.append({'error': 'Provider request failed for this item.'})
                     continue
                 req_fields = normalized_items[idx].get('fields')
                 if req_fields and isinstance(res, dict):
-                    final_results.append(filter_fields(res, req_fields))
+                    metadata = {'_cache': res['_cache']} if '_cache' in res else {}
+                    final_results.append({**filter_fields(res, req_fields), **metadata})
                 else:
                     final_results.append(res)
             return final_results
@@ -375,6 +376,7 @@ class SearchResultsAPIView(APIView):
             'total_pages': result.get('total_pages', 0),
             'total_results': result.get('total_results', 0),
             'results': [summarize_result(item) for item in items],
+            **({'_cache': result['_cache']} if '_cache' in result else {}),
         })
 
 
@@ -417,7 +419,7 @@ class TrendingAPIView(APIView):
         error = provider_response_error(result)
         if error:
             return error
-        return Response({'results': [summarize_result(item) for item in result.get('results', [])]})
+        return Response({'results': [summarize_result(item) for item in result.get('results', [])], **({'_cache': result['_cache']} if '_cache' in result else {})})
 
 
 class PersonSearchAPIView(APIView):
@@ -438,7 +440,7 @@ class PersonSearchAPIView(APIView):
             'profile_url': f"https://image.tmdb.org/t/p/w500{item['profile_path']}" if item.get('profile_path') else None,
             'known_for': [summarize_result(work) for work in item.get('known_for', [])[:5]],
         } for item in result.get('results', [])]
-        return Response({'results': people})
+        return Response({'results': people, **({'_cache': result['_cache']} if '_cache' in result else {})})
 
 
 class HealthView(View):

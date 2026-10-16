@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Watchlist & favorites · Linkify Media{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/watchlist.css' %}">{% endblock %}
+{% block content %}
+<section class="watchlist-page">
+  <div class="watchlist-heading"><div><p class="eyebrow">Your next great watch</p><h1>Watchlist & favorites</h1><p>Save movies and shows, keep your favorites, and find where to watch.</p></div><a href="{% url 'dashboard' %}" class="ghost-button px-5 py-3">Back to console</a></div>
+  <section class="surface watchlist-search"><h2>Find something to save</h2>
+    <form id="watchlist-search-form">{% csrf_token %}
+      <div><label for="watchlist-query">Movie or show title</label><input id="watchlist-query" class="saas-input" name="q" required minlength="2" maxlength="200" placeholder="Try Inception or Breaking Bad"></div>
+      <div><label for="watchlist-type">Type</label><select id="watchlist-type" class="saas-input" name="type"><option value="movie">Movie</option><option value="tv">TV show</option></select></div>
+      <button class="neon-button px-5 py-3" type="submit">Search titles</button>
+    </form>
+    <p id="watchlist-search-status" role="status"></p>
+    <div id="watchlist-results" class="watchlist-grid" aria-label="Search results"></div>
+  </section>
+  <section class="watchlist-saved"><div class="watchlist-toolbar"><h2>Your collection</h2><div role="group" aria-label="Filter your collection"><button id="watchlist-all" class="ghost-button" type="button" aria-pressed="true">All saved</button><button id="watchlist-favorites" class="ghost-button" type="button" aria-pressed="false">Favorites</button></div></div>
+    <p id="watchlist-status" role="status">Loading your collection...</p>
+    <div id="watchlist-items" class="watchlist-grid" aria-label="Saved movies and shows"></div>
+    <div class="watchlist-pagination"><button id="watchlist-previous" class="ghost-button" type="button" disabled>Previous</button><span id="watchlist-page-number"></span><button id="watchlist-next" class="ghost-button" type="button" disabled>Next</button></div>
+  </section>
+  <p class="watchlist-credit">Movie information and posters provided by TMDB. Streaming availability provided by JustWatch.</p>
+  <noscript><p>Enable JavaScript to search and manage your watchlist.</p></noscript>
+</section>
+<dialog id="watchlist-providers-dialog" class="watchlist-dialog" aria-labelledby="watchlist-dialog-title">
+  <div class="watchlist-toolbar"><h2 id="watchlist-dialog-title">Where to watch</h2><button id="watchlist-dialog-close" type="button" class="ghost-button" aria-label="Close streaming availability">Close</button></div>
+  <form id="watchlist-country-form"><label for="watchlist-country">Country code</label><input id="watchlist-country" class="saas-input" maxlength="2" minlength="2" pattern="[A-Za-z]{2}" value="US" required aria-describedby="watchlist-country-help"><button type="submit" class="neon-button px-4 py-2">Update</button></form>
+  <p id="watchlist-country-help">Use a two-letter code, e.g. US, PK, GB or IN.</p>
+  <div id="watchlist-providers" aria-live="polite"></div><p>Availability data: <strong>JustWatch</strong>. Availability can change.</p>
+</dialog>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/watchlist.js' %}" defer></script>{% endblock %}

@@ -290,6 +290,10 @@ DEMO_RATE_LIMIT = int(os.getenv("DEMO_RATE_LIMIT", "30"))
 DEMO_TOKEN_MAX_AGE = int(os.getenv("DEMO_TOKEN_MAX_AGE", "3600"))
 BATCH_LIMITS = {"demo": 3, "pro": 25, "business": 100}
 API_REQUEST_TIMEOUT = int(os.getenv("API_REQUEST_TIMEOUT", "30"))
+TMDB_CACHE_TTL = int(os.getenv('TMDB_CACHE_TTL', '900'))
+MEDIA_CACHE_TTL = int(os.getenv('MEDIA_CACHE_TTL', '3600'))
+MEDIA_STALE_CACHE_TTL = int(os.getenv('MEDIA_STALE_CACHE_TTL', '86400'))
+MEDIA_NOT_FOUND_CACHE_TTL = int(os.getenv('MEDIA_NOT_FOUND_CACHE_TTL', '60'))
 SUPPORT_RATE_LIMIT = int(os.getenv("SUPPORT_RATE_LIMIT", "20"))
 
 # Production-safe defaults can be overridden when TLS terminates elsewhere.

@@ -1,38 +1,66 @@
 import asyncio
 import aiohttp
-import hashlib
-import json
+import math
+import re
+import unicodedata
 from difflib import SequenceMatcher
 from urllib.parse import quote_plus
 
 from django.conf import settings
-from django.core.cache import cache
 
-from .utils import slugify, fetch_json, head_exists
+from .utils import slugify, fetch_json
+from .provider_cache import cache_key, read, write
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 
 
-async def fetch_tmdb_endpoint(path: str, params=None, cache_ttl=900):
+class ProviderUnavailable(Exception):
+    pass
+
+
+def normalize_query(title):
+    return ' '.join(unicodedata.normalize('NFKC', title).split())
+
+
+async def cached_tmdb_request(session, path, params=None, ttl=None):
+    request_params = {**(params or {}), 'api_key': settings.TMDB_API_KEY}
+    key = cache_key('tmdb', [path, request_params])
+    cached = await read(key)
+    if cached is not None:
+        return cached
+    result = await fetch_json(session, f'{TMDB_BASE_URL}/{path}', request_params)
+    if not isinstance(result, dict) or result.get('success') is False:
+        raise ProviderUnavailable()
+    if path.startswith(('search/', 'trending/')):
+        if not isinstance(result.get('results'), list) or any(not isinstance(item, dict) or not item.get('id') for item in result['results']):
+            raise ProviderUnavailable()
+    if re.fullmatch(r'(movie|tv)/\d+', path) and (not result.get('id') or not (result.get('title') or result.get('name'))):
+        raise ProviderUnavailable()
+    effective_ttl = ttl if ttl is not None else settings.TMDB_CACHE_TTL
+    if result.get('results') == []:
+        effective_ttl = min(effective_ttl, settings.MEDIA_NOT_FOUND_CACHE_TTL)
+    await write(key, result, effective_ttl, settings.MEDIA_STALE_CACHE_TTL)
+    return result
+
+
+async def fetch_tmdb_endpoint(path: str, params=None, cache_ttl=None):
     if not settings.TMDB_API_KEY:
         return {"Error": "Media provider is not configured.", "code": "provider_not_configured"}
     safe_path = str(path).strip("/")
     if ".." in safe_path or not safe_path:
         return {"Error": "Invalid provider path.", "code": "invalid_request"}
-    request_params = {**(params or {}), "api_key": settings.TMDB_API_KEY}
-    cache_identity = json.dumps([safe_path, request_params], sort_keys=True)
-    cache_key = f"tmdb:{hashlib.sha256(cache_identity.encode()).hexdigest()}"
-    cached = await cache.aget(cache_key)
-    if cached is not None:
-        return cached
+    key = cache_key('tmdb', [safe_path, {**(params or {}), 'api_key': settings.TMDB_API_KEY}])
     timeout = aiohttp.ClientTimeout(total=settings.API_REQUEST_TIMEOUT)
-    async with aiohttp.ClientSession(timeout=timeout) as session:
-        result = await fetch_json(session, f"{TMDB_BASE_URL}/{safe_path}", request_params)
-    if result is None:
-        return {"Error": "Media provider request failed.", "code": "provider_unavailable"}
-    await cache.aset(cache_key, result, timeout=cache_ttl)
-    return result
+    try:
+        async with asyncio.timeout(settings.API_REQUEST_TIMEOUT):
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                return await cached_tmdb_request(session, safe_path, params, cache_ttl)
+    except (ProviderUnavailable, TimeoutError):
+        stale = await read(key + ':stale')
+        if stale is not None:
+            return {**stale, '_cache': {'status': 'stale', 'reason': 'provider_unavailable'}}
+        return {'Error': 'Media provider is temporarily unavailable. Please retry shortly.', 'code': 'provider_unavailable'}
 
 
 def summarize_result(item):
@@ -53,7 +81,8 @@ def rank_candidates(results, query):
     Ranks TMDB search candidates based on title similarity, vote count,
     popularity, and presence of poster/metadata. Rejects zero-vote junk results.
     """
-    query_clean = query.lower().strip()
+    clean_title = lambda value: ' '.join(re.sub(r'[^\w\s]', ' ', normalize_query(value).casefold()).split())
+    query_clean = clean_title(query)
     candidates = []
     
     for item in results:
@@ -61,41 +90,42 @@ def rank_candidates(results, query):
         if not title:
             continue
             
-        title_clean = title.lower()
-        vote_count = item.get("vote_count", 0)
-        popularity = item.get("popularity", 0.0)
+        title_clean = clean_title(title)
+        original_clean = clean_title(item.get('original_title') or item.get('original_name') or title)
+        vote_count = item.get("vote_count") or 0
+        popularity = item.get("popularity") or 0.0
         has_poster = 1 if item.get("poster_path") else 0
 
-        sim = SequenceMatcher(None, query_clean, title_clean).ratio()
+        sim = max(SequenceMatcher(None, query_clean, candidate).ratio() for candidate in (title_clean, original_clean))
+        if sim < 0.4 and query_clean not in title_clean and query_clean not in original_clean:
+            continue
         
         # Immediate rejection of junk/unverified entries:
         if vote_count == 0 and not has_poster and sim < 0.6:
             continue
             
-        score = (sim * 100) + (min(vote_count, 1000) / 10) + (popularity * 2) + (has_poster * 15)
+        score = (sim * 100) + (min(vote_count, 1000) / 50) + min(math.log1p(max(popularity, 0)) * 4, 20) + (has_poster * 5)
         
-        if title_clean == query_clean:
+        exact = query_clean in (title_clean, original_clean)
+        if exact:
             score += 50
         elif title_clean.startswith(query_clean):
             score += 25
             
-        candidates.append((score, item))
+        candidates.append((exact, score, item))
         
     if not candidates:
         return None
         
-    candidates.sort(key=lambda x: x[0], reverse=True)
-    return candidates[0][1]
+    candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    return candidates[0][2]
 
 async def fetch_tmdb_data(title: str, media: str, session):
-    search_url = f"{TMDB_BASE_URL}/search/{media}"
-    search = await fetch_json(
-        session,
-        search_url,
-        {"api_key": settings.TMDB_API_KEY, "query": title}
-    )
+    search = await cached_tmdb_request(session, f'search/{media}', {'query': title, 'include_adult': 'false'})
 
-    if not search or not isinstance(search, dict) or not search.get("results"):
+    if not isinstance(search.get('results'), list):
+        raise ProviderUnavailable()
+    if not search['results']:
         return None
 
     item = rank_candidates(search["results"], title)
@@ -104,16 +134,11 @@ async def fetch_tmdb_data(title: str, media: str, session):
 
     tmdb_id = item["id"]
 
-    details_url = f"{TMDB_BASE_URL}/{media}/{tmdb_id}"
-    credits_url = f"{details_url}/credits"
+    details = await cached_tmdb_request(session, f'{media}/{tmdb_id}', {'append_to_response': 'credits,external_ids'})
+    credits = details.get('credits') or {}
 
-    details, credits = await asyncio.gather(
-        fetch_json(session, details_url, {"api_key": settings.TMDB_API_KEY}),
-        fetch_json(session, credits_url, {"api_key": settings.TMDB_API_KEY})
-    )
-
-    if not details or not isinstance(details, dict):
-        return None
+    if not (details.get('title') or details.get('name')) or details.get('id') != tmdb_id:
+        raise ProviderUnavailable()
 
     official_title = details.get("title") or details.get("name")
     release_date = details.get("release_date") or details.get("first_air_date")
@@ -131,7 +156,7 @@ async def fetch_tmdb_data(title: str, media: str, session):
     if credits and isinstance(credits, dict) and credits.get("cast"):
         cast = [c["name"] for c in credits["cast"][:5]]
         
-    imdb_id = details.get("imdb_id")
+    imdb_id = details.get("imdb_id") or (details.get('external_ids') or {}).get('imdb_id')
     imdb_link = f"https://www.imdb.com/title/{imdb_id}/" if imdb_id else None
 
     return {
@@ -214,42 +239,41 @@ async def fetch_media_links(title: str, media: str, country: str = "us"):
             "code": "provider_not_configured",
         }
 
+    title = normalize_query(title)
     media = normalize_media_type(media)
     country_code = (country or "us").strip().lower()
-
-    cache_key = f"media:{title.strip().lower()}:{media}:{country_code}"
-    cached_result = await cache.aget(cache_key)
+    key = cache_key('media', [title.casefold(), media, country_code, settings.TMDB_API_KEY])
+    cached_result = await read(key)
     if cached_result is not None:
         return cached_result
+    missing = await read(key + ':missing')
+    if missing is not None:
+        return missing
 
     timeout = aiohttp.ClientTimeout(total=settings.API_REQUEST_TIMEOUT)
-    async with aiohttp.ClientSession(timeout=timeout) as session:
-        data = await fetch_tmdb_data(title, media, session)
-        
-        # Smart fallback: if searching 'tv' returns nothing, try 'movie' (and vice versa)
-        if not data and media == "tv":
-            data = await fetch_tmdb_data(title, "movie", session)
-            if data:
-                media = "movie"
-        elif not data and media == "movie":
-            data = await fetch_tmdb_data(title, "tv", session)
-            if data:
-                media = "tv"
-
+    try:
+        async with asyncio.timeout(settings.API_REQUEST_TIMEOUT):
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                data = await fetch_tmdb_data(title, media, session)
+                # Try the other type only after a genuine successful no-match response.
+                if not data:
+                    media = 'movie' if media == 'tv' else 'tv'
+                    data = await fetch_tmdb_data(title, media, session)
         if not data:
-            return {"Error": f"No verified movie or TV show found matching '{title}'."}
-
-        rt_type = "m" if media == "movie" else "tv"
-        rt_url = f"https://www.rottentomatoes.com/{rt_type}/{data['slug']}"
-        rt_final = rt_url if await head_exists(session, rt_url) else "RT page not found"
-
+            result = {'Error': f"No verified movie or TV show found matching '{title}'.", 'code': 'not_found'}
+            await write(key + ':missing', result, settings.MEDIA_NOT_FOUND_CACHE_TTL)
+            return result
         result = {
-            **{k: v for k, v in data.items() if k != "slug"},
-            "Rotten Tomatoes": rt_final,
-            "Metacritic": f"https://www.metacritic.com/search/{media}/{data['slug']}/results",
-            "Letterboxd": f"https://letterboxd.com/film/{data['slug']}/" if media == "movie" else None,
-            f"JustWatch ({country_code.upper()})": f"https://www.justwatch.com/{country_code}/search?q={quote_plus(title)}"
+            **{k: v for k, v in data.items() if k != 'slug'},
+            'Rotten Tomatoes': f"https://www.rottentomatoes.com/search?search={quote_plus(data['Official Title'])}",
+            'Metacritic': f"https://www.metacritic.com/search/{media}/{data['slug']}/results",
+            'Letterboxd': f"https://letterboxd.com/film/{data['slug']}/" if media == 'movie' else None,
+            f'JustWatch ({country_code.upper()})': f'https://www.justwatch.com/{country_code}/search?q={quote_plus(title)}',
         }
-
-        await cache.aset(cache_key, result, timeout=3600)
+        await write(key, result, settings.MEDIA_CACHE_TTL, settings.MEDIA_STALE_CACHE_TTL)
         return result
+    except (ProviderUnavailable, TimeoutError):
+        stale = await read(key + ':stale')
+        if stale is not None:
+            return {**stale, '_cache': {'status': 'stale', 'reason': 'provider_unavailable'}}
+        return {'Error': 'Media provider is temporarily unavailable. Please retry shortly.', 'code': 'provider_unavailable'}

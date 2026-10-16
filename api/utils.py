@@ -15,7 +15,16 @@ async def fetch_json(session, url, params=None):
             async with session.get(url, params=params) as resp:
                 if resp.status == 429 or resp.status >= 500:
                     if attempt < 2:
-                        await asyncio.sleep(0.25 * (2 ** attempt))
+                        delay = 0.25 * (2 ** attempt)
+                        try:
+                            delay = max(0, float(resp.headers.get('Retry-After', delay)))
+                        except (TypeError, ValueError):
+                            pass
+                        # Serve an existing cached result instead of blocking a
+                        # browser request or retrying before a long provider limit.
+                        if delay > 5:
+                            return None
+                        await asyncio.sleep(delay)
                         continue
                     return None
                 if resp.status >= 400:

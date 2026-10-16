@@ -29,6 +29,7 @@ Current API behavior:
 - Search results use TMDB metadata including title, year, genres, runtime, rating, poster and cast.
   IMDb, Rotten Tomatoes, Metacritic, Letterboxd and JustWatch are outbound links, not separately aggregated ratings.
 - Users edit names and profile photos at /profile/. Photos accept JPG, PNG or WebP up to 5 MB and 16 megapixels.
+- Signed-in users save movies/shows and mark favorites at /watchlist/. It needs no personal API key. Where to watch shows country-specific JustWatch/TMDB availability.
 - Google/GitHub login and signup use /accounts/login/ and /accounts/signup/; password reset is /accounts/password/reset/.
 - API keys are scoped, stored as hashes, displayed only once, and can be rotated or revoked.
 - Users must never share API keys, passwords, payment card details, or webhook secrets in chat.
@@ -60,6 +61,8 @@ def _fallback_reply(message: str) -> str:
     lowered = message.lower()
     if 'creat' in lowered and ('key' in lowered or 'token' in lowered):
         return 'Open your dashboard, choose Create key, give it a name and the scopes you need, then save the secret securely: it is only shown once. If you lost it, rotate the key. Never paste it here.'
+    if any(term in lowered for term in ('watchlist', 'favorite', 'favourite', 'where to watch')):
+        return 'Sign in and open /watchlist/. Search a movie or TV show, select Save to watchlist, then mark it as a Favorite if you like. You can filter Favorites or remove a title. Where to watch shows viewing options for a two-letter country code, such as US, PK or GB. No personal API key is needed.'
     if any(term in lowered for term in ('profile', 'photo', 'avatar', 'name change')):
         return 'Open /profile/ to edit your first and last name or upload a profile photo. Photos must be JPG, PNG or WebP, at most 5 MB and 16 megapixels. Select Save profile to apply changes. You can also replace or remove the current photo.'
     if any(term in lowered for term in ('login', 'sign in', 'signup', 'sign up', 'password', 'google', 'github')):

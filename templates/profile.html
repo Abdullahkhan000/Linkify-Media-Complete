@@ -18,6 +18,7 @@
                 {% if user.has_usable_password %}<a href="{% url 'account_change_password' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-key w-5 text-[#c8ff5a]"></i>Change password</a>{% else %}<a href="{% url 'account_set_password' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-key w-5 text-[#c8ff5a]"></i>Set a password</a>{% endif %}
                 <a href="{% url 'socialaccount_connections' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-plug w-5 text-cyan-300"></i>Connected accounts</a>
                 <a href="{% url 'billing' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-solid fa-credit-card w-5 text-white"></i>Billing & plan</a>
+                <a href="{% url 'watchlist' %}" class="nav-link flex items-center gap-3 rounded-xl px-4 py-3"><i class="fa-regular fa-bookmark w-5"></i>Watchlist & favorites</a>
             </nav>
         </aside>
 

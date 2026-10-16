@@ -1,0 +1,67 @@
+// Use an isolated local database: this creates a temporary test account.
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const os = require('node:os');
+const path = require('node:path');
+const { chromium } = require(process.env.SUPPORT_PLAYWRIGHT_PATH || 'playwright');
+
+(async () => {
+    const browser = await chromium.launch({channel:'chrome',headless:true});
+    try {
+        const page=await browser.newPage({viewport:{width:1280,height:900}});
+        const errors=[]; page.on('pageerror',error=>errors.push(error.message));
+        const base=process.env.SUPPORT_TEST_BASE_URL || 'http://127.0.0.1:8767';
+        await page.goto(base+'/accounts/signup/');
+        const name='watch_test_'+crypto.randomBytes(5).toString('hex');
+        const password='Watchlist-'+crypto.randomBytes(16).toString('hex')+'!';
+        await page.locator('#id_username').fill(name);
+        await page.locator('#id_email').fill(name+'@example.com');
+        await page.locator('#id_password1').fill(password);
+        await page.locator('#id_password2').fill(password);
+        await page.locator('[name=terms]').check();
+        await Promise.all([page.waitForURL('**/dashboard/'),page.locator('form[action="/accounts/signup/"] button[type=submit]').click()]);
+        await page.goto(base+'/watchlist/');
+        await page.locator('#watchlist-query').fill('Inception');
+        let waiting=page.waitForResponse(response=>response.url().includes('/api/v1/watchlist/search/'));
+        await page.getByRole('button',{name:'Search titles',exact:true}).click();
+        const search=await waiting; assert.equal(search.status(),200);
+        const found=(await search.json()).results[0]; assert(found.tmdb_id);
+        console.log('PASS authenticated title search uses live TMDB without a personal API key');
+        waiting=page.waitForResponse(response=>response.url().endsWith('/api/v1/watchlist/')&&response.request().method()==='POST');
+        await page.locator('#watchlist-results .watchlist-card').first().getByRole('button',{name:'Save to watchlist'}).click();
+        const saved=await waiting; assert.equal(saved.status(),201);
+        const stored=await saved.json(); assert.equal(stored.title,found.title);
+        await page.waitForFunction(()=>document.querySelector('#watchlist-items .watchlist-card'));
+        console.log('PASS save creates a persistent user-owned collection item');
+        waiting=page.waitForResponse(response=>response.request().method()==='PATCH');
+        await page.locator('#watchlist-items .watchlist-card').first().getByRole('button',{name:'☆ Favorite',exact:true}).click();
+        assert.equal((await waiting).status(),200);
+        await page.waitForFunction(()=>document.getElementById('watchlist-items').textContent.includes('★ Favorited'));
+        await page.reload();
+        await page.waitForFunction(()=>document.getElementById('watchlist-items').textContent.includes('★ Favorited'));
+        await page.locator('#watchlist-favorites').click();
+        await page.waitForFunction(()=>document.getElementById('watchlist-favorites').getAttribute('aria-pressed')==='true');
+        console.log('PASS favorite survives reload and the Favorites filter works');
+        waiting=page.waitForResponse(response=>response.url().includes('/api/v1/watchlist/providers/'));
+        await page.locator('#watchlist-items .watchlist-card').first().getByRole('button',{name:'Where to watch'}).click();
+        const availability=await waiting; assert.equal(availability.status(),200);
+        assert.equal((await availability.json()).attribution,'JustWatch');
+        await page.locator('#watchlist-country').fill('PK');
+        waiting=page.waitForResponse(response=>response.url().includes('/providers/')&&response.url().includes('country=PK'));
+        await page.locator('#watchlist-country-form button').click();
+        assert.equal((await waiting).status(),200);
+        await page.locator('#watchlist-dialog-close').click();
+        console.log('PASS live country-specific streaming availability and JustWatch attribution');
+        await page.setViewportSize({width:390,height:844});
+        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+        await page.screenshot({path:path.join(os.tmpdir(),'linkify-support-browser','watchlist-mobile.png')});
+        waiting=page.waitForResponse(response=>response.request().method()==='DELETE');
+        await page.locator('#watchlist-items .watchlist-card').first().getByRole('button',{name:'Remove',exact:true}).click();
+        assert.equal((await waiting).status(),204);
+        await page.waitForFunction(()=>document.getElementById('watchlist-status').textContent.includes('No favorites'));
+        const final=await page.request.get(base+'/api/v1/watchlist/');
+        assert.equal((await final.json()).total,0);
+        assert.deepEqual(errors,[]);
+        console.log('PASS mobile layout fits; removal persists; no browser JavaScript errors');
+    } finally { await browser.close(); }
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -32,7 +32,7 @@
                 <a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'docs-page' %}">Developers</a>
                 <a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'billing' %}">Pricing</a>
                 <a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'about-page' %}">Company</a>
-                {% if user.is_authenticated %}<a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'dashboard' %}">Console</a>{% endif %}
+                {% if user.is_authenticated %}<a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'dashboard' %}">Console</a><a class="nav-link rounded-full px-4 py-2 text-sm font-semibold" href="{% url 'watchlist' %}">Watchlist</a>{% endif %}
             </nav>
 
             <div class="hidden items-center gap-2 lg:flex">
@@ -59,6 +59,7 @@
                 <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'billing' %}">Pricing</a>
                 {% if user.is_authenticated %}
                     <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'dashboard' %}">Console</a>
+                    <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'watchlist' %}">Watchlist & favorites</a>
                     <a class="nav-link rounded-2xl px-4 py-3 font-semibold" href="{% url 'profile' %}">Account settings</a>
                     <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button type="submit" class="mt-2 w-full rounded-2xl border border-rose-400/20 px-4 py-3 text-left font-semibold text-rose-300">Sign out</button></form>
                 {% else %}

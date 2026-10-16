@@ -28,6 +28,25 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} — {self.tier} Profile"
 
+class WatchlistItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchlist')
+    tmdb_id = models.PositiveIntegerField()
+    media_type = models.CharField(max_length=5, choices=[('movie', 'Movie'), ('tv', 'TV show')])
+    title = models.CharField(max_length=300)
+    poster_url = models.URLField(max_length=500, blank=True, default='')
+    release_year = models.CharField(max_length=4, blank=True, default='')
+    overview = models.TextField(blank=True, default='')
+    favorite = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-id']
+        constraints = [models.UniqueConstraint(fields=['user', 'tmdb_id', 'media_type'], name='unique_user_watchlist_media')]
+
+    def __str__(self):
+        return self.title
+
+
 class APIKey(models.Model):
     SECRET_PREFIX = "lm_live_"
     DEFAULT_SCOPES = ["search", "usage"]

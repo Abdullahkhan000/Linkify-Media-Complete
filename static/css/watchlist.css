@@ -1,0 +1,34 @@
+.watchlist-page{max-width:1240px;margin:auto;padding:48px 24px 80px;color:var(--ink,#282552)}
+.watchlist-heading,.watchlist-toolbar{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.watchlist-heading h1{font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:-.04em;margin:16px 0}
+.watchlist-heading p,.watchlist-page [role=status],.watchlist-credit{line-height:1.7;color:#657091}
+.watchlist-page h2,.watchlist-dialog h2{font-size:23px;font-weight:800}
+.watchlist-search{padding:24px;margin:32px 0;border-radius:24px}
+#watchlist-search-form{display:grid;grid-template-columns:minmax(0,1fr) 150px auto;gap:16px;align-items:end;margin:20px 0}
+.watchlist-page label,.watchlist-dialog label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.watchlist-page button,.watchlist-page select,.watchlist-dialog button{min-height:44px}
+.watchlist-page input,.watchlist-page select,.watchlist-dialog input{font-size:16px;width:100%}
+.watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-top:20px}
+.watchlist-card{background:#fff;border:1px solid #e4e1f1;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.watchlist-poster{background:#eeebfa;aspect-ratio:2/3;max-height:260px;display:flex;align-items:center;justify-content:center;color:#657091;overflow:hidden}
+.watchlist-poster img{height:100%;width:100%;object-fit:cover}
+.watchlist-card-body{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.watchlist-card h3{font-size:17px;font-weight:800;overflow-wrap:anywhere}
+.watchlist-card small{color:#657091}
+.watchlist-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.watchlist-actions button{padding:8px 12px;font-size:12px;width:100%}
+.watchlist-toolbar [role=group]{display:flex;gap:8px}
+.watchlist-toolbar button,.watchlist-pagination button{padding:10px 16px}
+.watchlist-toolbar [aria-pressed=true]{border-color:#6558f5;color:#6558f5;background:#eeebff}
+.watchlist-pagination{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:24px}
+.watchlist-page button:disabled{opacity:.55;cursor:default}
+.watchlist-credit{margin-top:32px;font-size:12px}
+.watchlist-dialog{background:#fff;color:#282552;border:1px solid #e4e1f1;border-radius:24px;width:min(560px,calc(100vw - 24px));max-height:85dvh;overflow:auto;padding:24px;margin:auto}
+.watchlist-dialog::backdrop{background:rgba(20,17,40,.55)}
+#watchlist-country-form{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:24px}
+#watchlist-country-form label{grid-column:1/-1}
+#watchlist-country-help,.watchlist-dialog>p{font-size:12px;color:#657091;margin:12px 0}
+#watchlist-providers{margin:24px 0;line-height:1.8}
+#watchlist-providers h3{font-weight:800;margin-top:16px}
+#watchlist-providers a{color:#6558f5;text-decoration:underline}
+@media(max-width:640px){.watchlist-page{padding:28px 16px 90px}.watchlist-search{padding:18px}#watchlist-search-form{grid-template-columns:1fr} .watchlist-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.watchlist-card-body{padding:12px}.watchlist-card h3{font-size:15px}.watchlist-dialog{padding:18px}}
