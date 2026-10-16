@@ -263,6 +263,10 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 TMDB_API_KEY = os.getenv("TMDB_API_KEY", "").strip()
 
 # External services
+CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '').strip()
+CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '').strip()
+CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', '').strip()
+
 LEMONSQUEEZY_API_KEY = os.getenv("LEMONSQUEEZY_API_KEY", "").strip()
 LEMONSQUEEZY_STORE_ID = os.getenv("LEMONSQUEEZY_STORE_ID", "").strip()
 LEMONSQUEEZY_VARIANT_PRO = os.getenv("LEMONSQUEEZY_VARIANT_PRO", "").strip()

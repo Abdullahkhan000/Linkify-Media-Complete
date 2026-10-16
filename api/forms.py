@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from allauth.account.forms import SignupForm
+from .avatars import cloudinary_ready
 
 User = get_user_model()
 
@@ -30,6 +31,28 @@ class QuickSignUpForm(forms.Form):
 
 
 class ProfileUpdateForm(forms.ModelForm):
+    avatar = forms.ImageField(required=False)
+    remove_avatar = forms.BooleanField(required=False)
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            if avatar.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('Choose an image smaller than 5 MB.')
+            if avatar.image.format not in {'JPEG', 'PNG', 'WEBP'}:
+                raise forms.ValidationError('Choose a JPG, PNG, or WebP image.')
+            if avatar.image.width * avatar.image.height > 16_000_000:
+                raise forms.ValidationError('Choose an image with at most 16 megapixels.')
+            if not cloudinary_ready():
+                raise forms.ValidationError('Photo uploads are temporarily unavailable. You can still update your name.')
+        return avatar
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('avatar') and cleaned.get('remove_avatar'):
+            self.add_error('avatar', 'Choose a new photo or remove your current photo, not both.')
+        return cleaned
+
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name"]

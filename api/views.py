@@ -41,6 +41,7 @@ from allauth.account.views import SignupView as AllauthSignupView
 from django.contrib import messages
 
 from .forms import AccountDeleteForm, ProfileUpdateForm, QuickSignUpForm, SupportRequestForm
+from .avatars import AvatarUploadError, cloudinary_ready, save_profile
 from .middleware import DAILY_LIMITS, client_ip, demo_token, throttle
 from .support_bot import generate_reply
 
@@ -1067,14 +1068,19 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context['verification_enabled'] = email_verification_required()
         context['profile_form'] = kwargs.get('profile_form') or ProfileUpdateForm(instance=self.request.user)
         context['delete_form'] = AccountDeleteForm(user=self.request.user)
+        context['avatar_uploads_enabled'] = cloudinary_ready()
         return context
 
     def post(self, request, *args, **kwargs):
-        form = ProfileUpdateForm(request.POST, instance=request.user)
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Your profile and username were updated.")
-            return redirect('profile')
+            try:
+                save_profile(form)
+            except AvatarUploadError as exc:
+                form.add_error('avatar', str(exc))
+            else:
+                messages.success(request, "Your profile was updated.")
+                return redirect('profile')
         return self.render_to_response(self.get_context_data(profile_form=form))
 
 class ResendVerificationView(LoginRequiredMixin, View):
@@ -1121,6 +1127,7 @@ class AccountProfileAPIView(APIView):
             "first_name": request.user.first_name,
             "last_name": request.user.last_name,
             "tier": profile.tier,
+            "avatar_url": profile.avatar_url,
             "email_verified": request.user.emailaddress_set.filter(
                 email__iexact=request.user.email,
                 verified=True,
@@ -1130,18 +1137,27 @@ class AccountProfileAPIView(APIView):
         })
 
     def patch(self, request):
-        form = ProfileUpdateForm(request.data, instance=request.user)
+        data = request.data.copy()
+        for field in ('username', 'first_name', 'last_name'):
+            if field not in data:
+                data[field] = getattr(request.user, field)
+        form = ProfileUpdateForm(data, request.FILES, instance=request.user)
+        if form.is_valid():
+            try:
+                user = save_profile(form)
+            except AvatarUploadError as exc:
+                form.add_error('avatar', str(exc))
         if not form.is_valid():
             return Response(
                 {field: [str(error) for error in errors] for field, errors in form.errors.items()},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        user = form.save()
         return Response({
             "username": user.username,
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "avatar_url": user.profile.avatar_url,
         })
 
 

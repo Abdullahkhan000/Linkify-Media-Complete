@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Account settings · Linkify Media{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-[1240px] px-4 py-12 sm:px-6 lg:px-10 lg:py-20">
@@ -10,7 +11,7 @@
     <div class="mt-10 grid gap-7 lg:grid-cols-[.7fr_1.3fr]">
         <aside class="space-y-5">
             <article class="surface reveal reveal-delay-1 rounded-[1.75rem] p-7">
-                <div class="flex items-center gap-4"><span class="grid h-16 w-16 place-items-center rounded-2xl bg-[#c8ff5a] text-2xl font-black text-[#071006]">{{ user.username|first|upper }}</span><div class="min-w-0"><h2 class="truncate text-xl font-black text-white">@{{ user.username }}</h2><p class="mt-1 truncate text-sm text-[#8e9a91]">{{ user.email }}</p></div></div>
+                <div class="flex items-center gap-4">{% include 'account/avatar.html' with avatar_size='64px' %}<div class="min-w-0"><h2 class="truncate text-xl font-black text-white">{{ user.get_full_name|default:user.username }}</h2><p class="mt-1 truncate text-sm text-[#8e9a91]">@{{ user.username }}</p><p class="mt-1 truncate text-sm text-[#8e9a91]">{{ user.email }}</p></div></div>
                 <div class="mt-7 grid grid-cols-2 gap-3"><div class="rounded-2xl border border-white/[.06] bg-white/[.025] p-4"><p class="mono-label text-[9px] uppercase text-[#667168]">Plan</p><p class="mt-2 font-black capitalize text-[#c8ff5a]">{{ profile.tier }}</p></div><div class="rounded-2xl border border-white/[.06] bg-white/[.025] p-4"><p class="mono-label text-[9px] uppercase text-[#667168]">Member since</p><p class="mt-2 text-sm font-bold text-white">{{ user.date_joined|date:"M Y" }}</p></div></div>
             </article>
             <nav class="surface reveal reveal-delay-2 grid rounded-[1.5rem] p-2 text-sm font-semibold">
@@ -23,8 +24,19 @@
         <div class="space-y-7">
             <article class="surface reveal reveal-delay-1 rounded-[1.75rem] p-6 sm:p-8">
                 <div><p class="eyebrow">Public identity</p><h2 class="mt-3 text-2xl font-black tracking-tight text-white">Profile details</h2></div>
-                <form method="post" class="mt-8 space-y-5" novalidate>{% csrf_token %}
+                <form method="post" enctype="multipart/form-data" class="mt-8 space-y-5" novalidate>{% csrf_token %}
                     {% if profile_form.non_field_errors %}<div class="form-alert">{{ profile_form.non_field_errors|striptags }}</div>{% endif %}
+                    <div>
+                        <label for="id_avatar" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Profile photo</label>
+                        <div class="flex items-center gap-4">
+                            <span id="avatar-current">{% include 'account/avatar.html' with avatar_size='64px' %}</span>
+                            <img id="avatar-preview" alt="New profile photo preview" hidden style="width:64px;height:64px;object-fit:cover;border-radius:50%;">
+                            <input id="id_avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="saas-input" {% if not avatar_uploads_enabled %}disabled{% endif %} aria-describedby="avatar-help">
+                        </div>
+                        <p id="avatar-help" class="mt-2 text-xs text-[#68736b]">{% if avatar_uploads_enabled %}JPG, PNG or WebP, up to 5 MB and 16 megapixels. Your photo will be cropped to a square.{% else %}Photo uploads are temporarily unavailable. You can still edit your name below.{% endif %}</p>
+                        {% if profile_form.avatar.errors %}<p class="field-error">{{ profile_form.avatar.errors|striptags }}</p>{% endif %}
+                        {% if profile.avatar_url %}<label class="mt-3 flex items-center gap-2 text-sm text-[#9aa59d]"><input type="checkbox" id="id_remove_avatar" name="remove_avatar" {% if profile_form.remove_avatar.value %}checked{% endif %}>Remove current photo</label>{% endif %}
+                    </div>
                     <div><label for="id_username" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Username</label><input id="id_username" name="username" value="{{ profile_form.username.value|default:'' }}" maxlength="150" autocomplete="username" class="saas-input" required>{% if profile_form.username.errors %}<p class="field-error">{{ profile_form.username.errors|striptags }}</p>{% else %}<p class="mt-2 text-xs text-[#68736b]">Used for sign-in and shown in your console.</p>{% endif %}</div>
                     <div class="grid gap-5 sm:grid-cols-2"><div><label for="id_first_name" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">First name</label><input id="id_first_name" name="first_name" value="{{ profile_form.first_name.value|default:'' }}" maxlength="150" autocomplete="given-name" class="saas-input">{% if profile_form.first_name.errors %}<p class="field-error">{{ profile_form.first_name.errors|striptags }}</p>{% endif %}</div><div><label for="id_last_name" class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Last name</label><input id="id_last_name" name="last_name" value="{{ profile_form.last_name.value|default:'' }}" maxlength="150" autocomplete="family-name" class="saas-input">{% if profile_form.last_name.errors %}<p class="field-error">{{ profile_form.last_name.errors|striptags }}</p>{% endif %}</div></div>
                     <div><label class="mb-2 block text-xs font-bold uppercase tracking-[.15em] text-[#8e9a91]">Account email</label><div class="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-black/10 px-4 py-3.5 text-sm text-[#9aa59d]"><i class="fa-regular fa-envelope text-cyan-300"></i><span class="min-w-0 flex-1 truncate">{{ user.email }}</span>{% if verification_enabled %}{% if email_address and email_address.verified %}<span class="rounded-full bg-[#c8ff5a]/10 px-2 py-1 text-[10px] font-bold text-[#c8ff5a]">VERIFIED</span>{% else %}<span class="rounded-full bg-amber-400/10 px-2 py-1 text-[10px] font-bold text-amber-300">PENDING</span>{% endif %}{% else %}<span class="rounded-full bg-white/[.05] px-2 py-1 text-[10px] font-bold text-[#9aa59d]">ACTIVE</span>{% endif %}</div><p class="mt-2 text-xs text-[#68736b]">Email changes can be managed through account security when mail delivery is configured.</p></div>
@@ -44,3 +56,4 @@
     </div>
 </section>
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/profile.js' %}" defer></script>{% endblock %}

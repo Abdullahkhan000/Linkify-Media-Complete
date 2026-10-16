@@ -18,6 +18,8 @@ class Profile(models.Model):
     ]
     user                    = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     company_name            = models.CharField(max_length=255, blank=True, default='')
+    avatar_url              = models.URLField(max_length=500, blank=True, default='')
+    avatar_public_id        = models.CharField(max_length=255, blank=True, default='')
     job_title               = models.CharField(max_length=255, blank=True, default='')
     tier                    = models.CharField(max_length=20, choices=TIER_CHOICES, default='free')
     lemonsqueezy_customer_id = models.CharField(max_length=255, blank=True, null=True)

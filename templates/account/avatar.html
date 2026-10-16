@@ -1,0 +1,3 @@
+<span style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border-radius:50%;width:{{ avatar_size|default:'32px' }};height:{{ avatar_size|default:'32px' }};background:#c8ff5a;color:#071006;font-weight:900;vertical-align:middle;">
+{% if user.profile.avatar_url %}<img src="{{ user.profile.avatar_url }}" alt="{{ user.get_full_name|default:user.username }} profile photo" style="width:100%;height:100%;object-fit:cover;" referrerpolicy="no-referrer">{% else %}{{ user.get_full_name|default:user.username|first|upper }}{% endif %}
+</span>

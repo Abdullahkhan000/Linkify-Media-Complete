@@ -37,8 +37,8 @@
             <div class="hidden items-center gap-2 lg:flex">
                 {% if user.is_authenticated %}
                     <a href="{% url 'profile' %}" class="ghost-button px-4 py-2.5 text-sm">
-                        <span class="grid h-6 w-6 place-items-center rounded-full bg-[#c8ff5a] text-[10px] font-black text-[#071006]">{{ user.username|first|upper }}</span>
-                        {{ user.username }}
+                        {% include 'account/avatar.html' with avatar_size='24px' %}
+                        {{ user.get_full_name|default:user.username }}
                     </a>
                     <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button type="submit" class="nav-link rounded-full px-4 py-2.5 text-sm font-semibold">Sign out</button></form>
                 {% else %}
