@@ -34,12 +34,25 @@ class BillingWebhookEventAdmin(admin.ModelAdmin):
     search_fields = ['event_id', 'event_name']
     readonly_fields = ['event_id', 'event_name', 'processed_at']
 
+class SupportMessageInline(admin.TabularInline):
+    model = SupportMessage
+    fields = ['role', 'content', 'source', 'created_at']
+    readonly_fields = ['created_at']
+    extra = 1
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'role':
+            kwargs['initial'] = 'assistant'
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
+
+
 @admin.register(SupportConversation)
 class SupportConversationAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'user', 'status', 'updated_at']
     list_filter = ['status', 'updated_at']
     search_fields = ['title', 'user__username', 'user__email', 'messages__content']
     readonly_fields = ['id', 'session_id', 'created_at', 'updated_at']
+    inlines = [SupportMessageInline]
 
 
 @admin.register(SupportMessage)
@@ -57,3 +70,10 @@ class SupportTicketAdmin(admin.ModelAdmin):
     search_fields = ['subject', 'email', 'name', 'message']
     readonly_fields = ['created_at', 'updated_at']
     list_editable = ['priority', 'status']
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if obj.conversation_id:
+            pending = obj.conversation.tickets.exclude(status='resolved').exists()
+            obj.conversation.status = 'escalated' if pending else 'resolved'
+            obj.conversation.save(update_fields=['status', 'updated_at'])

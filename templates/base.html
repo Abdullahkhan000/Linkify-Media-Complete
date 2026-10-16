@@ -110,6 +110,12 @@
             </div>
             <div id="support-messages" class="flex max-h-60 flex-col gap-3 overflow-y-auto p-4" aria-live="polite"><div class="support-bot-message bot">Ask about API keys, authentication, quotas, billing, or integration errors.</div></div>
             <div class="border-t border-white/[.07] p-4">
+                <form id="support-chat-form" class="mb-3 space-y-2">{% csrf_token %}
+                    <label for="support-chat-input" class="sr-only">Your support question</label>
+                    <textarea id="support-chat-input" name="message" rows="2" maxlength="4000" required class="saas-input" placeholder="Type your question..."></textarea>
+                    <div class="flex items-center gap-2"><button type="submit" class="neon-button px-4 py-2 text-xs">Send</button><button id="support-new" type="button" class="ghost-button px-3 py-2 text-xs">New chat</button></div>
+                    <p id="support-error" role="status" class="field-error"></p>
+                </form>
                 <div class="grid grid-cols-2 gap-2">
                     <button type="button" data-support-question="How do I create an API key?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Create API key</button>
                     <button type="button" data-support-question="How do I authenticate?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Authenticate</button>
@@ -143,31 +149,10 @@
             });
         });
 
-        const supportToggle = document.getElementById('support-toggle');
-        const supportPanel = document.getElementById('support-panel');
-        const supportClose = document.getElementById('support-close');
-        const supportMessages = document.getElementById('support-messages');
-        const answers = {
-            'How do I create an API key?': 'Create an account, open Console, and choose Create key. The secret is shown once, so save it securely.',
-            'How do I authenticate?': 'Send your secret in the X-API-Key header from your server. Never place it in browser code.',
-            'How do quotas work?': 'Limits are enforced atomically by plan. Console shows combined usage, status codes, and latency.'
-        };
-        const setSupport = open => {
-            supportPanel.classList.toggle('hidden', !open);
-            supportToggle.setAttribute('aria-expanded', String(open));
-            supportToggle.setAttribute('aria-label', open ? 'Close support center' : 'Open support center');
-        };
-        supportToggle?.addEventListener('click', () => setSupport(supportPanel.classList.contains('hidden')));
-        supportClose?.addEventListener('click', () => setSupport(false));
-        document.querySelectorAll('[data-support-question]').forEach(button => button.addEventListener('click', () => {
-            const question = button.dataset.supportQuestion;
-            const userBubble = document.createElement('div'); userBubble.className = 'support-bot-message user'; userBubble.textContent = question;
-            const botBubble = document.createElement('div'); botBubble.className = 'support-bot-message bot'; botBubble.textContent = answers[question];
-            supportMessages.append(userBubble, botBubble); supportMessages.scrollTop = supportMessages.scrollHeight;
-        }));
-        document.addEventListener('keydown', event => { if (event.key === 'Escape') { setSupport(false); menu?.classList.add('hidden'); } });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') menu?.classList.add('hidden'); });
     })();
     </script>
+    <script src="{% static 'js/support-chat.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
     <script src="{% static 'js/hero-typewriter.js' %}" defer></script>
     <script src="{% static 'js/page-motion.js' %}" defer></script>

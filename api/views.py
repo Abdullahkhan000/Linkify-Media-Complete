@@ -39,11 +39,13 @@ from allauth.account.models import EmailAddress
 from allauth.account.views import PasswordChangeView as AllauthPasswordChangeView
 from allauth.account.views import SignupView as AllauthSignupView
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_protect
 
 from .forms import AccountDeleteForm, ProfileUpdateForm, QuickSignUpForm, SupportRequestForm
 from .avatars import AvatarUploadError, cloudinary_ready, save_profile
 from .middleware import DAILY_LIMITS, client_ip, demo_token, throttle
-from .support_bot import generate_reply
+from .support_bot import generate_reply, redact_secrets
 
 logger = logging.getLogger(__name__)
 
@@ -736,6 +738,7 @@ class LemonSqueezyWebhookView(View):
 
         return HttpResponse(status=200)
 
+@method_decorator(csrf_protect, name='dispatch')
 class SupportChatAPIView(APIView):
     permission_classes = []
 
@@ -751,7 +754,7 @@ class SupportChatAPIView(APIView):
     def _get_accessible_conversation(self, request, conversation_id):
         try:
             conversation = SupportConversation.objects.get(pk=conversation_id)
-        except (SupportConversation.DoesNotExist, ValueError):
+        except (SupportConversation.DoesNotExist, ValueError, TypeError, ValidationError):
             return None, Response({"error": "Conversation not found."}, status=status.HTTP_404_NOT_FOUND)
 
         user = request.user if request.user.is_authenticated else None
@@ -762,9 +765,9 @@ class SupportChatAPIView(APIView):
         return conversation, None
 
     def get(self, request):
-        if self._rate_limited(request):
-            return Response({'error': 'Support request limit reached. Try again later.'}, status=429)
         conversation_id = request.query_params.get("conversation_id")
+        if not conversation_id:
+            conversation_id = request.session.get('support_conversation_id')
         if not conversation_id:
             return Response({"messages": []}, status=status.HTTP_200_OK)
         conversation, error = self._get_accessible_conversation(request, conversation_id)
@@ -776,9 +779,10 @@ class SupportChatAPIView(APIView):
                 "status": conversation.status,
                 "messages": [
                     {"role": item.role, "content": item.content, "source": item.source}
-                    for item in conversation.messages.order_by("created_at")
+                    for item in reversed(list(conversation.messages.order_by('-created_at', '-id')[:100]))
                     if item.role in {"user", "assistant"}
                 ],
+                "ticket": next(({'id': ticket.id, 'status': ticket.status} for ticket in conversation.tickets.all()[:1]), None),
             },
             status=status.HTTP_200_OK,
         )
@@ -786,13 +790,17 @@ class SupportChatAPIView(APIView):
     def post(self, request):
         if self._rate_limited(request):
             return Response({'error': 'Support request limit reached. Try again later.'}, status=429)
-        message = str(request.data.get("message", "")).strip()
+        message = request.data.get("message", "")
+        if not isinstance(message, str):
+            return Response({'error': 'message must be text.'}, status=400)
+        message = message.strip()
         if not message or len(message) > 4000:
             return Response(
                 {"error": "message is required and must be 1–4000 characters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        message = redact_secrets(message)
         conversation_id = request.data.get("conversation_id")
         conversation = None
         if conversation_id:
@@ -808,6 +816,11 @@ class SupportChatAPIView(APIView):
             )
 
         request.session["support_conversation_id"] = str(conversation.pk)
+        if conversation.user_id is None and user:
+            conversation.user = user
+        if conversation.status == 'resolved':
+            conversation.status = 'open'
+        conversation.save(update_fields=['user', 'status', 'updated_at'])
         SupportMessage.objects.create(
             conversation=conversation,
             role="user",
@@ -815,6 +828,7 @@ class SupportChatAPIView(APIView):
             source="human",
         )
         result = generate_reply(conversation)
+        result['content'] = redact_secrets(result['content'])
         SupportMessage.objects.create(
             conversation=conversation,
             role="assistant",
@@ -830,17 +844,21 @@ class SupportChatAPIView(APIView):
             {
                 "conversation_id": str(conversation.pk),
                 "message": result["content"],
+                "user_message": message,
                 "source": result["source"],
                 "status": conversation.status,
                 "can_escalate": conversation.status != "resolved",
+                "should_escalate": result['should_escalate'],
             },
             status=status.HTTP_200_OK,
         )
 
 
+@method_decorator(csrf_protect, name='dispatch')
 class SupportTicketCreateAPIView(APIView):
     permission_classes = []
 
+    @transaction.atomic
     def post(self, request):
         bucket = int(timezone.now().timestamp() // 3600)
         if throttle(
@@ -854,8 +872,8 @@ class SupportTicketCreateAPIView(APIView):
             return Response({"error": "conversation_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            conversation = SupportConversation.objects.get(pk=conversation_id)
-        except (SupportConversation.DoesNotExist, ValueError):
+            conversation = SupportConversation.objects.select_for_update().get(pk=conversation_id)
+        except (SupportConversation.DoesNotExist, ValueError, TypeError, ValidationError):
             return Response({"error": "Conversation not found."}, status=status.HTTP_404_NOT_FOUND)
 
         user = request.user if request.user.is_authenticated else None
@@ -874,17 +892,24 @@ class SupportTicketCreateAPIView(APIView):
             name = name or user.get_full_name() or user.get_username()
             email = email or user.email
 
-        if not name or not email or "@" not in email:
+        validation = SupportRequestForm({
+            'name': name, 'email': email, 'subject': subject, 'category': category,
+            'message': redact_secrets(extra_message) or 'Escalated from the support assistant.',
+        })
+        if not validation.is_valid():
             return Response(
-                {"error": "name and a valid email are required."},
+                {"error": 'Check your name, email, subject and category.', 'fields': validation.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        existing = conversation.tickets.exclude(status='resolved').first()
+        if existing:
+            return Response({'ticket_id': existing.pk, 'status': existing.status, 'message': 'This conversation already has an open support ticket.'}, status=200)
         transcript = "\n\n".join(
-            f"{item.role.upper()}: {item.content}" for item in conversation.messages.order_by("created_at")[:20]
+            f"{item.role.upper()}: {item.content}" for item in reversed(list(conversation.messages.order_by('-created_at', '-id')[:20]))
         )
-        ticket_message = extra_message or "Escalated from the Linkify support assistant."
-        ticket_message = f"{ticket_message}\n\nConversation transcript:\n{transcript}"[:5000]
+        ticket_message = redact_secrets(extra_message) or "Escalated from the Linkify support assistant."
+        ticket_message = redact_secrets(f"{ticket_message}\n\nLatest conversation transcript:\n{transcript[-3500:]}")[:5000]
         ticket = SupportTicket.objects.create(
             conversation=conversation,
             user=user,
