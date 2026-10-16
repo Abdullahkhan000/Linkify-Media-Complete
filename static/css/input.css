@@ -150,7 +150,6 @@ body::before {
 
 @media (min-width: 900px) { .auth-grid { grid-template-columns: .95fr 1.05fr; } }
 @media (max-width: 899px) { .auth-visual { display: none; } .auth-panel { min-height: calc(100vh - 7rem); } }
-@media (max-width: 640px) { #support-root { display: none; } }
 
 @keyframes revealUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes floatCard { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-12px) rotate(1deg); } }

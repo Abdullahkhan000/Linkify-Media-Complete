@@ -1,0 +1,59 @@
+/* Keep support reachable independently of utility CSS and icon-font loading. */
+#support-root {
+  display: block;
+  position: fixed;
+  z-index: 250;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+}
+#support-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 116px;
+  min-height: 52px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(30, 20, 65, .24);
+}
+#support-toggle > * { position: relative; z-index: 1; }
+#support-panel {
+  position: absolute;
+  right: 0;
+  bottom: 66px;
+  width: min(370px, calc(100vw - 32px));
+  max-height: calc(var(--support-viewport-height, 100dvh) - 104px);
+  overflow: hidden;
+  border-radius: 24px;
+}
+#support-panel:not(.hidden) { display: flex; flex-direction: column; }
+#support-panel.hidden { display: none; }
+#support-panel > :first-child, #support-panel .support-composer { flex-shrink: 0; }
+#support-panel #support-messages { flex: 1 1 auto; min-height: 60px; overflow-y: auto; overscroll-behavior: contain; }
+#support-chat-input { width: 100%; min-height: 64px; max-height: 110px; resize: vertical; font-size: 16px; }
+#support-panel button, #support-panel .support-quick-actions a { min-height: 44px; touch-action: manipulation; }
+#support-close { min-width: 44px; }
+#support-panel .support-bot-message { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  #support-root { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  #support-root[data-open="true"] #support-toggle { display: none; }
+  #support-panel {
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right));
+    left: max(8px, env(safe-area-inset-left));
+    bottom: calc(var(--support-keyboard-offset, 0px) + max(8px, env(safe-area-inset-bottom)));
+    width: auto;
+    height: min(640px, calc(var(--support-viewport-height, 100dvh) - 24px));
+    max-height: calc(var(--support-viewport-height, 100dvh) - 24px);
+    border-radius: 20px;
+  }
+  #support-panel #support-messages { max-height: none; min-height: 0; }
+  #support-panel .support-composer { padding: 12px; }
+  #support-panel .support-composer form { margin-bottom: 8px; }
+  #support-root[data-keyboard-open="true"] .support-quick-actions { display: none; }
+}
+@media (max-height: 500px) {
+  #support-panel .support-quick-actions { display: none; }
+  #support-panel #support-messages { min-height: 0; }
+}

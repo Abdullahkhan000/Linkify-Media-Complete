@@ -132,10 +132,32 @@
     document.querySelectorAll('[data-support-question]').forEach(button => button.addEventListener('click', () => send(button.dataset.supportQuestion)));
     const panel = document.getElementById('support-panel');
     const toggle = document.getElementById('support-toggle');
+    const root = document.getElementById('support-root');
+    const mobile = window.matchMedia('(max-width: 640px)');
+    const syncViewport = () => {
+        const viewport = window.visualViewport;
+        const height = viewport?.height || window.innerHeight;
+        const offset = Math.max(0, window.innerHeight - height - (viewport?.offsetTop || 0));
+        root?.style.setProperty('--support-viewport-height', `${height}px`);
+        root?.style.setProperty('--support-keyboard-offset', `${offset}px`);
+        if (root) root.dataset.keyboardOpen = String(height < window.innerHeight * 0.8 || (height < 500 && document.activeElement?.id === 'support-chat-input'));
+    };
+    window.visualViewport?.addEventListener('resize', syncViewport);
+    window.visualViewport?.addEventListener('scroll', syncViewport);
+    window.addEventListener('resize', syncViewport);
+    syncViewport();
     const open = visible => {
+        if (root) root.dataset.open = String(visible);
         panel?.classList.toggle('hidden', !visible);
+        panel?.setAttribute('aria-hidden', String(!visible));
         toggle?.setAttribute('aria-expanded', String(visible));
-        if (visible && !busy) { restore(); document.getElementById('support-chat-input')?.focus(); }
+        if (visible && !busy) {
+            restore();
+            if (!mobile.matches) document.getElementById('support-chat-input')?.focus();
+            else document.getElementById('support-close')?.focus({preventScroll: true});
+        }
+        if (!visible) { document.getElementById('support-chat-input')?.blur(); toggle?.focus({preventScroll: true}); }
+        syncViewport();
     };
     toggle?.addEventListener('click', () => open(panel.classList.contains('hidden')));
     document.getElementById('support-close')?.addEventListener('click', () => open(false));

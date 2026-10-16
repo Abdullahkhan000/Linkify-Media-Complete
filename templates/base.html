@@ -3,7 +3,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
     <meta name="theme-color" content="#050806">
     <meta name="description" content="A secure media intelligence API for modern products.">
     <title>{% block title %}Linkify Media · Media intelligence infrastructure{% endblock %}</title>
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <link rel="stylesheet" href="{% static 'css/django-ui.css' %}">
     <link rel="stylesheet" href="{% static 'css/reference-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/support-chat.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {% block extra_head %}{% endblock %}
 </head>
@@ -102,21 +103,21 @@
         <div class="border-t border-white/[.05] px-4 py-5 text-center text-xs text-[#657068]">© {% now "Y" %} Linkify Media. Built for serious media products.</div>
     </footer>
 
-    <div id="support-root" class="fixed bottom-5 right-5 z-[60]">
-        <section id="support-panel" class="surface absolute bottom-16 right-0 hidden w-[min(23rem,calc(100vw-2rem))] overflow-hidden rounded-[1.5rem] shadow-2xl" aria-label="Support center">
+    <div id="support-root" class="support-widget" data-open="false">
+        <section id="support-panel" class="surface hidden shadow-2xl" role="dialog" aria-label="Support center" aria-hidden="true">
             <div class="flex items-center justify-between border-b border-white/[.07] px-4 py-4">
                 <div><p class="font-bold text-white">Support pulse</p><p class="mt-1 flex items-center gap-2 text-[10px] text-[#c8ff5a]"><span class="status-dot"></span> Ready to help</p></div>
-                <button id="support-close" type="button" class="grid h-9 w-9 place-items-center rounded-full text-[#8e9a91] hover:bg-white/5 hover:text-white" aria-label="Close support"><i class="fa-solid fa-xmark"></i></button>
+                <button id="support-close" type="button" class="grid h-9 w-9 place-items-center rounded-full text-[#8e9a91] hover:bg-white/5 hover:text-white" aria-label="Close support"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
             <div id="support-messages" class="flex max-h-60 flex-col gap-3 overflow-y-auto p-4" aria-live="polite"><div class="support-bot-message bot">Ask about API keys, authentication, quotas, billing, or integration errors.</div></div>
-            <div class="border-t border-white/[.07] p-4">
+            <div class="support-composer border-t border-white/[.07] p-4">
                 <form id="support-chat-form" class="mb-3 space-y-2">{% csrf_token %}
                     <label for="support-chat-input" class="sr-only">Your support question</label>
                     <textarea id="support-chat-input" name="message" rows="2" maxlength="4000" required class="saas-input" placeholder="Type your question..."></textarea>
                     <div class="flex items-center gap-2"><button type="submit" class="neon-button px-4 py-2 text-xs">Send</button><button id="support-new" type="button" class="ghost-button px-3 py-2 text-xs">New chat</button></div>
                     <p id="support-error" role="status" class="field-error"></p>
                 </form>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="support-quick-actions grid grid-cols-2 gap-2">
                     <button type="button" data-support-question="How do I create an API key?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Create API key</button>
                     <button type="button" data-support-question="How do I authenticate?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Authenticate</button>
                     <button type="button" data-support-question="How do quotas work?" class="support-bot-chip rounded-xl px-3 py-2 text-left text-[11px]">Usage limits</button>
@@ -124,7 +125,7 @@
                 </div>
             </div>
         </section>
-        <button id="support-toggle" class="neon-button h-14 w-14 p-0" type="button" aria-expanded="false" aria-controls="support-panel" aria-label="Open support center"><i class="fa-solid fa-bolt relative z-10"></i></button>
+        <button id="support-toggle" class="neon-button" type="button" aria-expanded="false" aria-controls="support-panel" aria-label="Open support center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/></svg><span>Support</span></button>
     </div>
 
     <script>
