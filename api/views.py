@@ -234,6 +234,8 @@ class SearchAPIView(APIView):
 
 class BatchAPIView(APIView):
     permission_classes = []
+    # APIKeyMiddleware authenticates this endpoint; cookie sessions are not its credentials.
+    authentication_classes = []
 
     def post(self, request):
         is_demo = getattr(request, 'is_demo', False)
@@ -315,7 +317,7 @@ class UsageAPIView(APIView):
         if not getattr(request, 'api_key', None):
             return Response({'error': 'API Key missing or invalid.'}, status=401)
 
-        today = date.today()
+        today = timezone.localdate()
         limit = DAILY_LIMITS.get(request.api_key.tier)
 
         today_count = UsageLog.objects.filter(api_key=request.api_key, date=today).count()

@@ -32,7 +32,7 @@ async def cached_tmdb_request(session, path, params=None, ttl=None):
     result = await fetch_json(session, f'{TMDB_BASE_URL}/{path}', request_params)
     if not isinstance(result, dict) or result.get('success') is False:
         raise ProviderUnavailable()
-    if path.startswith(('search/', 'trending/')):
+    if path.startswith(('search/', 'trending/')) or path.endswith('/recommendations'):
         if not isinstance(result.get('results'), list) or any(not isinstance(item, dict) or not item.get('id') for item in result['results']):
             raise ProviderUnavailable()
     if re.fullmatch(r'(movie|tv)/\d+', path) and (not result.get('id') or not (result.get('title') or result.get('name'))):

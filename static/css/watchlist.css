@@ -15,6 +15,8 @@
 .watchlist-card-body{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1}
 .watchlist-card h3{font-size:17px;font-weight:800;overflow-wrap:anywhere}
 .watchlist-card small{color:#657091}
+.watchlist-collection-form{display:flex;align-items:end;gap:16px;flex-wrap:wrap;margin:20px 0}.watchlist-collection-form>div{flex:1;min-width:min(220px,100%)}.watchlist-collection-form button{padding:10px 16px}.watchlist-recommendations{margin-top:48px}.watchlist-recommendations>p,.watchlist-reason{color:#657091;line-height:1.6;font-size:13px}.watchlist-reason{overflow-wrap:anywhere}
+.watchlist-edit{display:grid;gap:12px;margin:8px 0}.watchlist-edit label{min-width:0}.watchlist-edit textarea{width:100%;font-size:16px;resize:vertical}.watchlist-edit .saas-input{margin-top:6px}.watchlist-edit button{min-height:44px}#watchlist-status-filter{max-width:300px;margin-top:8px}
 .watchlist-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
 .watchlist-actions button{padding:8px 12px;font-size:12px;width:100%}
 .watchlist-toolbar [role=group]{display:flex;gap:8px}

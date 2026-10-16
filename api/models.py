@@ -29,6 +29,7 @@ class Profile(models.Model):
         return f"{self.user.username} — {self.tier} Profile"
 
 class WatchlistItem(models.Model):
+    STATUS_CHOICES = [('plan_to_watch', 'Plan to watch'), ('watching', 'Watching'), ('watched', 'Watched')]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchlist')
     tmdb_id = models.PositiveIntegerField()
     media_type = models.CharField(max_length=5, choices=[('movie', 'Movie'), ('tv', 'TV show')])
@@ -37,6 +38,9 @@ class WatchlistItem(models.Model):
     release_year = models.CharField(max_length=4, blank=True, default='')
     overview = models.TextField(blank=True, default='')
     favorite = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='plan_to_watch')
+    rating = models.PositiveSmallIntegerField(null=True, blank=True)
+    notes = models.CharField(max_length=1000, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

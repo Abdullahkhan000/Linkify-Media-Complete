@@ -120,6 +120,12 @@ class APIKeyMiddleware:
             latency_ms=elapsed_ms,
         )
         APIKey.objects.filter(pk=key_obj.pk).update(last_used_at=timezone.now())
+        limit = DAILY_LIMITS.get(key_obj.tier, DAILY_LIMITS['free'])
+        used = UsageLog.objects.filter(api_key=key_obj, date=timezone.localdate()).count()
+        response['X-Quota-Limit'] = str(limit) if limit is not None else 'unlimited'
+        response['X-Quota-Remaining'] = str(max(0, limit - used)) if limit is not None else 'unlimited'
+        response['X-Quota-Cost'] = '1'
+        response['Cache-Control'] = 'private, no-store'
         return response
 
     @staticmethod
@@ -179,4 +185,8 @@ class APIKeyMiddleware:
                 endpoint=normalized_path,
                 method=request.method[:10],
             )
+            # DateField.auto_now_add uses the OS date, which may differ from Django's timezone.
+            if log.date != today:
+                log.date = today
+                log.save(update_fields=['date'])
         return log, None

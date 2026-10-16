@@ -1,5 +1,6 @@
 from django.urls import path
-from .watchlist import WatchlistPage, WatchlistAPI, WatchlistItemAPI, WatchlistSearchAPI, WatchlistProvidersAPI
+from .playground import PlaygroundPage
+from .watchlist import WatchlistPage, WatchlistAPI, WatchlistItemAPI, WatchlistSearchAPI, WatchlistProvidersAPI, WatchlistRecommendationsAPI
 from .views import (
     APIKeyListCreateView,
     APIKeyDetailView,
@@ -41,9 +42,11 @@ from .views import (
 )
 
 urlpatterns = [
+    path('playground/', PlaygroundPage.as_view(), name='playground'),
     path('watchlist/', WatchlistPage.as_view(), name='watchlist'),
     path('api/v1/watchlist/', WatchlistAPI.as_view(), name='watchlist-api'),
     path('api/v1/watchlist/search/', WatchlistSearchAPI.as_view(), name='watchlist-search'),
+    path('api/v1/watchlist/recommendations/', WatchlistRecommendationsAPI.as_view(), name='watchlist-recommendations'),
     path('api/v1/watchlist/<int:pk>/', WatchlistItemAPI.as_view(), name='watchlist-item'),
     path('api/v1/watchlist/providers/<str:media_type>/<int:tmdb_id>/', WatchlistProvidersAPI.as_view(), name='watchlist-providers'),
     # Website Pages (HTML)

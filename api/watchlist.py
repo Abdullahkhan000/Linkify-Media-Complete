@@ -1,6 +1,9 @@
+import asyncio
+
 from asgiref.sync import async_to_sync
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from rest_framework import serializers
@@ -25,7 +28,7 @@ class MediaInput(serializers.Serializer):
 
 def serialize_item(item):
     return {name: getattr(item, name) for name in (
-        'id', 'tmdb_id', 'media_type', 'title', 'poster_url', 'release_year', 'overview', 'favorite',
+        'id', 'tmdb_id', 'media_type', 'title', 'poster_url', 'release_year', 'overview', 'favorite', 'status', 'rating', 'notes',
     )}
 
 
@@ -52,10 +55,29 @@ class WatchlistAPI(PrivateMediaAPI):
         total, favorites = items.count(), items.filter(favorite=True).count()
         if request.query_params.get('favorite') == 'true':
             items = items.filter(favorite=True)
+        status = request.query_params.get('status')
+        if status:
+            if status not in dict(WatchlistItem.STATUS_CHOICES):
+                return Response({'error': 'Choose a valid watch status.'}, status=400)
+            items = items.filter(status=status)
+        query = request.query_params.get('q', '').strip()
+        if len(query) > 200:
+            return Response({'error': 'Search titles using at most 200 characters.'}, status=400)
+        if query:
+            items = items.filter(title__icontains=query)
+        ordering = {
+            'newest': ['-created_at', '-id'], 'oldest': ['created_at', 'id'],
+            'title': ['title', 'id'], 'rating': [F('rating').desc(nulls_last=True), '-id'],
+        }
+        sort = request.query_params.get('sort', 'newest')
+        if sort not in ordering:
+            return Response({'error': 'Choose a valid collection sort order.'}, status=400)
+        items = items.order_by(*ordering[sort])
         paginator = Paginator(items, 24)
         page = paginator.get_page(request.query_params.get('page', 1))
         return Response({'results': [serialize_item(item) for item in page],
-            'total': total, 'favorites': favorites, 'page': page.number, 'pages': paginator.num_pages})
+            'total': total, 'favorites': favorites, 'matched': paginator.count,
+            'page': page.number, 'pages': paginator.num_pages})
 
     def post(self, request):
         form = MediaInput(data=request.data)
@@ -82,14 +104,23 @@ class WatchlistAPI(PrivateMediaAPI):
         return Response(serialize_item(item), status=201 if created else 200)
 
 
+class WatchlistUpdate(serializers.Serializer):
+    favorite = serializers.BooleanField(required=False)
+    status = serializers.ChoiceField(choices=WatchlistItem.STATUS_CHOICES, required=False)
+    rating = serializers.IntegerField(min_value=1, max_value=10, allow_null=True, required=False)
+    notes = serializers.CharField(max_length=1000, allow_blank=True, required=False)
+
+
 class WatchlistItemAPI(PrivateMediaAPI):
     def patch(self, request, pk):
         item = get_object_or_404(WatchlistItem, pk=pk, user=request.user)
-        form = serializers.BooleanField()
-        if 'favorite' not in request.data:
-            return Response({'error': 'favorite is required.'}, status=400)
-        item.favorite = form.run_validation(request.data['favorite'])
-        item.save(update_fields=['favorite'])
+        form = WatchlistUpdate(data=request.data)
+        form.is_valid(raise_exception=True)
+        if not form.validated_data:
+            return Response({'error': 'Provide a status, rating, notes, or favorite.'}, status=400)
+        for field, value in form.validated_data.items():
+            setattr(item, field, value)
+        item.save(update_fields=list(form.validated_data))
         return Response(serialize_item(item))
 
     def delete(self, request, pk):
@@ -121,6 +152,54 @@ class WatchlistSearchAPI(PrivateMediaAPI):
             results.append({**item, 'tmdb_id': detail['id'], 'media_type': media_type,
                 'saved_id': stored.pk if stored else None, 'favorite': stored.favorite if stored else False})
         return Response({'results': results, **({'_cache': data['_cache']} if '_cache' in data else {})})
+
+
+async def fetch_recommendations(seeds):
+    return await asyncio.gather(*(
+        fetch_tmdb_endpoint(f'{seed.media_type}/{seed.tmdb_id}/recommendations') for seed in seeds
+    ))
+
+
+class WatchlistRecommendationsAPI(PrivateMediaAPI):
+    def get(self, request):
+        seeds = list(WatchlistItem.objects.filter(user=request.user).filter(
+            Q(favorite=True) | Q(rating__gte=8),
+        ).only('tmdb_id', 'media_type', 'title').order_by(
+            '-favorite', F('rating').desc(nulls_last=True), '-id',
+        )[:3])
+        if not seeds:
+            return Response({'results': [], 'message': 'Favorite a title or rate one 8/10 or higher to get recommendations.'})
+        if self.throttled(request):
+            return Response({'error': 'Too many media requests. Please retry shortly.'}, status=429)
+        responses = async_to_sync(fetch_recommendations)(seeds)
+        available = [(seed, data) for seed, data in zip(seeds, responses) if 'Error' not in data]
+        if not available:
+            return Response({'error': 'Recommendations are temporarily unavailable. Please retry shortly.'}, status=503)
+        candidates, seen = [], set()
+        # Interleave the bounded provider pages so one favorite cannot crowd out the rest.
+        for index in range(20):
+            for seed, data in available:
+                details = data.get('results', [])
+                if index >= len(details):
+                    continue
+                detail = details[index]
+                media_id = detail.get('id')
+                identity = (seed.media_type, media_id)
+                if not isinstance(media_id, int) or media_id < 1 or detail.get('adult') or identity in seen:
+                    continue
+                seen.add(identity)
+                summary = summarize_result(detail)
+                if summary['title']:
+                    candidates.append({**summary, 'tmdb_id': media_id, 'media_type': seed.media_type,
+                        'saved_id': None, 'favorite': False, 'because': seed.title})
+        saved = set(WatchlistItem.objects.filter(user=request.user,
+            tmdb_id__in=[item['tmdb_id'] for item in candidates],
+        ).values_list('media_type', 'tmdb_id'))
+        results = [item for item in candidates if (item['media_type'], item['tmdb_id']) not in saved][:12]
+        return Response({'results': results,
+            'partial': len(available) != len(seeds),
+            'stale': any('_cache' in data for _, data in available),
+            'message': '' if results else 'No new suggestions yet. Try favoriting another title.'})
 
 
 class WatchlistProvidersAPI(PrivateMediaAPI):

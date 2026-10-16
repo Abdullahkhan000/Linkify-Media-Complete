@@ -15,10 +15,13 @@
     <div id="watchlist-results" class="watchlist-grid" aria-label="Search results"></div>
   </section>
   <section class="watchlist-saved"><div class="watchlist-toolbar"><h2>Your collection</h2><div role="group" aria-label="Filter your collection"><button id="watchlist-all" class="ghost-button" type="button" aria-pressed="true">All saved</button><button id="watchlist-favorites" class="ghost-button" type="button" aria-pressed="false">Favorites</button></div></div>
+    <form id="watchlist-collection-form" class="watchlist-collection-form"><div><label for="watchlist-collection-query">Search saved titles</label><input id="watchlist-collection-query" class="saas-input" maxlength="200" placeholder="Find a title in your collection"></div><div><label for="watchlist-sort">Sort by</label><select id="watchlist-sort" class="saas-input"><option value="newest">Recently saved</option><option value="oldest">Oldest saved</option><option value="title">Title A–Z</option><option value="rating">Highest personal rating</option></select></div><button type="submit" class="ghost-button">Apply</button></form>
+    <label for="watchlist-status-filter">Watch status</label><select id="watchlist-status-filter" class="saas-input"><option value="">All statuses</option><option value="plan_to_watch">Plan to watch</option><option value="watching">Watching</option><option value="watched">Watched</option></select>
     <p id="watchlist-status" role="status">Loading your collection...</p>
     <div id="watchlist-items" class="watchlist-grid" aria-label="Saved movies and shows"></div>
     <div class="watchlist-pagination"><button id="watchlist-previous" class="ghost-button" type="button" disabled>Previous</button><span id="watchlist-page-number"></span><button id="watchlist-next" class="ghost-button" type="button" disabled>Next</button></div>
   </section>
+  <section class="watchlist-recommendations"><div class="watchlist-toolbar"><h2>Picked for you</h2><button id="watchlist-refresh-recommendations" class="ghost-button" type="button">Refresh recommendations</button></div><p>Discover movies and shows based on up to three of your favorites or titles you rated 8/10 or higher.</p><p id="watchlist-recommendations-status" role="status"></p><div id="watchlist-recommendations" class="watchlist-grid" aria-label="Personal recommendations"></div></section>
   <p class="watchlist-credit">Movie information and posters provided by TMDB. Streaming availability provided by JustWatch.</p>
   <noscript><p>Enable JavaScript to search and manage your watchlist.</p></noscript>
 </section>

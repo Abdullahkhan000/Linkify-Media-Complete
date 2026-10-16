@@ -43,3 +43,18 @@ personal API-key authentication is not used for this private account feature.
 Automated tests cover account isolation, CSRF, canonical metadata, idempotency,
 Favorites, pagination, deletion and provider failures. The browser verification
 script uses an isolated local database and real TMDB search/availability.
+# Watch progress
+
+## Recommendations and collection tools
+
+**Picked for you** uses TMDB recommendations from up to three favorites or titles rated 8/10 or higher. Suggestions include the source title, omit existing saved entries, and are deduplicated by media type and TMDB ID. Use **Refresh recommendations** after changing favorites or ratings. Suggestions support saving, favorites, removal, and country-specific viewing options.
+
+`GET /api/v1/watchlist/recommendations/` requires a signed-in session and has the existing media-request throttle. Provider responses use the existing cache; partial/stale results are labelled. No new API key, environment variable, or migration is needed for these additions.
+
+The collection supports `q` (title, up to 200 characters) and `sort` (`newest`, `oldest`, `title`, `rating`). Search, status, and Favorites combine before pagination; `matched` reports the filtered count. Personal ratings sort highest first with unrated entries last. The UI provides an Apply button and sorting selector.
+
+Provider references: [movie recommendations](https://developer.themoviedb.org/reference/movie-recommendations), [TV recommendations](https://developer.themoviedb.org/reference/tv-series-recommendations).
+
+Saved titles default to **Plan to watch**. Users can change this to **Watching** or **Watched**, save an optional personal rating from 1–10, and keep up to 1,000 characters of private notes. The collection status filter combines with Favorites. Use **Save progress** to persist edits. Clear the rating with **Not rated**.
+
+Migration `0013_watchlist_progress` adds these fields. The existing session authentication, CSRF protection, and per-user ownership checks also protect progress and notes.
